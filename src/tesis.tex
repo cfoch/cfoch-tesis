@@ -4,6 +4,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{apacite}
+\usepackage[autostyle]{csquotes}
+\usepackage{framed}
+\usepackage{titlesec}
+\usepackage{floatrow}
+\usepackage[list=true]{subcaption}
+
+
 
 % Support older LaTeX versions.
 \DeclareUnicodeCharacter{2060}{}
@@ -20,7 +27,7 @@
 	\vspace{1.5cm}
 
 	{\sffamily\large\bfseries Implementación de un plug-in para GStreamer para
-	el seguimiento de rostros aplicado a Cheeese\par}
+	el seguimiento de rostros aplicado a Cheese\par}
 	\vspace{2cm}
 
 	{\sffamily\small Tesis para optar por el título de Ingeniero Informático que presente el
@@ -236,9 +243,396 @@ entornos de escritorio para sistemas basados en UNIX (incluyendo macOS).
 \subsection{Viabilidad temporal}
 \subsection{Viabilidad económica}
 \chapter{Marco Conceptual}
+\section{Software libre}
+El software libre es el software que respeta la libertad de sus usuarios y
+comunidad. Según la Free Software Foundation, para que un programa
+informático sea calificado de software libre, su licencia debe otorgar las
+siguientes cuatro libertades:
+\begin{framed}
+\begin{quote}
+\begin{itemize}
+\item La libertad de ejecutar el programa como se desea, con cualquier propósito
+(libertad 0).
+\item La libertad de estudiar cómo funciona el programa, y cambiarlo para que
+haga lo que usted quiera (libertad 1). El acceso al código fuente es una condición
+necesaria para ello.
+\item La libertad de redistribuir copias para ayudar a su prójimo (libertad 2).
+\item La libertad de distribuir copias de sus versiones modificadas a terceros
+(libertad 3). Esto le permite ofrecer a toda la comunidad la oportunidad de
+beneficiarse de las modificaciones. El acceso al código fuente es una condición
+necesaria para ello.
+\end{itemize}
+\raggedleft\cite{cuatroLibertades}
+\end{quote}
+\end{framed}
+Si estas cuatro libertades no se cumplieran, el software se consideraría no
+libre. Como se puede observar además, el término “precio” no se ha mencionado.
+Por lo que el software libre no es un tema de precios, sino como se mencionó
+inicialmente, de libertad, lo cual está relacionado directamente con un tema
+ético \cite{cuatroLibertades}. Sin embargo, se aclara esto ya que muchos suelen
+confundirlo con “freeware”.
+\section{Software no libre o software privativo}
+El software no libre también llamado software privativo es todo software que no
+cumple alguna de las cuatro libertades del software libre, y por tanto no es
+software libre \cite{gnuCategories}.
+\section{GNOME}
+Es un entorno de escritorio para distribuciones de GNU/Linux y BSD. Está
+desarrollado por The GNOME Project, parte del proyecto GNU. GNOME es software
+libre y está formado por una amplia variedad de proyectos más pequeños los
+cuales están licenciados en su mayoría bajo las licencias GPL y LGPL. GNOME
+está financiado por algunas empresas grandes como Google Inc. y Red Hat Inc
+\cite{GNOMEFoundation}. Entre estos proyectos se encuentran librerías
+importantes como un conjunto de librerías para la creación de programas para
+el usuario final y programas para el usuario final como editores de texto como
+un navegador de archivos, un emulador de terminal, navegadores web, clientes
+IRC, programas gráficos para el control de versiones en Git, reproductores de
+audio y video, visores de imágenes entre una lista de más de cien proyectos
+\cite{GNOMEProjects}. GNOME es uno de lo escritorios libres más populares y
+está traducido en más de 40 idiomas \cite{GNOMETranslationTeams}.
+
+\section{GStreamer}
+Es un proyecto de GNOME. GStreamer es una librería de código abiert y
+multiplataforma escrita en C con bindings en varios otros lenguages de
+programación. Está asada en GObject. GStreamer implementa un modelo de
+“pipelines” que enlaza una serie de elementos, por ejemplo, demultiplexores,
+decodificadores, multiplexores, filtros y codificadores \cite{GStreamerFeatures}.
+Ello permite que cada elemento cumpla una tarea específica. GStreamer permite
+la creación de aplicaciones multimedia y streaming. Para ejemplificar,
+considerar el caso de la reproducción reproducción de un archivo con formato
+ogg, se puede pasar el elemento a un elemento llamado gstfilesrc, donde este lee
+el archivo por buffers y pasa un buffer a un demuxer que separa el audio del
+video. Los buffers de audio van a un decodificador de Vorbis (códec de audio),
+mientras que los buffers de video son pasados a un decodificador de Theora
+(códec de vídeo).
+Cada buffer de audio es pasado a un elemento que se encargará de pasar los datos
+recibidos, por ejemplo, a PulseAudio. Cada buffer de video, por su parte, podría
+ser enviado a Wayland. PulseAudio se encargaría de trasladar esos datos al
+driver de audio para emitir la salida por el parlante y Wayland se encargaría
+de mostrar el video en pantalla.
+\subsection{Elemento (GstElement)}
+Un elemento (GstElement) Es una abstracción sobre la cual se basan la mayoría de
+objetos de GStreamer para construir un pipeline, el cual es una cadena de
+objetos GstElement enlazados. Un GstElement puede tener una entrada y una o más
+salidas. En un demultiplexor gstoggdemux por ejemplo, la entrada serían buffers
+del archivo en formato ogg, y las salidas serían por un lado, el audio, y por
+el otro lado el vídeo.\\
+Existe tres tipos de elementos muy usados:\\
+\subsubsection{Sources}
+Son productores de datos, puede ser por ejemplo \textit{gstvideotestsrc} que
+produce datos para videos de prueba; otro ejemplo, podría ser
+\textit{gstfilesrc} que carga datos de un archivo. Los source elements solo
+tienen un source pad.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics{../images/pwg-src-element.png}\par
+  \caption{Representación de un \textit{source}}
+  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+\end{figure}
+
+\subsubsection{Sinks}
+Representan consumidores de datos. Por ejemplo, \textit{glimagesink} recibe
+frames en un buffers y los renderiza usando OpenGL mostrando el resultado en una
+ventana. \textit{waylandsink}, \textit{xvimagesink}, \textit{cluttersink}
+cumplen roles similares pero usan internamente Wayland, X y Clutter
+respectivamente. Un "sink element" solo tiene un sink pad.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics{../images/pwg-sink-element.png}\par
+  \caption{Representación de un \textit{sink}}
+  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+\end{figure}
+
+\subsubsection{Filtros}
+Un filtro recibe ciertos datos, los procesa, y envía los datos modificados por
+una o más salidas. Un ejemplo de filtro es agingtv que agrega un efecto de
+televisión antigua. Otro ejemplo es \textit{glfiltercube} que usa OpenGL para
+crear un cubo cuyas caras están texturizadas con los frames que este filtro
+recibe. Un filtro tiene un source pad y un sink pad.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics{../images/pwg-filter-element.png}\par
+  \caption{Representación de un filtro}
+  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+\end{figure}
+
+\subsubsection{Bin}
+Un \textit{bin} es un tipo de elemento que contiene más elementos. La cantidad
+de \textit{source pads} que posee y la cantidad de sink pads (ambos llamados
+\textit{ghost pads} cuando se trata de un \textit{bin}) que posee puede ser
+variable, y por lo general, depende de los elementos que están en sus extremos.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=\textwidth]{../images/ad-bin.png}\par
+  \caption{Representación de un \textit{bin}}
+  \floatfoot{Fuente: \cite{taymans2016gstreamer}}
+\end{figure}
+
+
+\subsubsection{Pipeline}
+Es, por lo general, el bin de máximo nivel en una aplicación. Un
+\textit{pipeline} controla el reloj (\textit{GstClock}) global del cual dispone
+GStreamer, además dispone de un bus el cual controla, por lo que la aplicación
+no tiene la necesidad de crear un bus. Un pipeline puede recibir consultas de
+la aplicación como por ejemplo para hacer seeking o para obtener duración del
+video reproducido con el pipeline.
+
+\begin{figure}[h]
+  \centering
+    \includegraphics[width=\textwidth]{../images/ad-pipeline.png}\par
+  \caption{Representación de un \textit{pipeline}}
+  \floatfoot{Fuente: \cite{taymans2016gstreamer}}
+\end{figure}
+
+\subsection{Bus (GstBus)}
+GStreamer es una librería multihilo. Cada GStreamer el bus es el encargado de
+recibir mensajes del pipeline y enviarlos a la aplicación. La aplicación puede
+capturar estos mensajes usando un \textit{callback} (similar a un
+\textit{signal handler}). Por ejemplo, \textit{facedetect} usa \textit{OpenCV}
+para detectar los rostros, y el tamaño y coordenadas de los rostros detectados
+son enviadas al bus. De esta manera, una aplicación u otro elemento como
+\textit{gstfaceoverlay} puede leer los mensajes en el bus y decidir qué hacer
+con la información recibida, en este caso sobreponer imágenes.
+\subsection{Plugin (GstPlugin)}
+GStreamer es extendible a través de plugins. Un plugin puede contener uno o un
+conjunto de elementos. Un plugin no es un elemento. En GStreamer, entre los
+sets de plugins más populares se encuentran:
+\begin{itemize}
+\item \textbf{gst-plugins-base} es un set de plugins con los elementos esenciales para
+la creación de elementos más complejos.
+\item \textbf{gst-plugins-good} es un set de plugins soportado activamente por
+la comunidad de GStreamer. Está licenciado bajo LGPL.
+\item \textbf{gst-plugins-ugly} también licenciado bajo la licencia LGPL
+(versión 2.1), es un set de plugins que puede carecer de revisiones, un
+mantenedor activo, documentación, pruebas unitarias o cuyos desarrolladores
+pueden tener dudas respecto a ciertas patentes.
+\item \textbf{gst-plugins-bad} es un set de plugins que puede tener problemas
+de distribución.
+\end{itemize}
+\section{Clutter}
+Es una librería que usa OpenGL para crear interfaces gráficas ocultando la
+complejidad de este mismo. Coloca a la disposición del desarrollador
+herramientas para agregar texto, animaciones, imágenes los cuales, por ejemplo,
+pueden ser arbitrariamente colocados o rotados \cite{clutterOverview}. Clutter
+se integra tanto con Gtk como con Gstreamer.
+\section{Vala}
+Es un lenguaje de programación orientado a objetos desarrollado para adaptarse
+mejor a las librerías de GNOME. El compilador de Vala es valac, el cual compila
+código en Vala, generando archivos del lenguaje C, los cuales son compilados con
+\textit{gcc}. La orientación a objetos está dada debido a que internamente usa
+GObject, librería de GNOME que simula la programación orientada a objetos en C.
+El hecho de que compilar programas escritos en Vala genere código fuente en C,
+la necesidad de escribir bindings. Sintácticamente, es idéntico a C\#
+\cite{valaOverview}.
+\section{GNOME Video Effects}
+Es una colección de filtros de GStreamer \cite{GNOMEVideoEffects} guardados en
+archivos de texto con un título, una pequeña descripción y la descripción del
+\textit{pipeline}.
+\section{Cheese}
+Es un proyecto de GNOME nacido en el 2007 como parte de un proyecto de Google
+Summer of Code. Escrito inicialmente por el entonces estudiante Daniel G. Siegel
+y mantenido actualmente por David King. Cheese es un programa para capturar
+fotos y videos con la cámara web con la opción de aplicar filtros. Está
+licenciado bajo la licencia GPLv2, y escrito principalmente en el lenguaje de
+programación Vala, aunque con partes escritas en C \cite{cheeseReferenceManual}
+\cite{cheeseApp}.\\
+
+\begin{figure}
+\begin{subfigure}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{../images/cheese-viewport.png}
+  \caption{Ventana principal de Cheese}
+\end{subfigure}
+\hfill\vrule\hfill
+\begin{subfigure}{0.4\textwidth}
+  \includegraphics[width=\textwidth]{../images/cheese-effects-grid.png}
+  \caption{Ventana de efectos de Cheese}
+\end{subfigure}
+\caption[Hello]{Cheese}
+\floatfoot{Fuente: autoría propia}
+\end{figure}
+
+Cheese lee los filtros o efectos de GNOME Video Effects y los usa para
+mostrarlos en su interfaz gráfica. Tanto la captura de videos (o fotos) como la
+aplicación de filtros en Cheese está dada internamente por GStreamer, un
+framework que permite el desarrollo de aplicaciones multimedia. Cheese crea
+internamente una pipeline bastante compleja, de la cual se muestra una
+simplificación en el diagrama de la \textit{figura 2.6}. El diagrama ignora
+elementos como \textit{capsfilters}, \textit{bins} y algunos otros filtros y
+elementos.
+
+\begin{figure}
+  \centering
+    \includegraphics[angle=90,width=0.8\textwidth]{../images/cheese-pipeline.png}\par
+  \caption{Simplificación del \textit{pipeline} de Cheese. Imagen inspirada a
+  				 partir de la generación de un diagrama en Graphviz con GStreamer en
+  				 modo DEBUG}
+  \floatfoot{Fuente: Autoría propia}
+\end{figure}
+
+\section{OpenCV}
+Es una librería para visión artificial en tiempo real. Es software de código
+abierto siendo licenciada bajo la licencia BSD. Fue inicialmente desarrollado
+por Intel Inc . Está escrita en C y C++ con bindings para
+otros lenguajes de programación como Python y Java. Entre los distintos
+algoritmos que implementa OpenCV se encuentra la detección de objetos usando
+el algoritmo propuesto por Paul Viola y Michael Jones en “Rapid Object Detection
+using a Boosted Cascade of Simple Features” y el algoritmo para la estimación de
+ variables llamado filtro de Kalman. \cite{openCVAbout}.
+\section{dlib}
+Es una librería que implementa una amplia cantidad de algoritmos en aprendizaje
+de máquina. Es software de código abierto licenciado bajo la
+licencia Boost License y escrita en C++ \cite{dlib}\cite{dlibLicense}. Entre
+los distintos algoritmos que implementa se encuentra el propuesto por Navneet
+Dalal y Bill Triggs en “Histograms of Oriented Gradients for Human Detection”
+\cite{dlibHOG} y la detección del “landmark” del rostro con el algoritmo
+propuesto por Vahid Kazemi y Josephine Sullivan en “One Millisecond
+Face Alignment with an Ensemble of Regression Trees” \cite{dlib1ms}.
+
 \chapter{Estado del Arte}
-\section{Revisión y conclusión}
+\section{Revisión y discusión}
+
+En esta sección, se analiza qué librerías se debería escoger no solo por su
+algoritmo sino también por la  El método a seguir en este análisis es el de la
+revisión sistemática. En este método se plantea preguntas que son de la duda del
+autor para posteriormente analizarlas a detalle.\\
+
+\subsubsection{Palabras clave}
+A continuación, se muestra una lista de algunas palabras clave que fueron
+introducidos en el buscador Google con el fin de resolver dudas.
+
+En relación a librerías a usar:
+
+\begin{itemize}
+	\item face tracking open source free software library
+	\item dlib users
+	\item opencv users
+	\item face tracking dlib
+	\item face tracking open cv
+	\item 4dface
+	\item 3d face tracking
+	\item Landmark
+\end{itemize}
+
+En relación a las licencias:
+\begin{itemize}
+	\item GPLv2 compatibility Boost license
+	\item GPLv2 compatibility MIT license
+	\item GPLv2 compatibility BSD license
+	\item GPLv2 compatibility Apache license
+\end{itemize}
+
+\subsubsection{Preguntas a resolver}
+
+\textbf{P1}: ¿Qué librería se debería usar siendo esta la que tenga mayor soporte
+por la comunidad de software libre de tal manera que se pueda esperar que
+Cheese dure en el largo plazo sin revertir los cambios debido a problemas en
+las dependencias?\\
+\textbf{P2}: ¿Qué librería que sea compatible con GPLv2 usar?\\
+\textbf{P3}: ¿Qué librería se debe usar?
+
+\subsection{Librerías a considerar según su soporte para realizar seguimiento
+						de rostros}
+Según la búsqueda realizada dio como posibles opciones a usar \textit{4dface},
+\textit{OpenCV}, \textit{dlib} y \textit{FaceX}. Estas librerías están escritas
+tanto en C++ como en C, lo cual significa que pueden ser empleadas sobre
+GStreamer cuya implementación de plugins está soportada especialmente en C y C++
+por la comunidad.
+\textit{4dface} es una librería escrita en C++ que soporta directamente el
+seguimiento debe rostros en tiempo real y la reconstrucción de la forma de un
+rostro a partir de imágenes en tiempo real (un aproximado de 5fps); esta librería
+está desarrollada para integrarse con OpenCV \cite{4dface}. \textit{OpenCV}, a
+diferencia de \textit{4dface} no soporta directamente el seguimiento de rostros
+en tiempo real ni tampoco la detección del landmark. No obstante, está soportada
+la detección de rostros, y aunque no es suficiente por sí misma, debido a lo
+expuesto en el capítulo de la Problemática, se puede combinar con el uso del
+algoritmo del filtro de Kalman o con Camshift, los cuales están implementados.
+En una situación parecida se encuentra \textit{dlib} que tampoco está
+especializado en el rastreo de rostros, pero soporta la detección de
+\textit{landmarks}. Finalmente, \textit{FaceX} está especializado en la
+detección de landmarks \cite{FaceX}.
+
+\subsection{Librerías de detección y/o segumiento de rostros según su
+            popularidad}
+Es importante buscar una librería ampliamente soportada por la comunidad de
+software libre que pueda ser útil para implementar el algoritmo de seguimiento
+de rostros y landmark a partir de videos (como capturas de la cámara web) en
+tiempo real.
+
+Para ello solo serán consideradas librerías que aparecieron en las primeras
+páginas de las búsquedas, pues esto da un indicio de que son las más populares.
+Además se descartarán todas aquellas librerías cuya última actualización haya
+sido mayor a 2 años; por ejemplo, en caso de usar Git para el control de
+versiones, cuyo último commit sea mayor a 2 años. Además, en caso de usar Git,
+solo se considerarán librerías con más "forks", más "watch" y más "stars"
+(métricas de Github). En la búsqueda realizada se encontró que las siguientes
+librerías podrían ser útiles para resolver el problema.
+
+\begin{center}
+	\begin{table}[h]
+  \begin{tabular}{| l | l | l | l | l |}
+  \hline
+  Programa & último commit & forks & stars & watch \\ \hline
+  OpenCV & 09-09-2017 & 13494 & 18075 & 1693 \\ \hline
+  4dface & 02-12-2016 & 133 & 268 & 44 \\ \hline
+  dlib & 10-09-2017 & 936 & 2701 & 262 \\ \hline
+  FaceX & 15-11-2015 & 86 & 95 & 18 \\ \hline
+  \end{tabular}
+  \caption{Tabla construida en base a las métricas de los proyectos en Github.}
+	\end{table}
+  \floatfoot{Fuente: Repositorios de los proyectos en \textit{git}
+  				   \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
+  				   \cite{4dfaceLicense}}
+\end{center}
+
+Se puede observar que las más populares son OpenCV y dlib. OpenCV según su
+página web cuenta con más 47 mil usuarios y un número de descargas que exceden
+los 14 millones \cite{OpenCV}. Mientras dlib en su página web también asegura
+tener varios usados además de estar citado en distintas investigaciones
+académicas \cite{dlibUsers}.
+
+\subsection{Librerías de detección y/o segumiento de rostros según su
+            compatibilidad con GPLv2}
+Saber que licencia es compatible con GPLv2 es importante porque si no fuera así,
+sería complicado que el cambio sea aceptado en Cheese o que sea aplicado a un
+fork de este. De hecho, si no se realiza esta tarea desde el principio, y se
+optara por error por una dependencia con licencia incompatible, el trabajo
+realizado podría resultar vano. GPLv2 es una licencia de software libre, pero
+tiene ciertas limitaciones respecto a GPLv3.
+
+\begin{center}
+	\begin{table}[h]
+  \begin{tabular}{| l | l | l |}
+  \hline
+  Programa & Licencia & ¿Compatible con GPLv2? \\ \hline
+  OpenCV & BSD License & Sí \\ \hline
+  4dface & Apache License 2.0 & No \\ \hline
+  dlib & Boost Software License 1.0 & Sí \\ \hline
+  FaceX & MIT License & Sí \\ \hline
+  FaceX-train & GPLv3 & Sí \\ \hline
+  \end{tabular}
+  \caption{Tabla de comparación de programas según su compatibilidad con GPLv2.}
+	\end{table}
+  \floatfoot{Fuente: Repositorios de los proyectos en \textit{git}
+  				   \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
+  				   \cite{4dfaceLicense} y para la compatibilidad con GPLv2 la web de
+  				   la FSF \cite{GPLv2Compatibility}}
+\end{center}
+
+
 \section{Conclusiones}
+Si bien \textit{4dface} podía ser una buena alternativa por sus características,
+se descarta la posibilidad de su uso esencialmente debido a ser incompatible
+con la licencia de Cheese. \textit{4dface} también se descarta porque no hay
+indicios para pensar que su desarrollo continuará en los siguientes años. Tanto
+\textit{OpenCV} como \textit{dlib} parecen ser la mejor opción no solo porque
+son compatibles con la licencia de Cheese, sino también porque implementan
+algoritmos que son útiles para el seguimiento de objetos (en este caso rostros)
+en tiempo real y detección de landmark. La combinación de ambos representa una
+alternativa factible para solucionar el problema.
+
 \chapter{Presentación de los resultados esperados}
 \chapter{Conclusiones y trabajos futuros}
 \section{Conclusiones}
