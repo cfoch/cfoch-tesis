@@ -183,7 +183,7 @@ si hay múltiples personas frente a la cámara web, este filtro solo detectaría
 una: la primera (en el orden de detección por OpenCV). Quien redacta también
 propuso un parche para solucionar el problema. Además se agregó la funcionalidad
 a gstfaceoverlay de soportar múltiples imágenes sobre múltiples rostros
-\cite{Bug769176}, y es ahí donde el problema fundamental en este filtro:
+\cite{Bug7691771}, y es ahí donde el problema fundamental en este filtro:
 gstfaceoveraly como filtro para Cheese no debió implementarse sobre la base de
 gstfacedetect que solo detecta rostros en vez de rastrearlos. Usar gstfacedetect
 como base es un error si se desea usar el plugin en Cheese, pues este aplica la
@@ -222,16 +222,14 @@ millennials de 18 a 24 años a tener una preferencia por filtros que sobreponen
 imágenes que siguen sus rostros capturados por la cámara web a otros medios
 de comunicación convencionales. Siendo Cheese un software libre, lo cual
 representa una ventaja social sobre el software privativo, es posible estudiarlo
-y mejorarlo (sin mencionar otras libertades). Agregar la funcionalidad de
+y mejorarlo (sin mencionar otras libertades), se considera como la mejor opción
+para desarrollar este proyecto pues tiene mejores características en
+comparación de otros proyectos con licencias libres. Agregar la funcionalidad de
 aplicar filtros que sobrepongan imágenes sobre los rostros de las personas
 capturados por una webcam en tiempo real no solo es beneficio para los jóvenes
 millennials, sino también para la GNOME Foundation y podría aumentar la
 competitividad entre aplicaciones de escritorio de captura de video y entre
 entornos de escritorio para sistemas basados en UNIX (incluyendo macOS).
-
-
-
-
 
 \section{Objetivos}
 \subsection{Objetivo general}
