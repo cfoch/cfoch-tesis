@@ -203,7 +203,9 @@ el usuario pueda seleccionar e importar imágenes que desea usar, de este modo n
 se evita el uso de efectos estáticos predeterminados. Es preciso resaltar que
 realizar tales cambios a Cheese no es fácil para nuevos colaboradores del
 proyecto. Cheese no se ha actualizado recientemente, y una de las razones puede
-ser que no existe muchas que sepan programar en Vala. Además Cheese usa Clutter,
+ser que existe pocas personas que sepan programar en Vala, un lenguaje de
+programación orientado a objetos con un compilador que traduce el
+código a C para compilarlo compilado con gcc. Además Cheese usa Clutter,
 librería de GNOME basada en OpenGL, para mostrar la salida de la captura y los
 efectos aplicados en la pantalla. Ambos no disponen de mucha documentación
 disponible pública, y por lo general, uno debe guiarse en base a otros programas
@@ -290,9 +292,9 @@ audio y video, visores de imágenes entre una lista de más de cien proyectos
 está traducido en más de 40 idiomas \cite{GNOMETranslationTeams}.
 
 \section{GStreamer}
-Es un proyecto de GNOME. GStreamer es una librería de código abiert y
+Es un proyecto de GNOME. GStreamer es una librería de código abierto y
 multiplataforma escrita en C con bindings en varios otros lenguages de
-programación. Está asada en GObject. GStreamer implementa un modelo de
+programación y basada en GObject. GStreamer implementa un modelo de
 “pipelines” que enlaza una serie de elementos, por ejemplo, demultiplexores,
 decodificadores, multiplexores, filtros y codificadores \cite{GStreamerFeatures}.
 Ello permite que cada elemento cumpla una tarea específica. GStreamer permite
@@ -493,10 +495,11 @@ Face Alignment with an Ensemble of Regression Trees” \cite{dlib1ms}.
 \chapter{Estado del Arte}
 \section{Revisión y discusión}
 
-En esta sección, se analiza qué librerías se debería escoger no solo por su
-algoritmo sino también por la  El método a seguir en este análisis es el de la
-revisión sistemática. En este método se plantea preguntas que son de la duda del
-autor para posteriormente analizarlas a detalle.\\
+En esta sección, se analiza qué librerías se debería escoger no solo por la
+disponibilidad de algoritmos útiles para realizar el seguimiento de rostros sino
+que sus licencias deben ser compatibles con Cheese. El método a seguir en este
+análisis es el de la revisión sistemática. En este método se plantea preguntas
+que son de la duda del autor para posteriormente analizarlas a detalle.\\
 
 \subsubsection{Palabras clave}
 A continuación, se muestra una lista de algunas palabras clave que fueron
@@ -580,7 +583,8 @@ librerías podrían ser útiles para resolver el problema.
   dlib & 10-09-2017 & 936 & 2701 & 262 \\ \hline
   FaceX & 15-11-2015 & 86 & 95 & 18 \\ \hline
   \end{tabular}
-  \caption{Tabla construida en base a las métricas de los proyectos en Github.}
+  \caption{Tabla construida en base a las métricas de los proyectos en Github
+           al 10-09-2017.}
 	\end{table}
   \floatfoot{Fuente: Repositorios de los proyectos en \textit{git}
   				   \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
@@ -625,7 +629,7 @@ tiene ciertas limitaciones respecto a GPLv3.
 \section{Conclusiones}
 Si bien \textit{4dface} podía ser una buena alternativa por sus características,
 se descarta la posibilidad de su uso esencialmente debido a ser incompatible
-con la licencia de Cheese. \textit{4dface} también se descarta porque no hay
+con la licencia de Cheese. \textit{FaceX} también se descarta porque no hay
 indicios para pensar que su desarrollo continuará en los siguientes años. Tanto
 \textit{OpenCV} como \textit{dlib} parecen ser la mejor opción no solo porque
 son compatibles con la licencia de Cheese, sino también porque implementan
