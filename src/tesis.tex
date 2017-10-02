@@ -238,8 +238,50 @@ entornos de escritorio para sistemas basados en UNIX (incluyendo macOS).
 
 \section{Objetivos}
 \subsection{Objetivo general}
+Implementar e integrar en Cheese un plugin (un conjunto de elementos) para
+GStreamer que mediante el uso de algoritmos para detección y seguimiento de
+múltiples rostros (o una adaptación de estos) permita sobreponer imágenes sobre
+los rostros detectados en videos (particularmente, por la cámara web).
+
 \subsection{Objetivos específicos}
+\subsubsection{OE0: Objetivo Específico 0}
+Implementar un filtro para GStreamer para la detección y rastreamiento de
+múltiples rostros con soporte para oclusión entre rostros.
+\subsubsection{OE1: Objetivo Específico 1}
+Implementar un filtro para GStreamer que basado en el filtro implementado en
+\textit{OE0} permita detectar el "landmark" de cada rostro.
+\subsubsection{OE2: Objetivo Específico 2}
+Implementar un filtro que basado en el filtro implementado en \textit{OE1}
+permita la sobreposición de imágenes sobre puntos predeterminados en los rostros
+detectados.
+\subsubsection{OE3: Objetivo Específico 3}
+Diseñar una interfaz gráfica en Cheese que permita al usuario de Cheese
+aplicar el filtro implementado en \textit{OE2}.
+
 \subsection{Resultados esperados}
+\subsubsection{REOE0: Resultados esperados para el Objetivo Específico 0}
+Un filtro que sea al menos tan preciso como alguno de los algoritmos de rastreo
+de múltiples rostros estudiados en esta tesis y además que otorgue
+suficiente fluidez lo cual un manejo adecuado del retardo en GStreamer. Este
+filtro deberá además definir una estructura extendible, la cual contiene los
+datos de las coordenadas de los rostros rastreados y se envía como un mensaje al
+bus.
+\subsubsection{REOE1: Resultados esperados para el Objetivo Específico 1}
+Un filtro que tomando las coordenadas del filtro implementado para \textit{OE0}
+permita detectar el landmark de los rostros detectados además de extender el
+mensaje recibido en el bus por el filtro del OE0 para también enviar las
+coordenadas de los puntos del landmark como mensaje en el bus.
+\subsubsection{REOE2: Resultados esperados para el Objetivo Específico 2}
+Un filtro que tomando como referencia las coordenadas de diversos puntos de cada
+rostro detectado ofrezca un conjunto de propiedades para colocar imágenes en
+lugares predefinidos del rostro como filtrum (parte entre la boca y nariz),
+boca, ojos, nariz, orejas y cara.
+\subsubsection{REOE3: Resultados esperados para el Objetivo Específico 3}
+Una interfaz gráfica con un conjunto de imágenes clasificadas por categoría. De
+estas imágenes el usuario puede seleccionar una o más de estas imágenes las
+cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
+\textit{OE2}.
+
 \section{Herramientas y métodos}
 \section{Alcance y limitaciones}
 \section{Viabilidad}
