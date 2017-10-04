@@ -245,27 +245,28 @@ los rostros detectados en videos (particularmente, por la cámara web).
 
 \subsection{Objetivos específicos}
 \subsubsection{OE0: Objetivo Específico 0}
-Implementar un filtro para GStreamer para la detección y rastreamiento de
-múltiples rostros con soporte para oclusión entre rostros.
+Desarrollar un algoritmo que implemente un filtro para GStreamer para
+la detección y rastreamiento de múltiples rostros con soporte para oclusión
+entre rostros.
 \subsubsection{OE1: Objetivo Específico 1}
-Implementar un filtro para GStreamer que basado en el filtro implementado en
-\textit{OE0} permita detectar el "landmark" de cada rostro.
+Escribir el código fuente de un filtro para GStreamer que basado en el filtro
+implementado en \textit{OE0} permita detectar el "landmark" de cada rostro.
 \subsubsection{OE2: Objetivo Específico 2}
-Implementar un filtro que basado en el filtro implementado en \textit{OE1}
-permita la sobreposición de imágenes sobre puntos predeterminados en los rostros
-detectados.
+Escribir el código fuente de un filtro para GStreamer que basado en el filtro
+implementado en \textit{OE1} permita la sobreposición de imágenes sobre puntos
+predeterminados en los rostros detectados.
 \subsubsection{OE3: Objetivo Específico 3}
-Diseñar una interfaz gráfica en Cheese que permita al usuario de Cheese
+Diseñar una interfaz gráfica para Cheese que permita al usuario de Cheese
 aplicar el filtro implementado en \textit{OE2}.
 
 \subsection{Resultados esperados}
 \subsubsection{REOE0: Resultados esperados para el Objetivo Específico 0}
 Un filtro que sea al menos tan preciso como alguno de los algoritmos de rastreo
-de múltiples rostros estudiados en esta tesis y además que otorgue
-suficiente fluidez lo cual un manejo adecuado del retardo en GStreamer. Este
-filtro deberá además definir una estructura extendible, la cual contiene los
-datos de las coordenadas de los rostros rastreados y se envía como un mensaje al
-bus.
+de múltiples rostros estudiados en este proyecto de fin de carrera y
+además que otorgue suficiente fluidez lo cual un manejo adecuado del retardo en
+GStreamer. Este filtro deberá además definir una estructura extendible, la cual
+contiene los datos de las coordenadas de los rostros rastreados y se envía como
+un mensaje al bus.
 \subsubsection{REOE1: Resultados esperados para el Objetivo Específico 1}
 Un filtro que tomando las coordenadas del filtro implementado para \textit{OE0}
 permita detectar el landmark de los rostros detectados además de extender el
