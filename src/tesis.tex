@@ -1,6 +1,8 @@
 \documentclass[a4paper,openright,12pt]{report}
 
 \usepackage[spanish]{babel}
+\usepackage{xcolor}
+\usepackage{hyperref}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -11,6 +13,14 @@
 \usepackage{floatrow}
 \usepackage[list=true]{subcaption}
 \usepackage{url}
+
+\hypersetup{
+    colorlinks,
+    citecolor=blue,
+    filecolor=blue,
+    linkcolor=black,
+    urlcolor=blue
+}
 
 \hyphenation{re-no-ván-do-se}
 \hyphenation{e-le-men-to}
@@ -518,7 +528,7 @@ mostrarlos en su interfaz gráfica. Tanto la captura de videos (o fotos) como la
 aplicación de filtros en Cheese está dada internamente por GStreamer, un
 framework que permite el desarrollo de aplicaciones multimedia. Cheese crea
 internamente una pipeline bastante compleja, de la cual se muestra una
-simplificación en el diagrama de la \textit{figura 2.6}. El diagrama ignora
+simplificación en el diagrama de la \textit{figura 2.7}. El diagrama ignora
 elementos como \textit{capsfilters}, \textit{bins} y algunos otros filtros y
 elementos.
 
