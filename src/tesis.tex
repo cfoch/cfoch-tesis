@@ -398,7 +398,7 @@ A continuación se describen los pasos que sigue:
                         1
                     \end{cases}
                 \end{equation}
-                donde $S_{i,j}=0$ indica una region de piel y $S_{i,j}=0$ lo contrario.
+                donde $S_{i,j}=0$ indica una región de piel y $S_{i,j}=0$ lo contrario.
         \end{enumerate}
         \raggedleft\cite{sarkar2012real}
     \end{framed}
@@ -447,7 +447,7 @@ representan las velocidades, y por último, el ancho del rectángulo $W_{t}$
 \cite{shaik2007robust}. La altura no se considera, pero se asume igual a $1.25$
 veces el ancho \cite{shaik2007robust}. A continuación se muestra el modelo de
 estados usado (siendo las variables con sufijo ${t + 1}$ las coordenadas
-predecidas y $w_{t}$ el ruido gausiano):
+predichas y $w_{t}$ el ruido gausiano):
 \[
     \begin{bmatrix}
         x_{t+1}\\
@@ -474,10 +474,10 @@ predecidas y $w_{t}$ el ruido gausiano):
     +
     w_{t}
 \]
-Estas variables predecidas se usan para localizar un rostro en el frame
+Estas variables predichas se usan para localizar un rostro en el frame
 "actual" \cite{shaik2007robust}. Usando una técnica de coincidencia de plantillas o (\textit{template
 matching} en inglés), se calcula la distancia entre la plantilla de una cara del
-cuadro anterior y de la región con los valores predecidos \cite{shaik2007robust}. Si el cuadro anterior
+cuadro anterior y de la región con los valores predichos \cite{shaik2007robust}. Si el cuadro anterior
 es menor a un \textit{threshold} de 0.9, se asume \textbf{oclusión parcial} \cite{shaik2007robust}.
 Además basándose en las coordenadas para el cuadro "actual" halladas por el
 filtro de Kalman, se recalcula el modelo de distribución de la ropa para el
