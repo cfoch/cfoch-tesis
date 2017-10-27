@@ -303,67 +303,15 @@ cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
 \textit{OE2}.
 
 \subsection{Herramientas, métodos y procedimientos}
-\subsubsection{Herramientas}
-A continuación, se listan las herramientas que se usarán según el tipo de uso
-para el objetivo específico:
+\subsubsection{En relación al Objetivo Específico 0 (OE0)}
 
-Para el \textit{Objetivo Específico 0 (OE0)}.\\
-\begin{enumerate}
-    \item OpenCV, ya que implementa algunos algoritmos y técnicas
-        útiles para el seguimiento y detección de rostros:
-    \begin{enumerate}
-        \item Conversión a espacios de color, usado para trabajar las imágenes
-            RGB en distintos espacios de color entre estos \textit{GRAY} y
-            \textit{YC\textsubscript{b}C\textsubscript{r}}.            
-        \item Filtro de Kalman, usado para la predicción de variables en base
-            a un modelo y variables de medición.
-        \item \textit{Canny Edge Detector}, el cual permite identificar los
-            contornos presentes en una imagen.
-        \item Erosión y dilatación de imágenes.
-    \end{enumerate} 
-    \item \textit{GStreamer}, ya que es el framework sobre el cual se
-        implementará el filtro.
-    \item \textit{gstfacedetect}, filtro para \textit{GStreamer} que usa OpenCV
-        para la detección de rostros y envía señales al \textit{bus} con las
-        coordenadas localizadas.
-    \item C++, ya que OpenCV y GStreamer lo soportan.
-    \item gst-launch-1.0 para probar manualmente la salida del streaming.
-    \item gst-validate para validar que el filtro implementado no produzca
-        frames cuando recibe una señal EOS (end-of-stream) o que reciba frames
-        mientras esté en el estado \textit{PAUSED}
-\end{enumerate}
 
-Para el \textit{Objetivo Específico 1 (OE1)}.\\
-\begin{enumerate}
-    \item Dlib, ya que permite detectar el landmark de un rostro.
-    \item GStreamer, C++, gst-launch-1.0 y gst-validate por las mismas razones
-        mencionadas en el caso anterior.
-\end{enumerate}
 
-Para el \textit{Objetivo Específico 2 (OE2)}.\\
-\begin{enumerate}
-    \item {gdkpixbufoverlay}, un filtro para \textit{GStreamer} que permite la
-        sobreposición de imágenes sobre los cuadros recibidos por este filtro.
-    \item GStreamer, C++, gst-launch-1.0 y gst-validate por las mismas razones
-        mencionadas en el caso anterior.
-\end{enumerate}
 
-Para el \textit{Objetivo Específico 3 (OE3)}.\\
-\begin{enumerate}
-    \item \textit{Gtk+}, librería para diseñar interfaces gráficas para GNOME,
-        la cual es usada por \textit{Cheese} y se usará para diseñar la
-        interfaz gráfica para seleccionar las imágenes a sobreponer sobre
-        los rostros.
-    \item \textit{Galde}, una interfaz gráfica en GTK+ para construir interfaces
-        gráficas en GTK+.
-    \item \textit{Vala}, lenguaje en el cual se desarrolla \textit{Cheese}.
-    \item \textit{GStreamer}, integrando los filtros implementados con
-        \textit{Cheese}.
-    \item \textit{GLib Test Suite}, para ejecutar pruebas sobre el nuevo código
-        agregado a \textit{Cheese}.
-\end{enumerate}
+\paragraph{Metodologías y algoritmos para el seguimiento de rostros}\mbox{} \\
 
-\subsubsection{Métodos y procedimientos}
+
+
 Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de personas
 pueden ser clasificados en cuatro categorías según la forma, las características,
 el modelo o color de piel de la cara \cite{shaik2007robust}. Estos se detallan
@@ -374,7 +322,7 @@ a continuación:
     que represente la locación de una cara. Se toma la elipse como el modelo más
     simple que mejor se ajusta a la forma de una cara \cite{eleftheriadis1995automatic}. Este método de
     seguimiento no es influenciado por el color de fondo ni por los cambios en
-    la iluminaciónz \cite{shaik2007robust}. Sin embargo, este falla si la cara rastreada es ocluida ya
+    la iluminación \cite{shaik2007robust}. Sin embargo, este falla si la cara rastreada es ocluida ya
     sea por otro objeto u otra persona \cite{shaik2007robust}.
     \item Seguimiento basado en características:  en este método, las
     características de los rostros son extraídas usando el filtro de Gabor el
@@ -395,7 +343,7 @@ a continuación:
 A continuación se describirán algunos métodos y algoritmos usados para el
 seguimiento de rostros basados en el método en base al color de la piel.
 
-\paragraph{A Real-time Model for Multiple Human Face Tracking from Low-resolution Surveillance Videos}\mbox{} \\
+\subparagraph{A Real-time Model for Multiple Human Face Tracking from Low-resolution Surveillance Videos}\mbox{} \\
 
 Es un método propuesto por Rajib Sarkara, Sambit Baksh y Pankaj K Sa. Ha sido
 probado en 1000 imágenes elegidas al azar de la base de datos de rostros
@@ -461,7 +409,7 @@ A continuación se describen los pasos que sigue:
         detectada dependiendo de la forma de la cara \cite{sarkar2012real}.
 \end{enumerate}
 
-\paragraph{A Robust Method for Multiple Face Tracking Using Kalman Filter}\mbox{} \\
+\subparagraph{A Robust Method for Multiple Face Tracking Using Kalman Filter}\mbox{} \\
 
 Es un método propuesto por Zaheer Shaik y Vijayan Asari para el seguimiento de
 múltiples rostros. Este resuelve el problema de oclusiones parciales y totales 
@@ -599,6 +547,64 @@ y $v_{t}$ es el ruido de medición, representado por ruido gausiano \cite{shaik2
 variables son actualizadas en el cuadro actual tomando el pasado (el cuadro
 anterior) \cite{shaik2007robust}. Esto permite al algorimo seguir múltiples rostros de personas en el
 caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robust}.
+
+
+\paragraph{Herramientas empleadas}\mbox{} \\
+\begin{enumerate}
+    \item OpenCV, ya que implementa algunos algoritmos y técnicas
+        útiles para el seguimiento y detección de rostros:
+    \begin{enumerate}
+        \item Conversión a espacios de color, usado para trabajar las imágenes
+            RGB en distintos espacios de color entre estos \textit{GRAY} y
+            \textit{YC\textsubscript{b}C\textsubscript{r}}.
+        \item Filtro de Kalman, usado para la predicción de variables en base
+            a un modelo y variables de medición.
+        \item \textit{Canny Edge Detector}, el cual permite identificar los
+            contornos presentes en una imagen.
+        \item Erosión y dilatación de imágenes.
+    \end{enumerate}
+    \item \textit{GStreamer}, ya que es el framework sobre el cual se
+        implementará el filtro.
+    \item \textit{gstfacedetect}, filtro para \textit{GStreamer} que usa OpenCV
+        para la detección de rostros y envía señales al \textit{bus} con las
+        coordenadas localizadas.
+    \item C++, ya que OpenCV y GStreamer lo soportan.
+    \item gst-launch-1.0 para probar manualmente la salida del streaming.
+    \item gst-validate para validar que el filtro implementado no produzca
+        frames cuando recibe una señal EOS (end-of-stream) o que reciba frames
+        mientras esté en el estado \textit{PAUSED}
+\end{enumerate}
+
+\subsubsection{Herramientas empleadas en relación al Objetivo Específico 1 (OE1)}
+\begin{enumerate}
+    \item Dlib, ya que permite detectar el landmark de un rostro.
+    \item \textit{GStreamer}, \textit{C++, gst-launch-1.0} y \textit{gst-validate}
+        por las mismas razones mencionadas en el caso anterior.
+\end{enumerate}
+
+\subsubsection{Herramientas empleadas en relación al Objetivo Específico 2 (OE2)}
+\begin{enumerate}
+    \item \textit{gdkpixbufoverlay}, un filtro para \textit{GStreamer} que permite la
+        sobreposición de imágenes sobre los cuadros recibidos por este filtro.
+    \item \textit{GStreamer}, \textit{C++, gst-launch-1.0} y \textit{gst-validate}
+        por las mismas razones mencionadas en el caso anterior.
+\end{enumerate}
+
+\subsubsection{Herramientas empleadas en relación al Objetivo Específico 3 (OE3)}
+\begin{enumerate}
+    \item \textit{Gtk+}, librería para diseñar interfaces gráficas para GNOME,
+        la cual es usada por \textit{Cheese} y se usará para diseñar la
+        interfaz gráfica para seleccionar las imágenes a sobreponer sobre
+        los rostros.
+    \item \textit{Galde}, una interfaz gráfica en GTK+ para construir interfaces
+        gráficas en GTK+.
+    \item \textit{Vala}, lenguaje en el cual se desarrolla \textit{Cheese}.
+    \item \textit{GStreamer}, integrando los filtros implementados con
+        \textit{Cheese}.
+    \item \textit{GLib Test Suite}, para ejecutar pruebas sobre el nuevo código
+        agregado a \textit{Cheese}.
+\end{enumerate}
+
 
 
 \section{Alcance y limitaciones}
