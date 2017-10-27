@@ -2,6 +2,10 @@
 
 \usepackage[spanish]{babel}
 \usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{fixltx2e}
 \usepackage{hyperref}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -13,6 +17,8 @@
 \usepackage{floatrow}
 \usepackage[list=true]{subcaption}
 \usepackage{url}
+
+\setcounter{secnumdepth}{5}
 
 \hypersetup{
     colorlinks,
@@ -296,8 +302,360 @@ estas imágenes el usuario puede seleccionar una o más de estas imágenes las
 cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
 \textit{OE2}.
 
-\section{Herramientas y métodos}
+\subsection{Herramientas y métodos y procedimientos}
+\subsubsection{Herramientas}
+A continuación, se listan las herramientas que se usarán según el tipo de uso
+para el objetivo específico:
+
+Para el \textit{Objetivo Específico 0 (OE0)}.\\
+\begin{enumerate}
+    \item OpenCV, ya que implementa algunos algoritmos y técnicas
+        útiles para el seguimiento y detección de rostros:
+    \begin{enumerate}
+        \item Conversión a espacios de color, usado para trabajar las imágenes
+            RGB en distintos espacios de color entre estos \textit{GRAY} y
+            \textit{YC\textsubscript{b}C\textsubscript{r}}.            
+        \item Filtro de Kalman, usado para la predicción de variables en base
+            a un modelo y variables de medición.
+        \item \textit{Canny Edge Detector}, el cual permite identificar los
+            contornos presentes en una imagen.
+        \item Erosión y dilatación de imágenes.
+    \end{enumerate} 
+    \item \textit{gstfacedetect}, ya que es el framework sobre el cual se
+        implementará el filtro.
+    \item \textit{gstfacedetect}, filtro para \textit{GStreamer} que usa OpenCV
+        para la detección de rostros y envía señales al \textit{bus} con las
+        coordenadas localizadas.
+    \item C++, ya que OpenCV y GStreamer lo soportan.
+    \item gst-launch-1.0 para probar manualmente la salida del streaming.
+    \item gst-validate para validar que el filtro implementado no produzca
+        frames cuando recibe una señal EOS (end-of-stream) o que reciba frames
+        mientras esté en el estado \textit{PAUSED}
+\end{enumerate}
+
+Para el \textit{Objetivo Específico 1 (OE1)}.\\
+\begin{enumerate}
+    \item Dlib, ya que permite detectar el landmark de un rostro.
+    \item GStreamer, C++, gst-launch-1.0 y gst-validate por las mismas razones
+        mencionadas en el caso anterior.
+\end{enumerate}
+
+Para el \textit{Objetivo Específico 2 (OE2)}.\\
+\begin{enumerate}
+    \item {gdkpixbufoverlay}, un filtro para \textit{GStreamer} que permite la
+        sobreposición de imágenes sobre los cuadros recibidos por este filtro.
+    \item GStreamer, C++, gst-launch-1.0 y gst-validate por las mismas razones
+        mencionadas en el caso anterior.
+\end{enumerate}
+
+Para el \textit{Objetivo Específico 3 (OE3)}.\\
+\begin{enumerate}
+    \item \textit{Gtk+}, librería para diseñar interfaces gráficas para GNOME,
+        la cual es usada por \textit{Cheese} y se usará para diseñar la
+        interfaz gráfica para seleccionar las imágenes a sobreponer sobre
+        los rostros.
+    \item \textit{Galde}, una interfaz gráfica en GTK+ para construir interfaces
+        gráficas en GTK+.
+    \item \textit{Vala}, lenguaje en el cual se desarrolla \textit{Cheese}.
+    \item \textit{GStreamer}, integrando los filtros implementados con
+        \textit{Cheese}.
+    \item \textit{GLib Test Suite}, para ejecutar pruebas sobre el nuevo código
+        agregado a \textit{Cheese}.
+\end{enumerate}
+
+\subsubsection{Métodos y procedimientos}
+Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de personas
+pueden ser clasificados en cuatro categorías según la forma, las características,
+el modelo o color de piel de la cara \cite{shaik2007robust}. Estos se detallan
+a continuación:
+
+\begin{enumerate}
+    \item Seguimiento basado en la forma: en este método se debe usar un modelo
+    que represente la locación de una cara. Se toma la elipse como el modelo más
+    simple que mejor se ajusta a la forma de una cara \cite{eleftheriadis1995automatic}. Este método de
+    seguimiento no es influenciado por el color de fondo ni por los cambios en
+    la iluminaciónz \cite{shaik2007robust}. Sin embargo, este falla si la cara rastreada es ocluida ya
+    sea por otro objeto u otra persona \cite{shaik2007robust}.
+    \item Seguimiento basado en características:  en este método, las
+    características de los rostros son extraídas usando el filtro de Gabor el
+    cual es usado como característica para el seguimiento de rostros \cite{shaik2007robust}. Sin
+    embargo, este método no es sensible a los cambios en iluminación y la pose
+    de la cara \cite{shaik2007robust}. Hacer que este método soporte esta característica tiene un alto
+    costo computacional por lo que no es adecuado para streaming.
+    \item Seguimiento basado en el modelo: este usa un modelo en 3D del rostro,
+    el cual es proyectado en los cuadros detectados por la cámara \cite{shaik2007robust}. Sin embargo,
+    estos pueden tener dificultad cuando hay cambios de iluminación o si la cara
+    es ocluida \cite{smolyanskiy2014real}. Si bien esta metodología suele ser precisa tiene el problema de
+    tener un alto costo computacional por lo que no es adecuado para streaming.
+    \item Seguimiendo en base a los colores: este método usa el modelo de color
+    de piel \cite{shaik2007robust}. Sin embargo, aunque falla cuando el rostro es ocluido, es adecuado
+    para streaming.
+\end{enumerate}
+
+A continuación se describirán algunos métodos y algoritmos usados para el
+seguimiento de rostros basados en el método en base al color de la piel.
+
+\paragraph{A Real-time Model for Multiple Human Face Tracking from Low-resolution Surveillance Videos}\mbox{} \\
+
+Es un método propuesto por Rajib Sarkara, Sambit Baksh y Pankaj K Sa. Ha sido
+probado en 1000 imágenes elegidas al azar de la base de datos de rostros
+frontales de personas de Europa, Asia y África \cite{sarkar2012real}.
+Su exactitud es del 96.2\% \cite{sarkar2012real}.
+Además, con imágenes con resolución reducida a través de interpolación este
+algoritmo tiene un comportamiento más eficiente \cite{sarkar2012real}.
+A continuación se describen los pasos que sigue:
+\begin{enumerate}[label=(\alph*)]
+    \item Detectar y segementar las regiones de piel en una imagen
+        \cite{sarkar2012real}. Para ello se usa el siguiente algoritmo:
+    \begin{framed}
+    \textbf{Entrada}: Una imagen $I$ en el modelo de color \textit{RGB} de
+    dimensión.\\
+    \textbf{Salida}: Una imagen binaria $S$ indicando si un pixel es piel o no.\\
+    \textbf{Pasos}:\\
+        \begin{enumerate}[label=\arabic*.]
+            \item Convertir la imagen $I$ de \textit{RGB} a
+                \textit{YC\textsubscript{b}C\textsubscript{r}}.
+            \item Calcular la luma promedio de una imagen $I$ calculado como
+                \[
+                    {}_{I}Y_{prom} = {\sum_{i=1}^{m}\sum_{i=1}^{n} {}_{I}Y_{i,j}} 
+                \]
+            \item Normalizar ${}_{I}Y_{i,j}$ a ${[0,255]}$
+            \item Encontrar el mapa de contornos usando el detector de bordes de
+                Canny para la imagen de entrada \textit{RGB}.
+            \item Encontrar la imagen compensada de brillo ${}_{I}C'$ obtenido
+                de la siguiente manera:\\
+                \textit{Cada pixel}
+                    ${}_{I}C'_{i,j} = \{{}_{I}R'_{i,j}, {}_{I}G'_{i,j}, {}_{I}B'_{i,j}\}$
+                \textit{donde:}\\
+                \[
+                    {}_{I}R'_{i,j} = ({}_{I}R'_{i,j})^\tau
+                    {}_{I}G'_{i,j} = ({}_{I}G'_{i,j})^\tau
+                    {}_{I}B'_{i,j} = ({}_{I}B'_{i,j})^\tau
+                \]
+                \textit{para:}
+                \begin{equation}
+                    \tau=
+                    \begin{cases}
+                        1.5, & \text{if }\ {}_{I}Y_{prom}<64\\
+                        0.7, & \text{if }\ {}_{I}Y_{prom}>190\\
+                        1
+                    \end{cases}
+                \end{equation}
+            \item El mapa de colores de piel para ${}_{I}C'_{i,j}$ es calculado
+                como:
+                \begin{equation}
+                    S_{i,j}=
+                    \begin{cases}
+                        0, & \text{if $\frac{R + 1}{G + 1}>1.08$ y $\frac{R + 1}{B + 1}>1.08$ y $G>30$ y $G<140$}\\
+                        1
+                    \end{cases}
+                \end{equation}
+                donde $S_{i,j}=0$ indica una region de piel y $S_{i,j}=0$ lo contrario.
+        \end{enumerate}
+        \raggedleft\cite{sarkar2012real}
+    \end{framed}
+
+    \item Verificar si cada componente de la piel corresponde (o no) a un
+        rostro verificando la existencia de la boca y ojos \cite{sarkar2012real}.
+    \item Colocar un cuadro en cierta orientación sobre la región de piel
+        detectada dependiendo de la forma de la cara \cite{sarkar2012real}.
+\end{enumerate}
+
+\paragraph{A Robust Method for Multiple Face Tracking Using Kalman Filter}\mbox{} \\
+
+Es un método propuesto por Zaheer Shaik y Vijayan Asari para el seguimiento de
+múltiples rostros. Este resuelve el problema de oclusiones parciales y totales 
+tomando como referencia el modelo de la ropa de las personas \cite{shaik2007robust}. Además también
+supera los problemas de iluminación y cambios en las poses, velocidades y
+trayectorias de los rostros \cite{shaik2007robust}. A continuación se describe la metodología empleada 
+en más detalle.\\
+
+Cada rastreador de rostro se inicia usando el algoritmo de detección de rostros
+de Viola-Jones el cual se provee en \textit{OpenCV}, además se inician las
+plantillas (\textit{templates} en inglés) de los rostros \cite{shaik2007robust}. Las caras detectadas
+se limitan por un ROI rectangular \cite{shaik2007robust}. En este instante, también se inicia el modelo
+de ropa que se usará para cada persona al cual corresponde a una función de
+distribución de densidad no paramétrica \cite{shaik2007robust}. Como la distribución, de antemano, no
+es conocida se usa una estimación de densidad (\textit{kernel}) tomando como
+\textit{kernel} la función de Epanechnikov \cite{shaik2007robust}. De esta manera, la función de
+distribución de la ropa para una región $q_{u}$ se calcula de la siguiente
+manera:
+\[
+    q_{u} = C{\sum_{i,j} k(\lVert x_{ij} \rVert^2)\delta[b(x_{ij}) - u]}
+\]
+donde $\delta$ es la función de Kronecker, $k$ el \textit{kernel} de
+Epanechnikov y $b$ es la función que asocia un pixel $x$ en la posición $ij$
+a un índice $b(x_{ij})$ en un espacio de colores cuantificada (es decir en un
+espacio de colores reducido) \cite{shaik2007robust}.\\
+
+Además se usa el filtro de Kalman, el cual es un filtro usado para la estimación
+de ciertas variables en el futuro con aplicaciones en predicción de análisis
+financieros, navegación y control de vehículos, procesamiento de señales,
+econometría y seguimiento de gráficos interactivos por computadora
+\cite{bishop2001introduction}. Para ello, se usan cinco variables: $x_{t}$ 
+y $y_{t}$ que corresponden a la posición de la esquina superior izquierda de los
+rectángulos que bordean los rostros detectados, $y'_{t}$ y $y'_{t}$ que
+representan las velocidades, y por último, el ancho del rectángulo $W_{t}$
+\cite{shaik2007robust}. La altura no se considera, pero se asume igual a $1.25$
+veces el ancho \cite{shaik2007robust}. A continuación se muestra el modelo de
+estados usado (siendo las variables con sufijo ${t + 1}$ las coordenadas
+predecidas y $w_{t}$ el ruido gausiano):
+\[
+    \begin{bmatrix}
+        x_{t+1}\\
+        y_{t+1}\\
+        x'_{t+1}\\
+        y'_{t+1}\\
+        W_{t+1}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        1   &   0   &   \Delta{t}   &   0           &   0\\
+        0   &   1   &   0           &   \Delta{t}   &   0\\
+        0   &   0   &   1           &   0           &   0\\
+        0   &   0   &   0           &   1           &   0\\
+        0   &   0   &   0           &   0           &   1\\
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_{t}\\
+        y_{t}\\
+        x'_{t}\\
+        y'_{t}\\
+        W_{t}
+    \end{bmatrix}
+    +
+    w_{t}
+\]
+Estas variables predecidas se usan para localizar un rostro en el frame
+"actual" \cite{shaik2007robust}. Usando una técnica de coincidencia de plantillas o (\textit{template
+matching} en inglés), se calcula la distancia entre la plantilla de una cara del
+cuadro anterior y de la región con los valores predecidos \cite{shaik2007robust}. Si el cuadro anterior
+es menor a un \textit{threshold} de 0.9, se asume \textbf{oclusión parcial} \cite{shaik2007robust}.
+Además basándose en las coordenadas para el cuadro "actual" halladas por el
+filtro de Kalman, se recalcula el modelo de distribución de la ropa para el
+cuadro actual ($p_{u}$) \cite{shaik2007robust}. Luego se debe medir la similitud entre las
+distribuciones $q_{u}$ y $p_{u}$ \cite{shaik2007robust}. Para ello se usa la métrica estadística
+conocida como la distancia de Bhattacharyya la cual es dada por
+$\rho = \sum_{u}\sqrt{(p_{u}.q_{u})}$ \cite{shaik2007robust}. Si $\rho$ es menor que un
+\textit{threshold} de 0.5, se asume que los modelos no son similares y deben de
+ser actualizados \cite{shaik2007robust}.\\
+Para actualizar el \textit{template} de rostro se debe redetectar los rostros en
+el frame actual \cite{shaik2007robust}. Para ello, se usa una técnica basada en los colores \cite{shaik2007robust}. Tomando el
+espacio de color cuantificado (reducido), se busca clasificar los pixeles como
+"tipo piel" o "no tipo piel" \cite{shaik2007robust}. Para ello se usa el espacio de color
+\textit{YC\textsubscript{b}C\textsubscript{r}}, en el cual la luma \textit{Y} es
+separada: ello hace este algoritmo robusto a cambios en la iluminación. Luego,
+estos pixeles son clasificados como piel según un threshold en los rangos de
+$[100,135]$ y $[135,170]$ para C\textsubscript{b} y C\textsubscript{r},
+respectivamente \cite{shaik2007robust}. Una vez identifacadas las regiones de piel, se agrupan los
+pixeles de una región para la detección del rostro \cite{shaik2007robust}. La primera etapa consiste en
+erosionar la imagen de la región de la cara usando una elipse, para luego
+erosinarlas con el fin de llenar los huecos dejados entre los rostros. El
+resultado es una máscara binaria de \textit{blobs} de las regiones de los
+rostros \cite{shaik2007robust}.\\
+
+Para detectar la región al rededor de cada \textit{blob} se usa un algoritmo
+de detección de bordes el cual es implementado por \textit{OpenCV} \cite{shaik2007robust}. Luego, a los
+contornos detectados se les aplica un parámetro estadístico llamado el
+coeficiente de suavidad para cada "blob" \cite{shaik2007robust}. Si el coeficiente para un
+\textit{blob} es menor a $0.5$, este se descarta \cite{shaik2007robust}.\\
+
+En los \textit{blobs} restantes, se aplica un "factor de forma", el cual
+relaciona el área entre el perímetro \cite{shaik2007robust}. Este se compara al "factor de forma"
+mínimo calculado para los primeros rectángulos que limitaban los rostros
+detectados cuando se usó Viola-Jones \cite{shaik2007robust}. El fin de esto es eliminar más
+\textit{blobs} \cite{shaik2007robust}. Luego para los \textit{blobs} que sobraron, se dibujan los
+rectángulos tomando solo en consideración el ancho del \textit{blob} \cite{shaik2007robust}.\\
+
+Una vez detectados los rostros, si el número de caras detectados es menor al
+número de caras rastreadas, se asume oclusión total \cite{shaik2007robust}. Luego, si existe más
+rostros de los clasificados como haber sido objetivo de rastreo en un cuadro
+anterior, se dice que un nuevo rostros existe (por ejemplo, entra una nueva
+persona a la zona de grabación) \cite{shaik2007robust}. Luego, la ecuación de medición del filtro de Kalman, se actualiza según:
+\[
+    \begin{bmatrix}
+        mx_{t+1}\\
+        my_{t+1}\\
+        mW_{t+1}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        1   &   0   &   \Delta{t}   &   0           &   0\\
+        0   &   1   &   0           &   \Delta{t}   &   0\\
+        0   &   0   &   0           &   0           &   1\\
+    \end{bmatrix}
+    \begin{bmatrix}
+        x_{t - \Delta{t}}\\
+        y_{t - \Delta{t}}\\
+        x'_{t - \Delta{t}}\\
+        y'_{t - \Delta{t}}\\
+        W_{t - \Delta{t}}
+    \end{bmatrix}
+    +
+    v_{t}
+\]
+donde $mx_{t+1}$, $my_{t+1}$ y $mW_{t+1}$ corresponden a variables de medición,
+y $v_{t}$ es el ruido de medición, representado por ruido gausiano \cite{shaik2007robust}. Así las
+variables son actualizadas en el cuadro actual tomando el pasado (el cuadro
+anterior) \cite{shaik2007robust}. Esto permite al algorimo seguir múltiples rostros de personas en el
+caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robust}.
+
+
 \section{Alcance y limitaciones}
+
+\subsubsection{Alcance}
+    Este proyecto se concentrará en funcionar en las computadoras por lo menos
+    tres años antiguas. Es decir, la detección, seguimiento y sobreposición de imágenes en
+    Cheese debería dar la sensación de fluidez a usuarios de estas computadoras.
+    Además, este proyecto debe funcionar sobre \textit{Wayland} ya que es el
+    protocolo más usado recientemente por las distribuciones de GNU/Linux
+    reemplazando a \textit{X.Org}.
+
+\subsubsection{Limitaciones}
+
+\begin{enumerate}
+    \item Si bien lo esperado es que el resultado de este proyecto de fin de
+        carrera sea incluido lo más pronto posible en \textit{Cheese} esto puede
+        que no suceda en el corto plazo debido a complejidades las cuales deben
+        ser tomadas en cuenta pero alargarían la complejidad del proyecto. Por
+        lo que el código resultante se garantiza que será nada más que una rama
+        (\textit{git branch}) de \textit{Cheese}. Los motivos por lo cual la
+        inclusión de este proyecto en la rama \textit{master} de \textit{Cheese}
+        puede demorar se detalla en las siguientes líneas.
+    \item \textit{Cheese} es uno de los programas de software libres más
+        populares para la captura de fotos y video por cámara web. Cabe
+        resaltar que este viene incluido también en Ubuntu una de las
+        distribuciones de GNU/Linux más populares. Ubuntu y otras distribuciones
+        no incluyen ni OpenCV ni dlib por defecto en su distribución, y es poco
+        probable que lo haga solo para soportar \textit{Cheese}.
+    \item Una de las razones por las cuales las distribuciones de GNU/Linux no
+        estarían dispuestas a aceptar los nuevos cambios en \textit{Cheese}
+        puede ser por un tema de rendimiento o para evitar ocupar más espacio en
+        disco de lo que ocupan usualmente. Las distribuciones en GNU/Linux más
+        populares por lo general, están pensadas en dar soporte y estabilidad
+        en computadoras muy antiguas. Este proyecto de fin de carrera no tiene
+        la intención de dar soporte a computadoras muy antiguas ya que exigiría
+        más tiempo de trabajo para mejorar el rendimiento de los algoritmos.
+    \item Debido a estos problemas mencionados, lo más indicado sería
+        desarrollar esta nueva funcionalidad como un programa extra a
+        \textit{Cheese}, de tal modo que por ejemplo un usuario de Ubuntu pueda
+        simplemente instalar la funcionalidad de sobreposición de imágenes sobre
+        los rostros con un comando, por ejemplo,
+        \textit{sudo apt-get install cheese-face-stickers}. O incluso un
+        proyecto más complejo podría ser el desarollp de un gestor de
+        \textit{plugins} para \textit{Cheese} usando \textit{Libpeas} y brindar
+        este proyecto como un \textit{plug-in}. Sin
+        embargo, esto no hace más que extender el trabajo y tiempo, por lo que
+        lo expuesto no se hará, y como se mencionó el trabajo será limitado
+        a una rama de \textit{Cheese}. Si el trabajo es mezclado en
+        \textit{master} sin implementar lo sugerido será simplemente una
+        coincidencia.
+    \item Otra solución sería distribuir \textit{Cheese} en Flatpak. Eso tampoco
+        se espera hacer ya que \textit{Cheese} no está actualmente integrado con
+        \textit{Flatpak} aunque es una solución altamente recomendable.
+\end{enumerate}
+
+
 \section{Viabilidad}
 \subsection{Viabilidad técnica}
 \subsection{Viabilidad temporal}
@@ -305,7 +663,7 @@ cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
 \chapter{Marco Conceptual}
 \section{Objetivos del marco conceptual}
 A continuación se explicará algunos conceptos que se consideran básicos para
-poder comprender los siguientes capítulos. En primer lugar, se explica qué es
+poder comprender los siguientes capítulos \cite{shaik2007robust}. En primer lugar, se explica qué es
 el software libre ya que a veces es un concepto que suele ser confundido. Luego,
 se introduce a GStreamer, librería en la cual Cheese se basa. Finalmente, se
 muestra una visión en conjunto del flujo de datos multimedia en Cheese, así como
