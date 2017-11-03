@@ -1,6 +1,7 @@
 \documentclass[a4paper,openright,12pt]{report}
 
 \usepackage[spanish]{babel}
+\usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{amsmath}
@@ -602,7 +603,7 @@ caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robus
 
 
 
-\section{Alcance y limitaciones}
+\section{Alcance, limitaciones y riesgos}
 
 \subsubsection{Alcance}
     Este proyecto se concentrará en funcionar en las computadoras por lo menos
@@ -655,6 +656,83 @@ caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robus
         se espera hacer ya que \textit{Cheese} no está actualmente integrado con
         \textit{Flatpak} aunque es una solución altamente recomendable.
 \end{enumerate}
+
+\subsubsection{Riesgos}
+Un proyecto de fin de carrera puede estar asociado a diversos riesgos. Los
+riesgos listados en la tabla de abajo no solo implican situaciones del mismo
+proyecto, sino también riesgos externos los cuales pueden afectar negativamente
+el desarrollo de este proyecto.
+
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.15\textwidth} | p{.4\textwidth} |}
+  \hline
+
+  \textbf{Riesgo identificado} &
+  \textbf{Impacto} &
+  \textbf{Medidas para mitigar el riesgo}
+  \\ \hline
+
+  Una mala planificación del proyecto puede no solo retrasar el cumplimiento de
+  los respectivos entregables sino en el peor de los casos, el incumplimiento
+  del mismo. &
+  Alto &
+  Organizar los tiempos adecuadamente con el fin de evitar retrasos.
+  \\ \hline
+
+  La brecha de seguridad, principalmente a través de un ataque cibernético por
+  \textit{hackers} puede poner en riesgo cuentas donde se tiene publicados los
+  avances del proyecto de fin de carrera. Estas amenazas puede incluir acceso
+  no autorizado a cuentas como \textit{github}, \textit{Google Drive} y
+  correo electrónico del autor del proyecto.&
+  Medio&
+  Mantener los avances del proyecto en más de una cuenta, y evitar limitarse
+  a una sola cuenta.
+  \\ \hline
+
+  La aparición de \textit{blocker bugs} en actualizaciones de dependencias
+  pueden impactar negativamente en el cumplimiento del cronograma previsto y
+  además afectar la compatibilidad del software presentado con las últimas
+  versiones en dependencias. &
+  Bajo &
+  Los \textit{blocker bugs} suelen ser temporales, por tanto, si en el
+  transcurso del proyecto apareciera alguno, se debería reportar el \textit{bug}
+  en caso de no estar reportado y simplemente esperar hasta que aparezca una
+  actualización. Mientras tanto se deberá trabajar sobre una versión anterior
+  de la dependencia.
+  \\ \hline
+
+  La repentina enfermedad del autor de este proyecto podría retrasar la
+  entrega de entregables, lo cual a su vez conllevaría retrasos en revisiones o
+  en la no revisión del proyecto por parte del asesor asignado y profesores.&
+  Medio &
+  El autor del proyecto deberá tomar medidas de prevención para su salud como
+  una dieta saludable y tratar dormir 8 horas pese a que al alto volumen de
+  trabajo, al parecer no anticipado, por algunos cursos universitarios los cuales
+  podrían afectar negativamente la salud tanto mental como física tanto en el
+  corto como en el largo plazo \cite[p.~10-11]{estresAcademico}.
+  \\ \hline
+
+  Actualizaciones y cambios radicales en las librerías como \textit{GStreamer},
+  \textit{OpenCV} y \textit{dlib} que cambien la forma de trabajo puede retrasar
+  el avance del desarrollo del software debido a que implicará un esfuerzo extra
+  el aprender la nueva forma de uso de estos programas. &
+  Bajo &
+  Estar al pendiente de páginas, blogs, foros y listas de correos de las
+  respectivas librerías con el fin de estar al tanto de las últimas
+  actualizaciones con el fin de evitar de que el software use funciones
+  obsoletas.
+  \\ \hline
+
+  La indisponibilidad del asesor asignado puede afectar negativamente el
+  proceso de revisión, y por tanto la calidad, del proyecto. &
+  Medio &
+  Se deberá solicitar la asignación de un asesor con el conocimiento en el área
+  relacionada.
+  \\ \hline
+
+  \end{longtable}
+\end{center}
 
 
 \section{Viabilidad}
