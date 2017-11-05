@@ -339,7 +339,8 @@ a continuación:
 A continuación se describirán algunos métodos y algoritmos usados para el
 seguimiento de rostros basados en el método en base al color de la piel.
 
-\subparagraph{A Real-time Model for Multiple Human Face Tracking from Low-resolution Surveillance Videos}\mbox{} \\
+\subparagraph{Metodología 0: A Real-time Model for Multiple Human Face Tracking
+              from Low-resolution Surveillance Videos}\mbox{} \\
 
 Es un método propuesto por Rajib Sarkara, Sambit Baksh y Pankaj K Sa. Ha sido
 probado en 1000 imágenes elegidas al azar de la base de datos de rostros
@@ -405,7 +406,8 @@ A continuación se describen los pasos que sigue:
         detectada dependiendo de la forma de la cara \cite{sarkar2012real}.
 \end{enumerate}
 
-\subparagraph{A Robust Method for Multiple Face Tracking Using Kalman Filter}\mbox{} \\
+\subparagraph{Metodología 1:
+              A Robust Method for Multiple Face Tracking Using Kalman Filter}\mbox{} \\
 
 Es un método propuesto por Zaheer Shaik y Vijayan Asari para el seguimiento de
 múltiples rostros. Este resuelve el problema de oclusiones parciales y totales 
@@ -734,11 +736,187 @@ el desarrollo de este proyecto.
   \end{longtable}
 \end{center}
 
+\section{Justificación y viabilidad}
 
-\section{Viabilidad}
-\subsection{Viabilidad técnica}
-\subsection{Viabilidad temporal}
-\subsection{Viabilidad económica}
+\subsection{Justificación}
+Este proyecto se desarrolla por varias razones La primera, y la principal, es la
+de entregar a las personas, y en especial a la comunidad de software libre, un
+software le permita divertirse haciendo uso de la cámara web de su
+computadora de escritorio sin tener que verse en la necesidad de recurrir a
+software privativo, y por tanto respetando la libertad de su computación. Esta
+manera de "divertirse" se desarrolla a través de la introducción de una mejora,
+un filtro que permite sobreposicionar imágenes en la captura de la cámra web. En
+un contexto social, donde prima los valores y ética, bajo ninguna razón se
+debería desarrollar ni usar software privativo. Por un lado, cuando un
+desarrollador licencia un programa con licencia privativa este automáticamente
+toma control sobre sus usuarios. Sin embargo, el usuario, quien es el dueño de
+la computadora, es quien debería tener el control de esta. Cuando un
+desarrollador tiene el control este suele verse tentado a introducir de manera
+intencional funcionalidades en los programas que dañan a sus usuarios actuando
+en contra de sus intereses (\textit{malware}). Existe evidencia de que tanto
+software de \textit{Apple, Inc} como de \textit{Microsoft, Inc} se ha podido
+calificar de malware \cite{malwareFSF}. Un ejemplo de ello es \textit{Skype} en
+el cual la NSA podía tener accesso a los datos de los usuarios de Skype (tanto
+en video, voz, mensajes en texto y archivos compartidos entre sus usuarios)
+\cite{skypeMalware}.  Por otro lado, el usuario de software privativo
+constantemente cae en dilemas éticos: ¿quién debería decidir si compartir el
+software: el usuario o el desarrollador? Si el mejor amigo de este usuario
+pidiera una copia a su amigo, este tendría dos opciones: quedar bien con su
+amigo copiando el software, pero actuando ilegalmente o no prestar el software
+y quedar mal con su amigo \cite{patentesRMS}. La segunda razón tiene como
+propósito potenciar la creación y mejora de otros software multimedia que se
+pueda apalancar de los filtros que quedarán como resultado de este proyecto.
+Por ejemplo, algunos usuarios de \textit{Pitivi}, editor de video no lineal
+basado en GStreamer, han solicitado que se agregue el mecanismo para poder
+agregar parches sobre los rostros de personas en los videos. El filtro de
+seguimiento de rostros implementado para \textit{Cheese} podría escanear los
+rostros de diversos individuos a lo largo de un \textit{clip} de video en
+\textit{Pitivi} y automáticamente generar \textit{keyframes} los cuales
+indicarían la posición de múltiples parches sobre los rostros de las peronas y
+que podrían ser manipulados o borrados simplemente agregando símbolos que
+representen parches en el \textit{viewer} de \textit{Pitivi} los cuales pueden
+ser arrastrados o borrados.
+
+\subsection{Análisis de viabilidad}
+\subsubsection{Viabilidad técnica}
+Con respecto a la implementación del filtro en \textit{GStreamer}, si bien
+desarrollar plugins para GStreamer tiene una curva de aprendizaje relativamente
+larga, se tiene experiencia desarrollando tanto \textit{src pads} como filtros
+para \textit{GStreamer}, por lo que desarrollar este filtro no sería un
+problema. Con respecto a la implementación del algoritmo de rastreo de rostros,
+se cuenta con los conocimientos fundamentales para poder implementarlos
+satisfactoriamente, además se tiene la disposición de herramientas de código
+abierto como \textit{OpenCV} y \textit{dlib} (sobre los cuales se ha realizado
+experimentos previos), así como la disposición de un asesor quien domina el tema
+de visión artificial. En cuanto a \textit{GTK+} y otras librerías de
+GNOME, no solo se ha desarrollado anteriormente aplicaciones usando estas
+tecnologías (\textit{Pitivi}), sino que incluso se ha aportado en el desarrollo
+en proyectos como Libpeas y GObject, por lo que se tiene
+conocimiento de algunas librerías a profundidad. En relación a los lenguajes a
+usar \textit{Vala} y \textit{C++}, el primero tiene un parecido a \textit{C\#},
+el cual ha sido enseñado en un curso de la universidad así como el segundo. Por
+otra parte, en relación a \textit{Cheese}, además de tener a disposición el
+código fuente, se ha intentado con anterioridad implementar la funcionalidad del
+proyecto por lo que se conoce ciertas partes relevantes del programa, además se
+tiene contacto directo con el actual mantenedor del proyecto \textit{Cheese},
+David King, quien ha mostrado interés en el proyecto y ofrecido su ayuda incluso
+para revisar el código.
+
+\subsubsection{Viabilidad temporal}
+La implementación del proyecto dará inicio el 11/12/2017 y se contará con tres
+meses aproximadamente para tener la mayor parte del proyecto concluida. Los
+siguientes cuatro meses (aproximados) se dedicará a realizar algunos ajustes, y
+realizar la documentación requerida. A continuación, se muestra las tareas
+identificadas que involucra cumplir con cada resultado esperado y el tiempo por
+tarea estimado en horas.
+
+\begin{center}
+  \begin{longtable}{| p{.7\textwidth} | p{.25\textwidth} |}
+  \hline
+
+  \textbf{Tarea} &
+  \textbf{Horas estimadas}
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE0}}
+  \\ \hline
+
+  Preparar el \textit{dataset} &
+  24
+  \\ \hline
+
+  Implementar la \textit{Metodología 1} independientemente de \textit{GStreamer}
+  en C++&
+  144
+  \\ \hline
+
+  Medir \textit{accuracy}, \textit{precision} y \textit{recall} &
+  16
+  \\ \hline
+
+  Definir propiedades del objeto y estructura (\textit{GstStruct}) que se
+  enviará al \textit{bus} &
+  2
+  \\ \hline
+
+  Construir el \textit{Boilerplate} del plugin para \textit{GStreamer}
+  incluyendo \textit{OpenCV} como dependencia &
+  6
+  \\ \hline
+
+  Implementar la \textit{Metodología 1} como un filtro para \textit{GStreamer} &
+  60
+  \\ \hline
+
+  Medir \textit{accuracy}, \textit{precision} y \textit{recall} en el filtro&
+  16
+  \\ \hline
+
+  Medir el retraso (\textit{latency}) agregado por el filtro &
+  16
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE1}}
+  \\ \hline
+
+  Definir propiedades del objeto y estructura (\textit{GstStruct}) que se
+  enviará al \textit{bus} &
+  5
+  \\ \hline
+
+  Implementar filtro para detección del \textit{landmark} usando \textit{dlib} &
+  32
+  \\ \hline
+
+  Medir el retraso (\textit{latency}) agregado por el filtro &
+  12
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE2}}
+  \\ \hline
+
+  Definir propiedades del objeto &
+  3
+  \\ \hline
+
+  Implementar filtro de sobreposición de imágenes &
+  24
+  \\ \hline
+
+  Medir el retraso (\textit{latency}) agregado por el filtro &
+  8
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE3}}
+  \\ \hline
+
+  Diseñar \textit{mockups} de la interfaz gráfica&
+  8
+  \\ \hline
+
+  Implementar interfaz gráfica en \textit{Cheese} para los filtros&
+  24
+  \\ \hline
+
+  Integrar filtros del proyecto con el \textit{pipeline} de \textit{Cheese}&
+  80
+  \\ \hline
+
+  Escribir \textit{unit tests} &
+  16
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+\subsubsection{Viabilidad económica}
+Debido a que el proyecto se apalancará no solo de herramientas con licencias
+de software libre sino que gratuitas, no se puede identificar costos fijos
+relacionados en este aspecto. Se identifican costos fijos aunque menores
+provenientes de la energía eléctrica y costos para un total de 500 horas de
+trabajo aproximadas. También se debe precisar que este proyecto agregaría costos
+relevantes de mantenimiento en caso de que las contribuciones sean oficialmente
+aceptadas por \textit{The GNOME Project}.
+
 \chapter{Marco Conceptual}
 \section{Objetivos del marco conceptual}
 A continuación se explicará algunos conceptos que se consideran básicos para
