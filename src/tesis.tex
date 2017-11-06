@@ -303,6 +303,94 @@ estas imágenes el usuario puede seleccionar una o más de estas imágenes las
 cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
 \textit{OE2}.
 
+\subsection{Mapeo de objetivos, resultados y verificación}
+
+A continuación se presenta la siguiente tabla para facilitar la identificación
+de objetivos específicos, resultados y medios de verificación.
+
+\begin{center}
+  \begin{longtable}{| p{.4\linewidth} | p{.2\linewidth} | p{.3\linewidth} |}
+  \hline
+
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE0}): Desarrollar un algoritmo que
+  implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
+  de múltiples rostros con soporte para oclusión entre rostros.}
+  \\ \hline
+
+  \textbf{Resultado} &
+  \textbf{Meta física} &
+  \textbf{Medio de verificación}
+  \\ \hline
+
+  Filtro para \textit{GStreamer} que permita el rastreamiento de rostros con el
+  mínimo retardo posible y la máxima precisión posible. &
+  Software &
+  \textit{Latency}, \textit{precision}, \textit{recall}, \textit{accuracy} y
+  \textit{F1 score}
+  \\ \hline
+
+
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE1}): Desarrollar un algoritmo que
+  implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
+  de múltiples rostros con soporte para oclusión entre rostros.}
+  \\ \hline
+
+  \textbf{Resultado} &
+  \textbf{Meta física} &
+  \textbf{Medio de verificación}
+  \\ \hline
+
+  Filtro para \textit{GStreamer} que permita detectar el \textit{landmark} del
+  rostro. &
+  Software &
+  \textit{Latency}
+  \\ \hline
+
+
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE2}): Escribir el código fuente de
+  un filtro para GStreamer que basado en el filtro implementado en \textit{OE1}
+  permita la sobreposición de imágenes sobre puntos predeterminados en los
+  rostros detectados.}
+  \\ \hline
+
+  \textbf{Resultado} &
+  \textbf{Meta física} &
+  \textbf{Medio de verificación}
+  \\ \hline
+
+  Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
+  detectadas. &
+  Software &
+  \textit{Latency}
+  \\ \hline
+
+
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE3}): Diseñar una interfaz gráfica
+  para Cheese que permita al usuario de Cheese aplicar el filtro implementado en
+  \textit{OE2}.}
+  \\ \hline
+
+  \textbf{Resultado} &
+  \textbf{Meta física} &
+  \textbf{Medio de verificación}
+  \\ \hline
+
+  Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
+  detectadas. &
+  Software &
+  Pruebas unitarias
+  \\ \hline
+
+
+
+
+
+
+  \end{longtable}
+\end{center}
+
+
+
 \subsection{Herramientas, métodos y procedimientos}
 
 \subsubsection{En relación al Objetivo Específico 0 (OE0)}
@@ -679,10 +767,7 @@ el desarrollo de este proyecto.
   en la no revisión del proyecto por parte del asesor asignado y profesores.&
   Medio &
   El autor del proyecto deberá tomar medidas de prevención para su salud como
-  una dieta saludable y tratar dormir 8 horas pese a que al alto volumen de
-  trabajo, al parecer no anticipado, por algunos cursos universitarios los cuales
-  podrían afectar negativamente la salud tanto mental como física tanto en el
-  corto como en el largo plazo \cite[p.~10-11]{estresAcademico}.
+  una dieta saludable y tratar dormir 8 horas.
   \\ \hline
 
   Actualizaciones y cambios radicales en las librerías como \textit{GStreamer},
