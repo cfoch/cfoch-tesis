@@ -135,16 +135,16 @@ activos por día en Estados Unidos \cite{snap2017prospectus}⁠. De hecho, mucho
 jóvenes adultos sostienen que este tipo de filtros resuelve problemas de
 comunicación dado en ciertas redes sociales debido a que la sobreposición de
 imágenes y texto puede clarificar el mensaje que ellos desean expresar en sus
-fotografías \cite{vaterlaus2016snapchat}. El deseo por agregar stickers sobre
+fotografías \cite{vaterlaus2016snapchat}. El deseo por agregar imágenes sobre
 las fotografías, no se limita a occidente. De hecho, esta práctica ha sido y es
 muy común en Japón desde la década de los noventas. En el año 1995, Altus, una
 empresa japonesa, desarrolló un fotomatón (un quiosco para tomarse fotos,
-generalmente insertando una moneda) que permitía agregar stickers sobre las
+generalmente insertando una moneda) que permitía agregar pegatinas sobre las
 fotografías \cite{edwards2004photographs}. Atlus patentó una máquina con el
 nombre de Purikura, término que se volvería más adelante en un término del uso
 cotidiano de las personas en Japón principalmente los adolescentes
 \cite{edwards2004photographs}. Recientemente, estas máquinas también se han
-renovado incluyendo filtros digitales para el agregado de “stickers” sobre las
+renovado incluyendo filtros digitales para el agregado de imágenes sobre las
 fotografías \cite{TheOrigi29}.\\
 
 En las computadoras de escritorio, podemos dividir la situación actual de las
@@ -154,7 +154,7 @@ web por defecto es Photo Booth, la cual permite aplicar filtros en tiempo real,
 así como detectar a una persona para reemplazar el fondo por un video
 preestablecido o foto colocada manualmente por el usuario \cite{photoBooth}. Fun
 Booth es una aplicación para macOS. desarrollada por Spoonjuice LLC, la cual
-permite detectar un rostro humano frente a la cámara para colocar stickers sobre
+permite detectar un rostro humano frente a la cámara para colocar imágenes sobre
 este \cite{funBooth}. Por otro lado, Windows 10 incluye una aplicación para la toma de fotos y grabación de
 video, pero esta no dispone de filtros tan sofisticados como los de Photo Booth.
 Sin embargo, existen aplicaciones de terceros con varias funcionalidades.
@@ -190,21 +190,22 @@ de las capturas de Cheese fue expresado en el 2010 ⁠\cite{Bug6279256} y, adem�
 ya hubo intentos de agregar esta funcionalidad. En el GNOME Outreach Program for
 Women (programa para mujeres similar al GSoC pero financiado por la GNOME
 Foundation, ahora llamado Outreachy) del 2010, la participante Laura Elisa Lucas
-Alday, trabajó en desarrollar un filtro (elemento) para GStreamer llamado
-gstfaceoverlay, el cual permitía la adición de imágenes en formato svg sobre un
-rostro detectado en una imagen \cite{faceoverlay}\cite{gopw1}. El
-filtro fue aceptado por los desarrolladores GStreamer, y posteriormente agregado
-a GNOME Video Effects, librería que contiene una lista de filtros o combinación
-de filtros de GStreamer en archivos de texto y que son usados por Cheese para
-aplicar los filtros. Sin embargo, este filtro fue posteriormente retirado de
-GNOME Video Effects puesto que algunos archivos svg hacían lento (el “framerate”
-caía) a Cheese \cite{Bug6641489}.\\
+Alday, trabajó en desarrollar un filtro (elemento) para GStreamer, un framework
+especializado en el procesamiento multimedia, llamado gstfaceoverlay, el cual
+permitía la adición de imágenes en formato svg sobre un rostro detectado en una
+imagen \cite{faceoverlay}\cite{gopw1}. El filtro fue aceptado por los
+desarrolladores GStreamer, y posteriormente agregado a GNOME Video Effects,
+librería que contiene una lista de filtros o combinación de filtros de GStreamer
+en archivos de texto y que son usados por Cheese para aplicar los filtros. Sin
+embargo, este filtro fue posteriormente retirado de GNOME Video Effects puesto
+que algunos archivos svg hacían lento (el “framerate” caía) a Cheese
+\cite{Bug6641489}.\\
 
 
 En setiembre 2012, GStreamer 1.0 fue lanzado, y desde esa fecha, gstfaceoverlay
 no fue portado a la nueva versión de GStreamer. Esto llevó a que el filtro fuera
 borrado de la librería el 21 de diciembre del 2016. Ante esto, en el 2016, se
-propuso un parche en el "bug tracker" de GNOME para portar el filtro a las
+propuso un parche en el ``bug tracker'' de GNOME para portar el filtro a las
 series GStreamer 1.x, el cual sería aceptado en GStreamer en el año 2017
 \cite{Bug7640127}. Una vez portado, se probó su funcionamiento en Cheese
 \cite{CFOCHfunnyStickersCheese} y se observó que además de solo soportar la
@@ -213,13 +214,14 @@ rostro de más de una persona. Ello condujo a proponer otro parche que solucione
 este problema \cite{Bug7691771}. Sin embargo, esta solución si bien al parecer
 es correcta en un contexto aislado, arrastra un problema en su base. El problema
 fundamental en este filtro es que no ha debido implementarse sobre la base del
-filtro gstfacedetect. De hecho, usar gstfacedetect como base es un error si se
+filtro gstfacedetect, otro filtro para GStreamer especializado en la detección
+de rostros. De hecho, usar gstfacedetect como base es un error si se
 desea usar el plugin en Cheese para dar soporte a múltiples rostros con
 múltiples imágenes, pues este aplica la detección facial para cada cuadro (o
-\textit{“frame”} en inglés), pero sin respetar un orden alguno, es decir que una persona
-etiquetada en el primer cuadro con la imagen A podría ser etiquetada en el
-segundo marco con la imagen B, y en el tercero otra vez con A o tal vez con C.
-Lo esperado sería que si se sobrepuso la imagen A sobre el rostro de una
+\textit{“frame”} en inglés), pero sin respetar un orden alguno, es decir que una
+persona etiquetada en el primer cuadro con la imagen A podría ser etiquetada en
+el segundo marco con la imagen B, y en el tercero otra vez con A o tal vez con
+C. Lo esperado sería que si se sobrepuso la imagen A sobre el rostro de una
 persona, esta imagen A se mantenga sobrepuesta en los siguientes cuadros.\\
 
 Para conseguir que Cheese soporte filtros de sobreposición de imágenes sobre los
@@ -227,20 +229,21 @@ rostros de personas en tiempo real no es suficiente escribir un nuevo filtro
 para GStreamer. Tampoco es suficiente, luego de escribir el filtro, agregar la
 configuración del “pipeline” de GStreamer a GNOME Video Effects de tal modo que
 Cheese pueda leerlo. Cheese debería implementar una interfaz gráfica en la cual
-el usuario pueda seleccionar e importar imágenes que desea usar, de este modo no
+el usuario pueda seleccionar e importar imágenes que desea usar, de este modo
 se evita el uso de efectos estáticos predeterminados. Es preciso resaltar que
 realizar tales cambios a Cheese no es fácil para nuevos colaboradores del
 proyecto. Cheese no se ha actualizado recientemente, y una de las razones puede
 ser que existe pocas personas que sepan programar en Vala, un lenguaje de
 programación orientado a objetos con un compilador que traduce el
-código a C para compilarlo compilado con gcc \cite{valaOverview}. Además Cheese usa Clutter,
-librería de GNOME basada en OpenGL, para mostrar la salida de la captura y los
-efectos aplicados en la pantalla. Ambos no disponen de mucha documentación
-disponible pública, y por lo general, uno debe guiarse en base a otros programas
-que han sido escritos usando tanto Clutter como Vala. Por otro lado, entre los
-filtros a usar para el rastreamiento de imágenes, algunos como face4d no tienen
-licencias compatibles con GPLv2, para lo cual no solo es necesario escribir
-software libre, sino que el código debe ser compatible con esta licencia.\\
+código a C para compilarlo compilado con gcc \cite{valaOverview}. Además Cheese
+usa Clutter \cite{CheeseDependencyClutter}, librería de GNOME basada en OpenGL,
+para mostrar la salida de la captura y los efectos aplicados en la pantalla.
+Ambos no disponen de mucha documentación disponible pública, y por lo general,
+uno debe guiarse en base a otros programas que han sido escritos usando tanto
+Clutter como Vala. Por otro lado, entre los filtros a usar para el rastreamiento
+de imágenes, algunos como face4d no tienen licencias compatibles con GPLv2, para
+lo cual no solo es necesario escribir software libre, sino que el código debe
+ser compatible con esta licencia.\\
 
 En conclusión, se puede observar que los usuarios de software para la cámara web
 tienen varias razones para preferir usar filtros. El problema es más acentuado para
@@ -253,10 +256,11 @@ millennials de 18 a 24 años a tener una preferencia por filtros que sobreponen
 imágenes que siguen sus rostros capturados por la cámara web a otros medios
 de comunicación convencionales. Siendo Cheese un software libre, lo cual
 representa una ventaja social sobre el software privativo, es posible estudiarlo
-y mejorarlo (sin mencionar otras libertades), además, se considera como la mejor
-opción para desarrollar este proyecto pues tiene mejores características en
-comparación de otros proyectos con licencias libres. Agregar la funcionalidad de
-aplicar filtros que sobrepongan imágenes sobre los rostros de las personas
+y mejorarlo (sin mencionar otras libertades) puede ser considerado como la mejor
+opción para implementar la característica de sobreposición de imágenes sobre
+cuadros capturados por la webcam, ya que tiene mejores características que otros
+proyectos de software libre similares para escritorio. Agregar la funcionalidad
+de aplicar filtros que sobrepongan imágenes sobre los rostros de las personas
 capturados por una webcam en tiempo real no solo es beneficio para los jóvenes
 millennials, sino también para la GNOME Foundation y podría aumentar la
 competitividad entre aplicaciones de escritorio de captura de video y entre
@@ -264,46 +268,39 @@ entornos de escritorio para sistemas basados en UNIX (incluyendo macOS).
 
 \section{Objetivos}
 \subsection{Objetivo general}
-Implementar e integrar en Cheese un plugin (un conjunto de elementos) para
-GStreamer que mediante el uso de algoritmos para detección y seguimiento de
-múltiples rostros (o una adaptación de estos) permita sobreponer imágenes sobre
-los rostros detectados en videos (particularmente, por la cámara web).
+Implementar e integrar en Cheese un plugin para GStreamer que mediante el uso de
+algoritmos para detección y seguimiento de múltiples rostros (o una adaptación
+de estos) permita sobreponer imágenes sobre los rostros detectados en videos
+(particularmente, por la cámara web).
 
 \subsection{Objetivos específicos}
 \subsubsection{OE0: Objetivo Específico 0}
-Desarrollar un algoritmo que implemente un filtro para GStreamer para
+Desarrollar un algoritmo e implementarlo como un filtro de GStreamer para
 la detección y rastreamiento de múltiples rostros con soporte para oclusión
-entre rostros.
+así como la detección de puntos faciales de la cara.
 \subsubsection{OE1: Objetivo Específico 1}
-Escribir el código fuente de un filtro para GStreamer que basado en el filtro
-implementado en \textit{OE0} permita detectar el "landmark" de cada rostro.
-\subsubsection{OE2: Objetivo Específico 2}
 Escribir el código fuente de un filtro para GStreamer que basado en el filtro
 implementado en \textit{OE1} permita la sobreposición de imágenes sobre puntos
 predeterminados en los rostros detectados.
-\subsubsection{OE3: Objetivo Específico 3}
+\subsubsection{OE2: Objetivo Específico 3}
 Diseñar una interfaz gráfica para Cheese que permita al usuario de Cheese
 aplicar el filtro implementado en \textit{OE2}.
 
 \subsection{Resultados esperados}
 \subsubsection{REOE0: Resultados esperados para el Objetivo Específico 0}
-Un filtro que sea al menos tan preciso como alguno de los algoritmos de rastreo
-de múltiples rostros estudiados en este proyecto de fin de carrera y
-además que otorgue suficiente fluidez lo cual un manejo adecuado del retardo en
-GStreamer. Este filtro deberá además definir una estructura extendible, la cual
-contiene los datos de las coordenadas de los rostros rastreados y se envía como
-un mensaje al bus.
+Un filtro que implemente un algoritmo de rastreo de múltiples rostros, siendo
+este algoritmo propio o una implementación de alguno existente. Este filtro
+definirá una estructura o interfaz donde se guardarán las coordenadas de los
+rostros y sus puntos puntos faciales. Esta interfaz servirá como medio de
+comunicación entre el filtro y otros filtros o entre el filtro y la aplicación
+final. Además este filtro debe ser personalizable para regular el desempeño del
+filtro y por ende mejorar el delay.
 \subsubsection{REOE1: Resultados esperados para el Objetivo Específico 1}
-Un filtro que tomando las coordenadas del filtro implementado para \textit{OE0}
-permita detectar el landmark de los rostros detectados además de extender el
-mensaje recibido en el bus por el filtro del OE0 para también enviar las
-coordenadas de los puntos del landmark como mensaje en el bus.
-\subsubsection{REOE2: Resultados esperados para el Objetivo Específico 2}
 Un filtro que tomando como referencia las coordenadas de diversos puntos de cada
-rostro detectado ofrezca un conjunto de propiedades para colocar imágenes en
-lugares predefinidos del rostro como filtrum (parte entre la boca y nariz),
+rostro detectado ofrezca un conjunto parámetros de entrada para colocar imágenes
+en lugares predefinidos del rostro como filtrum (parte entre la boca y nariz),
 boca, ojos, nariz, orejas y cara.
-\subsubsection{REOE3: Resultados esperados para el Objetivo Específico 3}
+\subsubsection{REOE2: Resultados esperados para el Objetivo Específico 2}
 Una interfaz gráfica con un conjunto de imágenes clasificadas por categoría. De
 estas imágenes el usuario puede seleccionar una o más de estas imágenes las
 cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
@@ -318,6 +315,7 @@ de objetivos específicos, resultados y medios de verificación.
   \begin{longtable}{| p{.4\linewidth} | p{.2\linewidth} | p{.3\linewidth} |}
   \hline
 
+  % Row
   \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE0}): Desarrollar un algoritmo que
   implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
   de múltiples rostros con soporte para oclusión entre rostros.}
@@ -328,35 +326,20 @@ de objetivos específicos, resultados y medios de verificación.
   \textbf{Medio de verificación}
   \\ \hline
 
-  Filtro para \textit{GStreamer} que permita el rastreamiento de rostros con el
-  mínimo retardo posible y la máxima precisión posible. &
+  Filtro para \textit{GStreamer} que permita el rastreamiento de rostros y
+  detección de puntos faciales del rostro a partir de un modelo entrenado 
+  permitiendo regular el retardo ajustando parámetros. &
   Software &
-  \textit{Latency}, \textit{precision}, \textit{recall}, \textit{accuracy} y
-  \textit{F1 score}
+  \textit{Precision}, \textit{recall}, \textit{accuracy} y
+  \textit{F1 score} del detector y rastreador de rostros, y comparación del
+  \textit{latency} creado entre el filtro existente y el desarrollado.
   \\ \hline
 
-
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE1}): Desarrollar un algoritmo que
-  implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
-  de múltiples rostros con soporte para oclusión entre rostros.}
-  \\ \hline
-
-  \textbf{Resultado} &
-  \textbf{Meta física} &
-  \textbf{Medio de verificación}
-  \\ \hline
-
-  Filtro para \textit{GStreamer} que permita detectar el \textit{landmark} del
-  rostro. &
-  Software &
-  \textit{Latency}
-  \\ \hline
-
-
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE2}): Escribir el código fuente de
-  un filtro para GStreamer que basado en el filtro implementado en \textit{OE1}
-  permita la sobreposición de imágenes sobre puntos predeterminados en los
-  rostros detectados.}
+  % Row
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE1}): Escribir el código
+  fuente de un filtro para GStreamer que basado en el filtro implementado en
+  \textit{OE0} permita la sobreposición de imágenes sobre puntos predeterminados
+  en los rostros detectados.}
   \\ \hline
 
   \textbf{Resultado} &
@@ -367,13 +350,13 @@ de objetivos específicos, resultados y medios de verificación.
   Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
   detectadas. &
   Software &
-  \textit{Latency}
+  \textit{Latency} y pruebas unitarias de partes importantes del código.
   \\ \hline
 
-
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE3}): Diseñar una interfaz gráfica
-  para Cheese que permita al usuario de Cheese aplicar el filtro implementado en
-  \textit{OE2}.}
+  % Row
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE2}): Diseñar una interfaz
+  gráfica para Cheese que permita al usuario de Cheese aplicar el filtro
+  implementado en \textit{OE1}.}
   \\ \hline
 
   \textbf{Resultado} &
@@ -383,15 +366,8 @@ de objetivos específicos, resultados y medios de verificación.
 
   Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
   detectadas. &
-  Software &
-  Pruebas unitarias
+  Software
   \\ \hline
-
-
-
-
-
-
   \end{longtable}
 \end{center}
 
@@ -400,8 +376,102 @@ de objetivos específicos, resultados y medios de verificación.
 \subsection{Herramientas, métodos y procedimientos}
 
 \subsubsection{En relación al Objetivo Específico 0 (OE0)}
-\paragraph{Metodologías y algoritmos para el seguimiento de rostros}\mbox{} \\
 
+\paragraph{Metodologías para detección de rostros}
+\subparagraph{Metodología 0: Detector de objetos de Viola-Jones}\mbox{} \\
+Este es el método que el filtro existente de \textit{GStreamer} llamado
+\textit{gstfacedetect} que se usa actualmente. Este método basado en aprendizaje
+de máquina para detectar objetos y procesar imágenes de manera muy rápida. Tres
+principales contribuciones se brindan:
+
+\begin{enumerate}
+    \item \textbf{Imagen integral y vector de características tipo Haar}:
+    la imagen integral (figura \ref{fig:integral-image-input} y
+    \ref{fig:integral-image-output}) es manera de representar una imagen
+    la cual se usa para generar un vector de características tipo Haar
+    \cite{violajones}. Por ejemplo, si se tiene el rostro de una persona
+    (figura \ref{fig:haar-face}), y se tiene dos rectángulos
+    (figura \ref{fig:haar-face-with-rectangles}), el vector característica se
+    puede calcular substrayendo la imagen integral del rectángulo negro con la
+    imagen integral del rectángulo blanco \cite{wang2014analysis}.
+
+    % Figura: Ejemplo de imagen integral.
+    \begin{figure}[H]
+      \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{../images/integral-image-input.png}
+        \caption{Imagen de entrada.}
+        \label{fig:integral-image-input}
+      \end{subfigure}
+      \hfill
+      \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{../images/integral-image-output.png}
+        \caption{Imagen integral.}
+        \label{fig:integral-image-output}
+      \end{subfigure}
+      \caption{Ejemplo de imagen integral. La imagen integral siempre tendrá
+      su primera columna y primera fila llena de ceros. Luego las demás celdas
+      se calcula como la suma de los acumulados de las celdas anteriores.}
+      \floatfoot{Imágenes tomadas y adaptadas de \cite{IntegralImageMathworks}}
+    \end{figure}
+
+    % Figura: Ejemplo de haar-like features
+    \begin{figure}[H]
+      \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{../images/haar-face1.png}
+        \caption{Imagen de un simple rostro en escalas grises.}
+        \label{fig:haar-face}
+      \end{subfigure}
+      \hfill
+      \begin{subfigure}[b]{0.4\textwidth}
+        \includegraphics[width=\textwidth]{../images/haar-face2.png}
+        \caption{Rectángulos sobre los cuáles se calculará la imagen integral.}
+        \label{fig:haar-face-with-rectangles}
+      \end{subfigure}
+      \caption{Ilustración de técnica usada para calcular los vectores de
+      características tipo Haar. Una vez calculados la imagen integral en el
+      rectángulo negro y blanco, estos se restan. El proceso se repite para
+      todos los subrectángulos posibles y algunos métodos incluyen la rotación
+      de estos.}
+      \floatfoot{Imágenes tomadas de \cite{wang2014analysis}
+      }
+    \end{figure}
+
+    \item \textbf{Entrenamiento con  Adaboost}: 
+    Se usa una variante de Adaboost para descartar una gran cantidad de vectores
+    característica, ya que tan solo usar un rectángulo de 24 x 24 píxeles crea
+    162336 vectores característica \cite{wang2014analysis}.
+    Lo que se busca es seleccionar los vectores característica más
+    representativos \cite{violajones}. De esta manera se puede seleccionar una
+    característica de 180000 posibles características \cite{violajones}.
+
+    \item \textbf{Cascadas}:
+    Se usa un árbol de decisiones llamado "cascada" \cite{violajones}.
+    Se divide el clasificador en varios clasificadores \cite{violajones}.
+    Un resultado positivo en un clasificador dispara otro clasificador, y así
+    sucesivamente \cite{violajones}. Si un clasificador arroja un resultado
+    negativo, la región rectangular ("subventana") es descartada
+    \cite{violajones}. Cada clasificador consecutivo se conoce como
+    \textit{stage}, y la ventana que pasa todos los \textit{stages} es una
+    región de rostro \cite{violajones}.
+
+    \begin{figure}[H]
+      \centering
+        \includegraphics{../images/cascade-diagram.png}\par
+      \caption{Diagrama de cascadas con 3 \textit{stages}. Cada subventana, un
+      trozo de imagen que se desliza por la imagen a analizar, es pasada por
+      este clasificador. Las ventanas que pasan satisfactoriamente el
+      clasificador se consideran rostros.}
+      \floatfoot{Fuente: \cite{violajones}}
+      \label{fig:cascades-diagram}
+    \end{figure}
+\end{enumerate}
+
+
+% \subparagraph{En relación al rastreamiento de rostros}
+
+% \subparagraph{En relacion a la detección de landmarks o puntos faciales}
+
+\paragraph{Metodologías y algoritmos para el seguimiento de rostros}\mbox{} \\
 Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de personas
 pueden ser clasificados en cuatro categorías según la forma, las características,
 el modelo o color de piel de la cara \cite{shaik2007robust}. Estos se detallan
@@ -431,7 +501,9 @@ a continuación:
 \end{enumerate}
 
 A continuación se describirán algunos métodos y algoritmos usados para el
-seguimiento de rostros basados en el método en base al color de la piel.
+seguimiento de rostros basados en el método en base al color de la piel, de los
+cuales el proyecto puede potencialmente tomar referencia en algunas partes o en
+su totalidad para implementar el filtro de rastreo de rostros.
 
 \subparagraph{Metodología 0: A Real-time Model for Multiple Human Face Tracking
               from Low-resolution Surveillance Videos}\mbox{} \\
@@ -513,7 +585,8 @@ en más detalle.\\
 Cada rastreador de rostro se inicia usando el algoritmo de detección de rostros
 de Viola-Jones el cual se provee en \textit{OpenCV}, además se inician las
 plantillas (\textit{templates} en inglés) de los rostros \cite{shaik2007robust}. Las caras detectadas
-se limitan por un ROI rectangular \cite{shaik2007robust}. En este instante, también se inicia el modelo
+se limitan por un ROI (o región de interés) rectangular \cite{shaik2007robust}.
+En este instante, también se inicia el modelo
 de ropa que se usará para cada persona al cual corresponde a una función de
 distribución de densidad no paramétrica \cite{shaik2007robust}. Como la distribución, de antemano, no
 es conocida se usa una estimación de densidad (\textit{kernel}) tomando como
@@ -526,7 +599,9 @@ manera:
 donde $\delta$ es la función de Kronecker, $k$ el \textit{kernel} de
 Epanechnikov y $b$ es la función que asocia un pixel $x$ en la posición $ij$
 a un índice $b(x_{ij})$ en un espacio de colores cuantificada (es decir en un
-espacio de colores reducido) \cite{shaik2007robust}.\\
+espacio de colores reducido) \cite{shaik2007robust}. Esta función representa
+la probabilidad de que un píxel con valor $u$ en una región $q$, en este caso
+la ropa.\\
 
 Además se usa el filtro de Kalman, el cual es un filtro usado para la estimación
 de ciertas variables en el futuro con aplicaciones en predicción de análisis
@@ -567,11 +642,11 @@ predichas y $w_{t}$ el ruido gausiano):
     w_{t}
 \]
 Estas variables predichas se usan para localizar un rostro en el frame
-"actual" \cite{shaik2007robust}. Usando una técnica de coincidencia de plantillas o (\textit{template
+actual \cite{shaik2007robust}. Usando una técnica de coincidencia de plantillas o (\textit{template
 matching} en inglés), se calcula la distancia entre la plantilla de una cara del
 cuadro anterior y de la región con los valores predichos \cite{shaik2007robust}. Si el cuadro anterior
 es menor a un \textit{threshold} de 0.9, se asume \textbf{oclusión parcial} \cite{shaik2007robust}.
-Además basándose en las coordenadas para el cuadro "actual" halladas por el
+Además basándose en las coordenadas para el cuadro ``actual'' halladas por el
 filtro de Kalman, se recalcula el modelo de distribución de la ropa para el
 cuadro actual ($p_{u}$) \cite{shaik2007robust}. Luego se debe medir la similitud entre las
 distribuciones $q_{u}$ y $p_{u}$ \cite{shaik2007robust}. Para ello se usa la métrica estadística
@@ -582,7 +657,7 @@ ser actualizados \cite{shaik2007robust}.\\
 Para actualizar el \textit{template} de rostro se debe redetectar los rostros en
 el frame actual \cite{shaik2007robust}. Para ello, se usa una técnica basada en los colores \cite{shaik2007robust}. Tomando el
 espacio de color cuantificado (reducido), se busca clasificar los pixeles como
-"tipo piel" o "no tipo piel" \cite{shaik2007robust}. Para ello se usa el espacio de color
+``tipo piel'' o ``no tipo piel'' \cite{shaik2007robust}. Para ello se usa el espacio de color
 \textit{YC\textsubscript{b}C\textsubscript{r}}, en el cual la luma \textit{Y} es
 separada: ello hace este algoritmo robusto a cambios en la iluminación. Luego,
 estos pixeles son clasificados como piel según un threshold en los rangos de
@@ -597,11 +672,11 @@ rostros \cite{shaik2007robust}.\\
 Para detectar la región al rededor de cada \textit{blob} se usa un algoritmo
 de detección de bordes el cual es implementado por \textit{OpenCV} \cite{shaik2007robust}. Luego, a los
 contornos detectados se les aplica un parámetro estadístico llamado el
-coeficiente de suavidad para cada "blob" \cite{shaik2007robust}. Si el coeficiente para un
+coeficiente de suavidad para cada ``blob'' \cite{shaik2007robust}. Si el coeficiente para un
 \textit{blob} es menor a $0.5$, este se descarta \cite{shaik2007robust}.\\
 
-En los \textit{blobs} restantes, se aplica un "factor de forma", el cual
-relaciona el área entre el perímetro \cite{shaik2007robust}. Este se compara al "factor de forma"
+En los \textit{blobs} restantes, se aplica un ``factor de forma'', el cual
+relaciona el área entre el perímetro \cite{shaik2007robust}. Este se compara al ``factor de forma''
 mínimo calculado para los primeros rectángulos que limitaban los rostros
 detectados cuando se usó Viola-Jones \cite{shaik2007robust}. El fin de esto es eliminar más
 \textit{blobs} \cite{shaik2007robust}. Luego para los \textit{blobs} que sobraron, se dibujan los
@@ -661,16 +736,17 @@ caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robus
         para la detección de rostros y envía señales al \textit{bus} con las
         coordenadas localizadas.
     \item C++, ya que OpenCV y GStreamer lo soportan.
-    \item gst-launch-1.0 para probar manualmente la salida del streaming.
-    \item gst-validate para validar que el filtro implementado no produzca
-        frames cuando recibe una señal EOS (end-of-stream) o que reciba frames
-        mientras esté en el estado \textit{PAUSED}
+    \item gst-launch-1.0, un programa para construir \textit{pipelines} de
+    streaming de audio y video por línea de comandos, para probar manualmente
+    la salida del streaming.
 \end{enumerate}
 
 \subsubsection{En relación al Objetivo Específico 1 (OE1)}
 \begin{enumerate}
-    \item Dlib, ya que permite detectar el landmark de un rostro.
-    \item \textit{GStreamer}, \textit{C++, gst-launch-1.0} y \textit{gst-validate}
+    \item Dlib, un \textit{toolkit} en \textit{C++} que proporciona algoritmos
+    de machine learning, y que entre una de sus características está la de
+    detectar el \textit{landmark} o puntos faciales de un rostro.
+    \item \textit{GStreamer}, \textit{C++} y \textit{gst-launch-1.0}
         por las mismas razones mencionadas en el caso anterior.
 \end{enumerate}
 
@@ -678,7 +754,7 @@ caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robus
 \begin{enumerate}
     \item \textit{gdkpixbufoverlay}, un filtro para \textit{GStreamer} que permite la
         sobreposición de imágenes sobre los cuadros recibidos por este filtro.
-    \item \textit{GStreamer}, \textit{C++, gst-launch-1.0} y \textit{gst-validate}
+    \item \textit{GStreamer}, \textit{C++} y \textit{gst-launch-1.0}
         por las mismas razones mencionadas en el caso anterior.
 \end{enumerate}
 
@@ -708,7 +784,8 @@ caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robus
     sobreposición de imágenes en Cheese debería dar la sensación de fluidez a
     usuarios de estas computadoras. Además, este proyecto debe funcionar sobre
     \textit{Wayland} ya que es el protocolo más usado recientemente por las
-    distribuciones de GNU/Linux reemplazando a \textit{X.Org}.
+    distribuciones de GNU/Linux reemplazando a \textit{X.Org}
+    \cite{LinuxMagazineWaylandStrong}.
 
 \subsubsection{Limitaciones}
 Se identifican las siguientes limitaciones:
@@ -739,13 +816,6 @@ el desarrollo de este proyecto.
   \textbf{Medidas para mitigar el riesgo}
   \\ \hline
 
-  Una mala planificación del proyecto puede no solo retrasar el cumplimiento de
-  los respectivos entregables sino en el peor de los casos, el incumplimiento
-  del mismo. &
-  Alto &
-  Organizar los tiempos adecuadamente con el fin de evitar retrasos.
-  \\ \hline
-
   La brecha de seguridad, principalmente a través de un ataque cibernético por
   \textit{hackers} puede poner en riesgo cuentas donde se tiene publicados los
   avances del proyecto de fin de carrera. Estas amenazas puede incluir acceso
@@ -768,14 +838,6 @@ el desarrollo de este proyecto.
   de la dependencia.
   \\ \hline
 
-  La repentina enfermedad del autor de este proyecto podría retrasar la
-  entrega de entregables, lo cual a su vez conllevaría retrasos en revisiones o
-  en la no revisión del proyecto por parte del asesor asignado y profesores.&
-  Medio &
-  El autor del proyecto deberá tomar medidas de prevención para su salud como
-  una dieta saludable y tratar dormir 8 horas.
-  \\ \hline
-
   Actualizaciones y cambios radicales en las librerías como \textit{GStreamer},
   \textit{OpenCV} y \textit{dlib} que cambien la forma de trabajo puede retrasar
   el avance del desarrollo del software debido a que implicará un esfuerzo extra
@@ -787,13 +849,6 @@ el desarrollo de este proyecto.
   obsoletas.
   \\ \hline
 
-  La indisponibilidad del asesor asignado puede afectar negativamente el
-  proceso de revisión, y por tanto la calidad, del proyecto. &
-  Medio &
-  Se deberá solicitar la asignación de un asesor con el conocimiento en el área
-  relacionada.
-  \\ \hline
-
   \end{longtable}
 \end{center}
 
@@ -802,10 +857,10 @@ el desarrollo de este proyecto.
 \subsection{Justificación}
 Este proyecto se desarrolla por varias razones La primera, y la principal, es la
 de entregar a las personas, y en especial a la comunidad de software libre, un
-software le permita divertirse haciendo uso de la cámara web de su
-computadora de escritorio sin tener que verse en la necesidad de recurrir a
-software privativo, y por tanto respetando la libertad de su informática. Esta
-manera de "divertirse" se desarrolla a través de la introducción de una mejora,
+software le permita divertirse haciendo uso de la cámara web de su computadora
+de escritorio sin tener que verse en la necesidad de recurrir a software
+privativo o propietario, y por tanto respetando la libertad de su informática. Esta
+manera de ``divertirse'' se desarrolla a través de la introducción de una mejora,
 un filtro que permite sobreposicionar imágenes en la captura de la cámra web. En
 un contexto social, donde prima los valores y ética, bajo ninguna razón se
 debería desarrollar ni usar software privativo. Por un lado, cuando un
@@ -1081,7 +1136,7 @@ Representan consumidores de datos. Por ejemplo, \textit{glimagesink} recibe
 frames en un buffers y los renderiza usando OpenGL mostrando el resultado en una
 ventana. \textit{waylandsink}, \textit{xvimagesink}, \textit{cluttersink}
 cumplen roles similares pero usan internamente Wayland, X y Clutter
-respectivamente. Un "sink element" solo tiene un sink pad.
+respectivamente. Un ``sink element'' solo tiene un sink pad.
 
 \begin{figure}[h]
   \centering
@@ -1314,7 +1369,7 @@ páginas de las búsquedas, pues esto da un indicio de que son las más populare
 Además se descartarán todas aquellas librerías cuya última actualización haya
 sido mayor a 2 años; por ejemplo, en caso de usar Git para el control de
 versiones, cuyo último commit sea mayor a 2 años. Además, en caso de usar Git,
-solo se considerarán librerías con más "forks", más "watch" y más "stars"
+solo se considerarán librerías con más ``forks'', más ``watch'' y más ``stars''
 (métricas de Github). En la búsqueda realizada se encontró que las siguientes
 librerías podrían ser útiles para resolver el problema.
 
