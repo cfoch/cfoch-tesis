@@ -747,6 +747,43 @@ variables son actualizadas en el cuadro actual tomando el pasado (el cuadro
 anterior) \cite{shaik2007robust}. Esto permite al algorimo seguir múltiples rostros de personas en el
 caso de oclusión, variación de luz y el cambio de la pose \cite{shaik2007robust}.
 
+\subparagraph{Metodología 3: Rastreamiento del landmark en un dispositivo móvil}
+\mbox{} \\
+Es un método para rastrear puntos faciales de la cara. Se toma como
+objetivo de rastreo cinco puntos faciales: la parte externa de los ojos
+izquierdo y derecho, punta de la nariz y esquinas del labio
+\cite{wettum2017facial}. Véase la figura
+la \ref{fig:landmark-tracking-5-keypoints}.\\
+
+% Imagen de puntos faciales
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.3\columnwidth]{../images/landmark-tracking-1.png}\par
+  \caption{Cada 50 \textit{frames} se detecta cinco puntos faciales del rostro y
+    se inicializa un rastreador por cada punto facial con un \textit{ROI}
+    (región de interés) cuyo tamaño es proporcional a la distancia interocular
+    (distancia entre entre los ojos).}
+  \floatfoot{Fuente: \cite{wettum2017facial}}
+  \label{fig:landmark-tracking-5-keypoints}
+\end{figure}
+
+La técnica consiste en detectar dichos puntos en el primer cuadro
+(\textit{frame}), luego desde el cuadro número 2 hasta el cuadro 50 se usa algún
+rastreador tales como \textit{DFLD}, \textit{KCF}, \textit{DSST}, \textit{LK} o
+\textit{Struck} \cite{wettum2017facial}. En el cuadro número 51, se vueleve a
+detectar los puntos faciales para corregir, y así sucesivamente. Es decir,
+cada 50 cuadros se detecta los puntos faciales y en las brechas cada uno de los
+cinco rastreadores se encarga de rastrear sus respectivos puntos asignados
+\cite{wettum2017facial}. Véase la figura \ref{fig:landmark-tracking-diagram}.\\
+
+% Imagen de puntos faciales
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.5\columnwidth]{../images/landmark-tracking-2.png}\par
+  \caption{Diagrama que muestra las alternaciones de detección y rastreo.}
+  \floatfoot{Fuente: \cite{wettum2017facial}}
+  \label{fig:landmark-tracking-diagram}
+\end{figure}
 
 \paragraph{Herramientas empleadas}\mbox{} \\
 \begin{enumerate}
