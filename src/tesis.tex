@@ -466,10 +466,42 @@ principales contribuciones se brindan:
     \end{figure}
 \end{enumerate}
 
+\subparagraph{Metodología 1: Histograma de gradientes para detección humana}\mbox{} \\
+Este método se basa en la creación de vectores característica a partir de la
+concatenación de desriptores de histogramas de gradientes. Según la publicación
+original, el primer paso es aplicar una normalización gamma (o corrección
+gamma). Esta suele ser usada para ajustar el brillo de las imágenes. Sin
+embargo, los resultados de la publicación muestran que la ganancia es mínima
+\cite{dalal2005histograms}.\\
 
-% \subparagraph{En relación al rastreamiento de rostros}
+Una vez preprocesada la imagen con el filtro gamma, se toma una porción de la
+imagen (una ventana) la cual será filtrada con el kernel
+$[\begin{matrix}-1 & 0 & 1\end{matrix}]$ y el kernel
+$[\begin{matrix}-1 & 0 & 1\end{matrix}]^T$ \cite{dalal2005histograms}.
+El resultado de aplicar este filtro son dos matrices en la que cada una
+representa una aproximación a las derivadas parciales en $x$ y $y$.
+Por tanto, dadas las derivadas parciales en ambas coordenadas se puede calcular
+su magnitud y dirección. Estas dos matrices son, posteriormente usadas para
+formar el histograma de gradientes el cual tiene un rango de
+$[0^\circ, 180^\circ]$ y está formado por 9 \textit{bins}
+\cite{dalal2005histograms}.\\
 
-% \subparagraph{En relacion a la detección de landmarks o puntos faciales}
+El histograma de gradientes generado es un vector característica de una celda
+de $8 \times 8$ píxeles \cite{dalal2005histograms}. Ya que se usan bloques de
+$16 \times 16$ píxeles, entonces se tiene 4 celdas de $8 \times 8$ píxeles
+\cite{dalal2005histograms}. Por tanto, por cada celda se tiene un vector
+característica de 9 componentes y si se concatena los 4 vectores se tendría un
+vector en 36-D. Debido a que la iluminación o contraste puede influir 
+en los valores de los vectores, este vector concatenado de 36 componentes es
+normalizado \cite{dalal2005histograms}. De la misma manera, deslizando el
+bloque de $16 \times 16$ por toda la imagen se va generando vectores
+característica los cuales combinados (concatenados) dan un vector característica
+final \textit{dalal2005histograms}.\\
+Finalmente, para un conjunto de imágenes positivas (imágenes que contienen el
+objeto a detectar, en este caso rostros) y para un conjuto de imágenes negativas
+(que no contienen el objeto a detectar) se calcula los vectores característica
+de ambos. Estos son pasados a un clasificador \textit{SVM}
+\textit{dalal2005histograms}.
 
 \paragraph{Metodologías y algoritmos para el seguimiento de rostros}\mbox{} \\
 Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de personas
