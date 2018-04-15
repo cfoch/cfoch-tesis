@@ -837,15 +837,15 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
 \paragraph{Herramientas empleadas}\mbox{} \\
 \begin{enumerate}
     \item OpenCV, ya que implementa algunos algoritmos y técnicas
-        útiles para el seguimiento y detección de rostros:
+        útiles para el seguimiento y detección de objetos (rostros) y
+        procesamiento de imágenes:
     \begin{enumerate}
         \item Conversión a espacios de color, usado para trabajar las imágenes
             RGB en distintos espacios de color entre estos \textit{GRAY} y
             \textit{YC\textsubscript{b}C\textsubscript{r}}.
-        \item Filtro de Kalman, usado para la predicción de variables en base
-            a un modelo y variables de medición.
-        \item \textit{Canny Edge Detector}, el cual permite identificar los
-            contornos presentes en una imagen.
+        \item Proporciona una librería de rastreadores de rostros, entre ellos
+            \textit{MIL}, \textit{Boosting}, \textit{Median flow}, \textit{TLD},
+            \textit{KCF} y además implementa el filtro de Kalman.
         \item Erosión y dilatación de imágenes.
     \end{enumerate}
     \item \textit{GStreamer}, ya que es el framework sobre el cual se
@@ -853,36 +853,39 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     \item \textit{gstfacedetect}, filtro para \textit{GStreamer} que usa OpenCV
         para la detección de rostros y envía señales al \textit{bus} con las
         coordenadas localizadas.
-    \item C++, ya que OpenCV y GStreamer lo soportan.
+    \item \textit{C++}, ya que OpenCV y GStreamer lo soportan.
+    \item \textit{mesonbuild} es un sistema de compilación de código fuente muy
+    rápido y fácil de usar a comparación que \textit{autotools}. De hecho, este
+    sistema es el que se empieza a usar en muchos programas de \textit{GNOME}
+    últimamente en reemplazo de \textit{autotools}.
     \item gst-launch-1.0, un programa para construir \textit{pipelines} de
     streaming de audio y video por línea de comandos, para probar manualmente
     la salida del streaming.
+    \item Dlib, un \textit{toolkit} en \textit{C++} que proporciona algoritmos
+    de machine learning, y que entre una de sus características está la de
+    detectar el \textit{landmark} o puntos faciales de un rostro.
 \end{enumerate}
 
 \subsubsection{En relación al Objetivo Específico 1 (OE1)}
 \begin{enumerate}
-    \item Dlib, un \textit{toolkit} en \textit{C++} que proporciona algoritmos
-    de machine learning, y que entre una de sus características está la de
-    detectar el \textit{landmark} o puntos faciales de un rostro.
-    \item \textit{GStreamer}, \textit{C++} y \textit{gst-launch-1.0}
-        por las mismas razones mencionadas en el caso anterior.
+    \item \textit{gstcairooverlay}, un filtro para \textit{GStreamer} que usa
+        la librería \textit{Cairo} la cual permite dibujar sobre las imágenes o
+        cuadros recibidos por este filtro.
+    \item \textit{vapigen}, para generar \textit{bindings} que permitan la
+        compatibilidad entre el código escrito en \textit{C} y el código escrito
+        en \textit{Vala}, el cual será usado para el siguiente objetivo.
+    \item \textit{GStreamer}, \textit{C}, \textit{mesonbuild} y
+        \textit{gst-launch-1.0} por las mismas razones mencionadas en el caso
+        anterior.
 \end{enumerate}
 
 \subsubsection{En relación al Objetivo Específico 2 (OE2)}
-\begin{enumerate}
-    \item \textit{gdkpixbufoverlay}, un filtro para \textit{GStreamer} que permite la
-        sobreposición de imágenes sobre los cuadros recibidos por este filtro.
-    \item \textit{GStreamer}, \textit{C++} y \textit{gst-launch-1.0}
-        por las mismas razones mencionadas en el caso anterior.
-\end{enumerate}
-
-\subsubsection{En relación al Objetivo Específico 3 (OE3)}
 \begin{enumerate}
     \item \textit{Gtk+}, librería para diseñar interfaces gráficas para GNOME,
         la cual es usada por \textit{Cheese} y se usará para diseñar la
         interfaz gráfica para seleccionar las imágenes a sobreponer sobre
         los rostros.
-    \item \textit{Galde}, una interfaz gráfica en GTK+ para construir interfaces
+    \item \textit{Glade}, una interfaz gráfica en GTK+ para construir interfaces
         gráficas en GTK+.
     \item \textit{Vala}, lenguaje en el cual se desarrolla \textit{Cheese}.
     \item \textit{GStreamer}, integrando los filtros implementados con
@@ -890,8 +893,6 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     \item \textit{GLib Test Suite}, para ejecutar pruebas sobre el nuevo código
         agregado a \textit{Cheese}.
 \end{enumerate}
-
-
 
 \section{Alcance, limitaciones y riesgos}
 
