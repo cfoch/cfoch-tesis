@@ -785,6 +785,55 @@ cinco rastreadores se encarga de rastrear sus respectivos puntos asignados
   \label{fig:landmark-tracking-diagram}
 \end{figure}
 
+
+\subparagraph{Metodología 3: Rastreamiento de múltiples objetos usando el
+método húngaro y el filtro de Kalman}
+\mbox{} \\
+
+En un artículo académico, se desarrolló un sistema para el seguimiento y
+clasificación de objetos (peces) en movimiento \cite{szHucs2015svm}. El primer
+paso consiste en detectar los objetos, guardando sus regiones de interés con sus
+respectivos \textit{timestamp}, las cuales serían entrada para el proceso de
+clasificación \cite{szHucs2015svm}. Para la detección se usan diversos métodos,
+los cuales no son de interés ya que su objetivo estaba enfocado en peces
+\cite{szHucs2015svm}.\\
+
+Luego de detectar los objetos, se usa el filtro de Kalman para rastrear los
+objetos en los tres pasos básicos del filtro de Kalman: inicialización,
+predicción y corrección \cite{szHucs2015svm}. En la etapa de inicialización,
+se inicializa el filtro de Kalman por cada objeto detectado
+\cite{szHucs2015svm}. En la etapa de predicción, se estimaba la posición del
+objeto en el siguiente cuadro. En la etapa de corrección, se usa la información
+de la medición de los objetos detectados para corregir los resultados de la
+predicción del filtro \cite{szHucs2015svm}. Sin embargo, esto no era suficiente
+por sí solo, y había que realizar un pareo entre los objetos detectados y para
+ello se usó el método húngaro \cite{szHucs2015svm}.\\
+
+Sea $v_{i}$ para $i \in 0...k$ un objeto rastreado en el cuadro actual, y sea
+$w_{j}$ para $j \in 0...l$ el nuevo objeto detectado en el siguiente cuadro, el
+primer paso es crear una matriz $M_{k \times l}$ donde cada celda de la matriz
+$M[i,j]$ representa la distancia (euclideana) de $v_{i}$ a $w_{j}$
+\cite{szHucs2015svm}. Las filas y columnas que superaban cierto límite
+(\textit{threshold}) eran borradas para evitar un pareo (o asignación) erróneo
+\cite{szHucs2015svm}. Si $v_{i}$ se removía significaba que el valor del
+coeficiente de confianza (CFV) devía bajarse \cite{szHucs2015svm}. Si se removía
+$w_{j}$, significaba que este objeto era probablemente un nuevo objeto y se
+creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
+
+% Imagen de puntos faciales
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=1.0\columnwidth]{../images/hungarian-1.png}\par
+  \caption{En la figura, los círculos negros y rojos representan los objetos
+    rastreados en el cuadro actual y los objetos detectados en el siguiente
+    cuadro, respectivamente. Luego de aplicar el método Húngaro, ciertos
+    círculos negros son asignados a los círculos rojos. Los círculos con baja
+    opacidad representan objetos que no fueron asignados, porque superaron el
+    \textit{threshold}}
+  \floatfoot{Fuente: \cite{szHucs2015svm}}
+  \label{fig:hungarian-diagram-1}
+\end{figure}
+
 \paragraph{Herramientas empleadas}\mbox{} \\
 \begin{enumerate}
     \item OpenCV, ya que implementa algunos algoritmos y técnicas
