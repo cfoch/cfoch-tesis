@@ -1561,7 +1561,56 @@ alternativa factible para solucionar el problema.
 
 \chapter{Filtro de detección, rastreamiento y detección de puntos faciales de
   múltiples rostros}
-\chapter{Filtro de sobreposición de imágenes}
+\chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
+Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
+de imágenes, los formatos que soporta y cómo funciona. En términos
+sencillos, para el desarrollo de este filtro se ha definido una estructura en
+un archivo JSON que representa una animación. Este formato \textit{JSON} le dice
+al filtro en qué punto facial colocar cierta imagen y con qué duración. Si bien
+el filtro ha sido basado, en parte, en \textit{gstfaceoverlay} de
+Laura Lucas Alday, gran parte del código ha sido cambiado incluyendo su
+estructura interna. Finalmente, se ha elaborado pruebas unitarias de partes
+importantes del filtro las cuales tienen una cobertura de más del 85\%.\\
+
+\section{Explicación del nombre \textit{gstcheesefaceoverlay}}
+Al filtro desarrollado se le ha asignado el nombre de
+\textit{gstcheesefaceoverlay} y \textbf{en adelante se hará referencia a este
+filtro por este nombre}. La asignación del nombre se explica a continuación:
+como la mayoría de elementos de \textit{GStreamer} tiene en su nombre el prefijo
+\textit{gst} y además se le pone el prefijo \textit{cheese} debido al programa
+al cual se aplicará. Luego, lleva el término \textit{face} debido a que está
+ubicado en el directorio \textit{gst-plugins-cheese/gst/face} lugar donde se
+ubica filtros que usan datos de lo rostros. Finalmente, \textit{overlay} se debe
+a que sobrepone imágenes en los rostros. \textbf{Nótese que
+\textit{gstcheesefaceoverlay} es un filtro distinto a \textit{gstfaceoverlay},
+siendo este último desarrollado por Laura Lucas Alday}.\\
+
+\section{Diseño}
+El filtro de \textit{gstfaceoverlay} consistía en un \textit{GstBin} que
+contenía un filtro \textit{gstfacedetect}, un filtro \textit{videoconvert} y
+un filtro \textit{rsvgoverlay} (véase figura \ref{fig:faceoverlay-design}.
+A diferencia de este filtro, \textit{gstcheesefaceoverlay} consiste en un
+\textit{GstBin} que contiene un único elemento: \textit{gstcairooverlay} (véase
+la figura \ref{fig:cheesefaceoverlay-design}). La razón por la cual se usa un
+\textit{bin} en vez de simplemente heredar de la clase \textit{GstCairoOverlay}
+es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
+\textit{gstcairooverlay}, y por tanto no es posible la herencia.
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=1.0\textwidth]{../images/faceoverlay-design.png}\par
+  \caption{Simplificación de diagrama del elemento \textit{gstfaceoverlay}.}
+    \label{fig:faceoverlay-design}
+  \floatfoot{Fuente: Autoría propia}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics{../images/cheesefaceoverlay-design.png}\par
+  \caption{Simplificación de diagrama del elemento \textit{gstcheesefaceoverlay}.}
+    \label{fig:cheesefaceoverlay-design}
+  \floatfoot{Fuente: Autoría propia}
+\end{figure}
 
 \chapter{Integración de ambos filtros en Cheese}
 En este capítulo se desarrolla el cuarto objetivo el cual comprende el diseño
@@ -1768,8 +1817,6 @@ De haberlo, se muestra un \textit{GtkInfoBar} que avisa que hubo un error.
     \KOMAoptions{paper=A4,pagesize}
     \recalctypearea
 }
-
-
 
 \chapter{Conclusiones y trabajos futuros}
 \section{Conclusiones}
