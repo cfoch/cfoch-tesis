@@ -1,6 +1,8 @@
 \documentclass[a4paper,openright,12pt]{report}
 
 \usepackage[spanish]{babel}
+\usepackage{afterpage}
+\usepackage[paper=A4,pagesize]{typearea}
 \usepackage{longtable}
 \usepackage{xcolor}
 \usepackage{enumitem}
@@ -1557,7 +1559,218 @@ algoritmos que son útiles para el seguimiento de objetos (en este caso rostros)
 en tiempo real y detección de landmark. La combinación de ambos representa una
 alternativa factible para solucionar el problema.
 
-\chapter{Presentación de los resultados esperados}
+\chapter{Filtro de detección, rastreamiento y detección de puntos faciales de
+  múltiples rostros}
+\chapter{Filtro de sobreposición de imágenes}
+
+\chapter{Integración de ambos filtros en Cheese}
+En este capítulo se desarrolla el cuarto objetivo el cual comprende el diseño
+de una interfaz gráfica para los filtros desarrollados en \textit{Cheese}. Para
+cumplir este objetivo, el primer paso fue desarrollar un mockup. Luego se diseñó
+diagramas de clases y secuencias con la finalidad de tener una interfaz gráfica
+a futuro que no solo permita efectos del tipo a los realizados en
+\textit{gstcheesefaceoverlay}, sino que se pueda extender a aplicación a tener
+una librería donde se sobrepongan imágenes estáticas sin el uso de visión
+artificial o filtros más complicados que permitan cargar modelos en 3D para
+sobreponerlos de manera similar a como aplicaciones como \textit{Snapchat} y
+\textit{Facebook} soportan actualmente. Finalmente, ya que
+\textit{gstcheesefacetrack} y \textit{gstcheesefacedetect} dependen de un
+modelo entrenado para detectar los puntos faciales del rostro se tuvo que
+modificar el diáologo de preferencias de \textit{Cheese} para que permita
+al usuario seleccionar entre el modelo que \textit{dlib} incluye por defecto o
+cualquier otro. Como se mencionó, \textit{Cheese} está escrito en Vala, y por
+ello se usó este lenguaje. Además se tuvo que crear una \textit{API} que
+permite usar el código escrito en \textit{C} (para el objetivo específico 2) en
+Vala.
+
+\section{Mock-up}
+El primer paso fue desarrollar el \textit{mock-up} de la interfaz gráfica. Véase
+la figura \ref{fig:cheese-mockup}. En la figura se aprecia un botón sobre la
+cabecera (\textit{header bar} o área de título) de la ventana principal de
+\textit{Cheese}. Al hacer clic en tal botón, se debe mostrar un \textit{pop-up}
+donde se muestre una grilla de imágenes. Cada imagen representa un
+\textit{sprite} (un \textit{CheeseFaceSprite}). Internamente, \textit{Cheese}
+debe construir un \textit{CheeseMultifaceSprite} en el orden de la selección. Al
+hacer clic en el botón con el ícono del visto bueno, el filtro de sobreposición
+de imágenes debería aplicarse sobre el \textit{viewport} de Cheese.\\
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=1.0\textwidth]{../images/cheese-mockup.png}\par
+  \caption{Mock-up de interfaz gráfica para \textit{gstcheesefaceoverlay}. Las
+    imágenes de emoticonos que se muestran son solo referenciales. La parte
+    inferior de la imagen fue una idea propuesta por Allan Day, y no se ha
+    desarrollado pues no formaba parte del objetivo.}
+    \label{fig:cheese-mockup}
+  \floatfoot{Fuente: Autoría propia y basado en un \textit{mock-up} desarrollado
+    por Allan Day y otros archivos del repositorio en \textit{git} de
+    \textit{mock-ups} del \textit{GNOME Design Team}. Los emoticonos son parte
+    de Antü Plasma Suite y diseñados por Fabián Alexis.}
+\end{figure}
+
+\section{Archivos \textit{.sprite} para \textit{face presets}}
+Según la especificación de \textit{freedesktop.org} (un proyecto creado para la
+interoperabilidad entre entornos de escritorio para \textit{UNIX} y
+\textit{Linux}), los archivos de \textbf{datos} deben colocarse relativos a un
+directorio base a la variable de entorno \textit{\$XDG\_DATA\_DIRS}
+\cite{freedesktopXDGBase}. Para este objetivo, se ha escogido guardar los
+archivos de extensión \textit{.sprite} en la ruta
+\textit{\$XDG\_DATA\_DIRS/cheese/sprites/face-presets}.\\
+
+Los archivos de extensión de \textit{.sprite} en tal ruta representan un
+\textit{CheeseFaceSprite} y son archivos ``key files'' que su sintaxis sigue
+también la especificación \textit{Desktop Entry Specification} de la
+\textit{freedesktop.org} \cite{freedesktopDesktopEntrySpec}. Un ejemplo de este
+archivo puede ser:\\
+
+\begin{verbatim}
+[Face]
+Name=Face Test Sprite
+Location=/usr/share/cheese/stickers/sprites/face-presets/face1.json
+Thumbnail=/usr/share/cheese/stickers/sprites/face-presets/thumbnails/face1.png
+\end{verbatim}
+
+La clave ``Location'' representa la ubicación del archivo de \textit{sprite}
+\textit{.json} aceptado por \textit{gstcheesefaceoverlay}. Cuando
+\textit{Cheese} lea este archivo usará el valor en ``Location'' para ``decirle''
+a \textit{gstcheesefaceoverlay} que renderice las imágenes a sobreponer según
+ese archivo. Luego, la clave ``Thumbnail'' representa la imagen que se muestra
+como vista previa en el \textit{grid} que se explicará en la siguiente sección.\\
+
+\textit{Cheese} puede distribuir su propio conjunto de ``sprites'' pero ya que
+se usa el directorio base \textit{\$XDG\_DATA\_DIRS}, los usuarios podrían
+definir sus propios \textit{sprites} sin tener que modificar el directorio de
+instalación de \textit{Cheese}.
+
+\section{Diagrama de clases}
+El diagrama de clases (figura \ref{fig:diagrama-clases}) se ha diseñado pensando
+en tener una interfaz que sea extendible a futuro. Cada clase que empieza con
+\textit{Cheese} significa que está dentro de tal \textit{namespace}.\\
+
+\textit{CheeseStickerGrid} es una clase heredada del \textit{widget}
+\textit{Gtk.FlowBox} que representa un contenedor (en formal de grilla) de
+botones (el atributo \textit{button} es solo representativo) del tipo
+\textit{CheeseStickerButton}. Además dispone de un atributo
+\textit{filter\_func} el cual representa la función de búsqueda en caso el
+\textit{widget} soporte la búsqueda. Luego se tiene un método
+\textit{load\_buttons} el cual las clases que hereden de esta deberán
+sobreescribir. Por ejemplo, en este proyecto, como se ve en la figura
+\ref{fig:cheese-mockup} los botones a cargar serían los archivos
+\textit{.sprite} que están localizados en
+\textit{\$XDG\_DATA\_DIRS/cheese/sprites/face-presets}. Si tuviéramos archivos
+similares a los \textit{.sprite} que describan filtros en 3D, entonces bastaría
+con crear otra clase que herede de esta y que cargue los archivos necesarios.\\
+
+\textit{CheeseStickerButton} es una clase que hereda del \textit{widget}
+\textit{Gtk.ToggleButton} al cual se le aplica un estilo CSS para que el botón
+se vea grande y de forma cuadrada. Esta clase solo representa un botón con una
+imagen. Al heredar \textit{CheeseFacePresetButton} de
+\textit{CheeseStickerButton} este botón puede guardar información del archivo
+\textit{sprite} en el atributo \textit{face\_sprite\_json}. La manera de crear
+un botón \textit{CheeseFacePresetButton} es mediante una llamada al método
+estático \textit{new\_from\_keyfile}.\\
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics{../images/cheese-mockup-face-preset-button.png}\par
+  \caption{Representación de \textit{{CheeseFacePresetButton}}}
+    \label{fig:cheese-sticker-button}
+  \floatfoot{Fuente: el emoticón es parte de Antü Plasma Suite y ha sido
+    diseñado por Fabián Alexis.}
+\end{figure}
+
+\textit{CheeseFacePresetGrid} como se mencionó, hereda de
+\textit{CheeseStickerGrid}. Este además implementa una interfaz
+\textit{CheeseStickerPageIFace} y un \textit{CheeseFaceGridInterface}. La
+primera interfaz es útil para que a partir de unos botones seleccionados se
+cree un \textit{Cheese.Effect} (el cual representa un efecto o filtro) y además
+es útil también porque provee señales (\textit{Signals}) que se emiten cada vez
+que es posible crear un efecto (por ejemplo si se seleccionaron 1 o más botones)
+o si no es posible (si no hay botón seleccionado) para habilitar o deshabilitar
+el botón de ''visto bueno`` como se puede ver en la figura
+\ref{fig:cheese-mockup}.\\
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics{../images/cheese-mockup-face-preset-grid.png}\par
+  \caption{Representación de \textit{{CheeseFacePresetGrid}}}
+    \label{fig:cheese-sticker-button}
+  \floatfoot{Fuente: Autoría propia y basado en archivos del repositorio en
+    \textit{git} de \textit{mock-ups} del \textit{GNOME Design Team}. Los
+    emoticonos son parte de Antü Plasma Suite y diseñados por Fabián Alexis.}
+\end{figure}
+
+Finalmente, \textit{CheeseStickersPopup} representa el \textit{pop-up} que se
+muestra cada vez que se hace clic en el botón azul de la barra de título. Este
+dispone de métodos de retrollamada para realizar la acción de aplicar el efecto
+o de buscar un efecto (o filtro) cuando se hace clic en el botón del ''visto
+bueno`` o cuando se realiza una búsqueda, respectivamente. Un pop-up de este
+tipo puede contener varios \textit{widgets} que implementen
+\textit{CheeseFaceGridInterface}.
+
+\afterpage{
+    \clearpage
+    \KOMAoptions{paper=A3}
+    \addtolength{\hoffset}{-1.50cm}
+    \recalctypearea
+    \begin{figure}
+      \centering
+      \includegraphics[width=1.2\textwidth]{../images/diagrama-clases.png}\par
+      \caption{Diagrama de clases de interfaz gráfica para
+        \textit{gstcheesefaceoverlay} en \textit{Cheese}. Las clases
+        \textit{CheeseCustomFaceGrid}, \textit{CheeseCustomFaceButton} y
+        \textit{CheeseCustomFaces} no se han implementado, pues está fuera del
+        alcance.}
+      \label{fig:diagrama-clases}
+      \floatfoot{Imagen de autoría propia}
+    \end{figure}
+    \clearpage
+    \KOMAoptions{paper=A4,pagesize}
+    \recalctypearea
+}
+
+\section{Diagrama de secuencias}
+El diagrama de secuencias (figura \ref{fig:diagrama-secuencias}) representa el
+flujo de la interacción entre el usuario y el \textit{pop-up} agregado en
+\textit{Cheese}. El flujo inicia cuando el usuario hace clic en el botón
+``Choose a sticker''. Al hacer clic, el bucle principal de \textit{GLib} recibe
+el evento y se crea y muestra un \textit{pop-up} sobre la ventana de
+\textit{Cheese}. Al momento de la creación de un \textit{CheeseStickersPopup}
+se crea además un \textit{CheeseFacePresetsGrid} el cual a su vez crea botones
+como tantos archivos \textit{sprite} existan en
+\textit{\$XDG\_DATA\_DIRS/cheese/sprites/face-presets}.\\
+
+Una vez cargado el \textit{pop-up}, el botón del icono de ``visto bueno'' está
+desactivado. Apenas el usuario hace clic en uno los botones en la grilla, una
+señal \textit{``effect-available''} es emitida de tal modo que activa el botón
+del icono de ``visto bueno''. Si se deseleccionan todos los botones, se emite la
+señal \textit{``effect-unavailable''} y el botón es desactivado.\\
+
+Finalmente, al hacer clic en el botón del ``visto bueno'', internamente,
+se construye un \textit{sprite} en un formato aceptado por
+\textit{gstcheesefaceoverlay} en el orden de la selección. De no haber ningún
+problema, se aplica el efecto y se muestra en el \textit{viewport} de \textit{Cheese}.
+De haberlo, se muestra un \textit{GtkInfoBar} que avisa que hubo un error.
+
+\afterpage{
+    \clearpage
+    \KOMAoptions{paper=A3}
+    \addtolength{\hoffset}{-1.00cm}
+    \recalctypearea
+    \begin{figure}
+      \centering
+      \includegraphics[width=1.2\textwidth]{../images/diagrama-secuencias.png}\par
+      \caption{Diagrama de secuencias.}
+      \label{fig:diagrama-secuencias}
+      \floatfoot{Imagen de autoría propia}
+    \end{figure}
+    \clearpage
+    \KOMAoptions{paper=A4,pagesize}
+    \recalctypearea
+}
+
+
+
 \chapter{Conclusiones y trabajos futuros}
 \section{Conclusiones}
 \subsection{Trabajos futuros}
