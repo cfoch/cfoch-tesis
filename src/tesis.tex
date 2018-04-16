@@ -321,7 +321,7 @@ de objetivos específicos, resultados y medios de verificación.
   % Row
   \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE0}): Desarrollar un algoritmo que
   implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
-  de múltiples rostros con soporte para oclusión entre rostros.}
+  de múltiples rostros con soporte para oclusión y detección de puntos faciales.}
   \\ \hline
 
   \textbf{Resultado} &
@@ -536,9 +536,9 @@ a continuación:
 \end{enumerate}
 
 A continuación se describirán algunos métodos y algoritmos usados para el
-seguimiento de rostros basados en el método en base al color de la piel, de los
-cuales el proyecto puede potencialmente tomar referencia en algunas partes o en
-su totalidad para implementar el filtro de rastreo de rostros.
+seguimiento de rostros , de los cuales el proyecto puede potencialmente tomar
+referencia en algunas partes o en su totalidad para implementar el filtro de
+rastreo de rostros.
 
 \subparagraph{Metodología 0: A Real-time Model for Multiple Human Face Tracking
               from Low-resolution Surveillance Videos}\mbox{} \\
@@ -1103,18 +1103,6 @@ tarea estimado en horas.
   \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE1}}
   \\ \hline
 
-  Definir propiedades del objeto y estructura (\textit{GstStruct}) que se
-  enviará al \textit{bus} &
-  5
-  \\ \hline
-
-  Medir el retraso (\textit{latency}) agregado por el filtro &
-  12
-  \\ \hline
-
-  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE2}}
-  \\ \hline
-
   Definir propiedades del objeto &
   3
   \\ \hline
@@ -1127,7 +1115,7 @@ tarea estimado en horas.
   8
   \\ \hline
 
-  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE3}}
+  \multicolumn{2}{| c |}{Completar el resultado esperado \textit{REOE2}}
   \\ \hline
 
   Diseñar \textit{mockups} de la interfaz gráfica&
