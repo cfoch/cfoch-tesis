@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{amsmath}
 \usepackage{mathtools}
+\usepackage{fancyvrb}
 \usepackage{fixltx2e}
 \usepackage{hyperref}
 \usepackage[T1]{fontenc}
@@ -1611,6 +1612,457 @@ es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
     \label{fig:cheesefaceoverlay-design}
   \floatfoot{Fuente: Autoría propia}
 \end{figure}
+
+\section{Capabilities}
+Debido a que este elemento es en términos prácticos una herencia de (en realidad
+un \textit{bin} que contiene a \textit{gstcairooverlay}), este dispone de
+un único \textit{sink pad} y único \textit{src pad} los cuales están disponibles
+siempre. Además tanto los formatos de imagen que acepta y que genera como salida
+son \textit{BGRx}, \textit{BGRA}, \textit{RGB16}. La descripción completa
+respecto a las plantillas de sus \textit{pad} mostrada según el comando
+\framebox{\textit{gst-inspect-1.0 cheesefaceoverlay}} se muestra a continuación:
+
+\begin{verbatim}
+Pad Templates:
+  SINK template: 'sink'
+    Availability: Always
+    Capabilities:
+      video/x-raw
+                 format: { (string)BGRx, (string)BGRA, (string)RGB16 }
+                  width: [ 1, 2147483647 ]
+                 height: [ 1, 2147483647 ]
+              framerate: [ 0/1, 2147483647/1 ]
+  
+  SRC template: 'src'
+    Availability: Always
+    Capabilities:
+      video/x-raw
+                 format: { (string)BGRx, (string)BGRA, (string)RGB16 }
+                  width: [ 1, 2147483647 ]
+                 height: [ 1, 2147483647 ]
+              framerate: [ 0/1, 2147483647/1 ]
+\end{verbatim}
+
+
+\section{Propiedades}
+Las propiedades de este objeto es una sola:
+\begin{center}
+  \begin{longtable}{| p{.2\textwidth} | p{.2\textwidth} | p{.6\textwidth} |}
+  \hline
+
+  % Cabecera
+  \textbf{Propiedad} &
+  \textbf{Tipo} &
+  \textbf{Descriptión de la propiedad}
+  \\ \hline
+
+  % Fila
+  \textbf{location} &
+  \textit{string} &
+  Es la ubicación (ruta) del archivo en formato \textit{JSON} que representa un
+  \textit{sprite}
+  \\ \hline
+
+  % Fila
+  \textbf{data} &
+  \textit{string} &
+  Es una cadena de carácteres que sigue la estructura de un \textit{sprite}.
+  Puede ser visto como el contenido del archivo \textit{JSON}.
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+\section{Sprite}
+Con el fin de generar una animación a partir de imágenes estáticas, se ha ideado
+una clase que además es representada en una estructura en formato \textit{JSON}.
+Esta estructura sirve para que \textit{gstcheesefaceoverlay} pueda saber en que
+coordenadas en píxeles, en qué escala, durantes cuántos cuadros y para qué
+personas colocar las imágenes. Ello permite crear animaciones complejas y
+buenas visualmente. Este archivo \textit{JSON} es deserializado por
+el filtro en un objeto llamado \textit{CheeseMultifaceSprite}, el cual a su vez
+contiene otros objetos, los cuales se describen a continuación:\\
+
+\subsection{CheeseFaceSpriteFrame}
+Representa una imagen estática (la cual se almacena en un \textit{buffer} de
+píxeles) con una duración. A continuación se lista las propiedades del objeto
+que están representadas también en formato \textit{JSON}:
+
+\begin{center}
+  \begin{longtable}{| p{.2\textwidth} | p{.2\textwidth} | p{.6\textwidth} |}
+  \hline
+
+  % Fila
+  \textbf{Propiedad} &
+  \textbf{Tipo} &
+  \textbf{Descriptión de la propiedad}
+  \\ \hline
+
+  % Fila
+  \textbf{duration} &
+  \textit{unsigned int} &
+  Es el número de frames durante el cual la imagen será mostrada.
+  \\ \hline
+
+  % Fila
+  \textbf{location} &
+  \textit{string} &
+  La ruta del archivo de la imagen.
+  \\ \hline
+
+  % Fila
+  \textbf{base-scale-factor} &
+  \textit{string} &
+  El factor por el cual se escalará la imagen. \textit{gstcheesefaceoverlay}
+  escala las imágenes con dos factores: el primer factor es respecto al tamaño
+  del \textit{bounding box} del rostro y el segundo es este factor.
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+En \textit{JSON}, esta estructura podría ser representada de la siguiente
+manera:\\
+\begin{verbatim}
+{
+    "base-scale-factor": 1.2,
+    "duration": 80,
+    "location": "/home/cfoch/Pictures/sprite/head/3.png"
+}
+\end{verbatim}
+
+Lo cual significa que la imagen en la ubicación
+\textit{/home/cfoch/Pictures/sprite/head/3.png} será renderizada desde solo por
+una duración de 80 frames. La escala de esta imagen se aplica primero escalando
+al mismo tamaño del \textit{bounding box} y luego multiplicando por el factor de
+escala base.\\
+
+\subsection{CheeseFaceSpriteKeypoint}
+Representa una animación para un punto específico \textit{key point} de una
+cara. Es un conjunto de \textit{CheeseFaceSpriteFrame}. Lo que significa que una
+vez terminada la duración de un \textit{CheeseFaceSpriteFrame} se muestra la
+imagen del siguiente \textit{CheeseFaceSpriteFrame}. Así sucesivamente, hasta
+que la duración total se agote. La animación puede repetirse indefinidamente si
+así se indica.
+
+\begin{center}
+  \begin{longtable}{| p{.2\textwidth} | p{.2\textwidth} | p{.6\textwidth} |}
+  \hline
+
+  % Fila
+  \textbf{Propiedad} &
+  \textbf{Tipo} &
+  \textbf{Descriptión de la propiedad}
+  \\ \hline
+
+  % Fila
+  \textbf{keypoint} &
+  \textit{CheeseFaceKeypoint} &
+  Es el tipo de punto facial del cual este objeto representará la animación.
+  \\ \hline
+
+  % Fila
+  \textbf{rotate} &
+  \textit{boolean} &
+  Si es verdadero, indica que la imagen debe rotar en la orientación del ángulo
+  formado por los ojos. Si es falso, la imagen no debe rotarse.
+  \\ \hline
+
+  % Fila
+  \textbf{loop} &
+  \textit{boolean} &
+  Si es verdadero, una vez culminada la duración se vuelve a mostrar la imagen
+  del primer \textit{CheeseFaceSpritFrame} en la lista y se continúa de esta
+  manera indefinidamente. Si es falso, una vez culminada la duración total, no
+  se mostrará una sola imagen más.
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+En \textit{JSON}, esta estructura podría ser representada de la siguiente
+manera:\\
+
+\begin{verbatim}
+"head": {
+    "rotate": true,
+    "loop": true,
+    "frames": [
+        {
+            "base-scale-factor": 1.2,
+            "duration": 80,
+            "location": "/home/cfoch/Pictures/sprite/head/3.png"
+        },
+        {
+            "base-scale-factor": 1.2,
+            "duration": 20,
+            "location": "/home/cfoch/Pictures/sprite/head/2.png"
+        }
+    ]
+}
+\end{verbatim}
+
+\textit{``frames''} representa la lista de
+\subsection{CheeseFaceSpriteKeypoint}. Lo cual significa que en la posición de
+la cabeza, desde que un rostro se detecta, los primeros 80 cuadros, se mostrará
+la imagen en \textit{/home/cfoch/Pictures/sprite/head/3.png} y los siguientes 20
+cuadros se mostrará la imagen en
+\textit{/home/cfoch/Pictures/sprite/head/2.png}. Si la cara rota frente a la
+cámara, la imagen rotará en su misma orientación (según el ángulo formado por 
+sus ojos).
+
+Los puntos faciales disponibles se describen en la siguiente tabla:
+\begin{center}
+  \begin{longtable}{| p{.55\textwidth} | p{.2\textwidth} | p{.25\textwidth} |}
+  \hline
+
+  % Fila
+  \textbf{En \textit{C}} &
+  \textbf{Representación en \textit{JSON}} &
+  \textbf{Descripción}
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_PHILTRUM} &
+  \textit{philtrum} &
+  Representa el filtrum (zona de la cara entre nariz y labio superior).
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_MOUTH} &
+  \textit{mouth} &
+  Representa el centro de la boca.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_LEFT\_EYE} &
+  \textit{left-eye} &
+  Representa el centro del ojo izquiedo.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_RIGHT\_EYE} &
+  \textit{right-eye} &
+  Representa el centro del ojo derecho.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_NOSE} &
+  \textit{nose} &
+  Representa la posición de la punta de la nariz.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_LEFT\_EAR} &
+  \textit{left-ear} &
+  Representa la zona de la oreja izquierda. Una imagen colocada sobre este
+  punto, tendrá su zona lateral centrada en tal punto.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_RIGHT\_EAR} &
+  \textit{right-ear} &
+  Representa la zona de la oreja derecha. Una imagen colocada sobre este punto,
+  tendrá su zona lateral centrada en tal punto.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_FACE} &
+  \textit{face} &
+  Representa el centro del rostro.
+  \\ \hline
+
+  % Fila
+  \textit{CHEESE\_FACE\_KEYPOINT\_HEAD} &
+  \textit{head} &
+  Representa la zona de la cabeza. Una imagen colocada sobre este punto,
+  tendrá su zona inferior centrada en tal punto.
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+\subsection{CheeseFaceSprite}
+Un objeto de este tipo tiene un conjunto de \textit{CheeseFaceSpriteFrame}. Por
+tanto, este representa el conjunto de animaciones por cada punto facial para un
+rostro en específico.
+
+En \textit{JSON}, esta estructura podría ser representada de la siguiente
+manera:\\
+
+\begin{verbatim}
+{
+    "head": {
+        "rotate": true,
+        "loop": true,
+        "base-scale-factor": 0.5,
+        "frames": [
+            {
+                "base-scale-factor": 1.2,
+                "duration": 80,
+                "location": "/home/cfoch/Pictures/sprite/head/3.png"
+            },
+            {
+                "base-scale-factor": 1.2,
+                "duration": 20,
+                "location": "/home/cfoch/Pictures/sprite/head/2.png"
+            }
+        ]
+    },
+    "philtrum": {
+        "rotate": true,
+        "loop": true,
+        "base-scale-factor": 0.5,
+        "frames": [
+            {
+                "base-scale-factor": 0.5,
+                "duration": 20,
+                "location": "/home/cfoch/Pictures/sprite/philtrum/2.png"
+            }
+        ]
+    }
+}
+\end{verbatim}
+
+Lo cual significa que el rostro tendrá animaciones en la zona de su cabeza y
+filtrum, según lo explicado en la subsección anterior.
+
+\subsection{CheeseFaceMultiSprite}
+Un objeto de este tipo tiene un conjunto de \textit{CheeseFaceSprite}. Por lo
+que este representa el conjunto de animaciones para múltiples rostros en
+los puntos faciales especificados. \textbf{Este es el formato aceptado por
+\textit{gstcheesefaceoverlay}}.
+
+En \textit{JSON}, esta estructura podría ser representada de la siguiente
+manera:\\
+
+\begin{verbatim}
+[
+    {
+        "philtrum": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 5,
+                    "location": "/home/cfoch/Pictures/sprite/philtrum/2.png"
+                }
+            ]
+        },
+        "left-eye": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 5,
+                    "location": "/home/cfoch/Pictures/sprite/eye/1.png"
+                },
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 10,
+                    "location": "/home/cfoch/Pictures/sprite/eye/2.png"
+                }
+            ]
+        },
+        "right-eye": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 5,
+                    "location": "/home/cfoch/Pictures/sprite/eye/1.png"
+                },
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 10,
+                    "location": "/home/cfoch/Pictures/sprite/eye/2.png"
+                }
+            ]
+        },
+        "head": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 1.2,
+                    "duration": 20,
+                    "location": "/home/cfoch/Pictures/sprite/head/1.png"
+                }
+            ]
+        }
+    },
+    {
+        "head": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 1.2,
+                    "duration": 80,
+                    "location": "/home/cfoch/Pictures/sprite/head/3.png"
+                },
+                {
+                    "base-scale-factor": 1.2,
+                    "duration": 20,
+                    "location": "/home/cfoch/Pictures/sprite/head/2.png"
+                }
+            ]
+        },
+        "philtrum": {
+            "rotate": true,
+            "loop": true,
+            "base-scale-factor": 0.5,
+            "frames": [
+                {
+                    "base-scale-factor": 0.5,
+                    "duration": 20,
+                    "location": "/home/cfoch/Pictures/sprite/philtrum/2.png"
+                }
+            ]
+        }
+    }
+]
+\end{verbatim}
+
+Como se puede observar acá se detalla la animación de dos rostros. El primer
+rostro tiene animaciones asignadas a su filtrum, ojo izquierdo, ojo derecho y
+cabeza. El segundo rostro tiene animaciones asignadas a solamente su cabeza y
+philtrum.
+
+\section{Ejemplos de \textit{pipelines}}
+Existe una lista muy grande de \textit{pipelines} que se pueden formar con este
+filtro. Se muestra algunos ejemplos sencillos:
+
+Desde la cámara web:
+\begin{verbatim}
+$ gst-launch-1.0 v4l2src ! videoconvert ! \
+  cheesefacetrack scale-factor=0.5 \
+  landmark=shape_predictor_68_face_landmarks.dat ! \
+  videoconvert ! cheesefaceoverlay location=sprite.json ! \
+  videoconvert ! xvimagesink
+\end{verbatim}
+
+Desde un archivo de video:
+\begin{verbatim}
+$ gst-launch-1.0 filesrc location=archivo.ogv ! \
+  decodebin ! videoconvert ! \
+  cheesefacetrack scale-factor=0.5 \
+  landmark=shape_predictor_68_face_landmarks.dat ! \
+  videoconvert ! cheesefaceoverlay location=sprite.json ! \
+  videoconvert ! xvimagesink
+\end{verbatim}
+
+\section{Resultado esperado: medición latencia por \textit{buffer}}
+En esta sección se muestra los resultados de la medición de latencia en ciertos
+\textit{pipelines} que usan \textit{gstcheesefaceoverlay}. También se mide la
+latencia de \textit{pipelines} similares usando \textit{gstfaceoverlay} con el
+objetivo de hacer una comparación. La herramienta principal que se usa para
+medir la latencia es el subsistema de rastreo (\textit{tracing}) de
+\textit{GStreamer}.
 
 \chapter{Integración de ambos filtros en Cheese}
 En este capítulo se desarrolla el cuarto objetivo el cual comprende el diseño
