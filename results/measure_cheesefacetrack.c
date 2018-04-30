@@ -47,7 +47,8 @@
 #include <glib.h>
 
 #define SPIPELINE  "filesrc name=source ! decodebin ! videoconvert ! "\
-                   "cheesefacetrack name=face_track ! fakesink name=sink"
+                   "cheesefacetrack name=face_track max-distance-factor=0.15 ! " \
+                   "fakesink sync=false"
 
 static GMainLoop *loop;
 static int frame_number = 0;
@@ -85,12 +86,16 @@ probe_cb (GstPad * pad, GstPadProbeInfo * info, gpointer user_data)
       gst_cheese_multiface_info_iter_init (&itr, meta->faces);
       while (gst_cheese_multiface_info_iter_next (&itr, &face_id, &face_info)) {
         graphene_rect_t bounding_box;
+        gboolean display;
         bounding_box = cheese_face_info_get_bounding_box (face_info);
-        g_print ("%d %d %d %d %d %d\n", frame_number, face_id,
-            (gint) graphene_rect_get_x (&bounding_box),
-            (gint) graphene_rect_get_x (&bounding_box),
-            (gint) graphene_rect_get_height (&bounding_box),
-            (gint) graphene_rect_get_width (&bounding_box));
+        display = cheese_face_info_get_display (face_info);
+        if (display) {
+          g_print ("%d %d %d %d %d %d\n", frame_number, face_id,
+              (gint) graphene_rect_get_x (&bounding_box),
+              (gint) graphene_rect_get_y (&bounding_box),
+              (gint) graphene_rect_get_width (&bounding_box),
+              (gint) graphene_rect_get_height (&bounding_box));
+        }
       }
       frame_number++;
     }
@@ -123,7 +128,7 @@ main (int argc, char ** argv)
 
   g_object_set (G_OBJECT (filesrc), "location", argv[1], NULL);
 
-  sinkpad = gst_element_get_static_pad (sink, "sink");
+  sinkpad = gst_element_get_static_pad (face_track, "src");
   probe_id = gst_pad_add_probe (sinkpad,
         GST_PAD_PROBE_TYPE_BUFFER, probe_cb, sink, NULL);
 
