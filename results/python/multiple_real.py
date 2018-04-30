@@ -19,6 +19,7 @@ import argparse
 import numpy as np
 import cv2
 import os
+import pickle
 
 from random import randint
 from scipy.optimize import linear_sum_assignment
@@ -82,7 +83,6 @@ def reorder_frames(frames_in, n_faces, n_real_faces=2):
     first_frame_is_read = False
     frames = []
     for frame_number in range(len(frames_in)):
-        print(frame_number)
         frame = frames_in[frame_number]
         if frame is None:
             frames.add(None)
@@ -134,7 +134,6 @@ def reorder_frames(frames_in, n_faces, n_real_faces=2):
         if not first_frame_is_read:
             first_frame_is_read = frame is not None
             frames.append(frame)
-            print(frame_number, frame)
     return frames
         
 
@@ -156,6 +155,10 @@ parser.add_argument("-n", "--nfaces",
 parser.add_argument("-s", "--sort",
     help="Sort faces using the Hungarian Algorithm", action='store_true',
     required=False)
+parser.add_argument("-u", "--deserialize",
+    help="The file path to the file with the faces info deserialized/unpickled",
+    required=False)
+
 args = parser.parse_args()
 
 cap = cv2.VideoCapture(args.video)
@@ -164,10 +167,7 @@ lines = [l.rstrip("\n") for l in dataset_file.readlines()]
 
 map_frames, n_faces = map_frames(lines)
 frames = map_frames_to_list(map_frames)
-
-
 colors = [random_color() for _ in range(n_faces)]
-
 unsorted_frames = frames
 
 if args.sort:
@@ -175,6 +175,11 @@ if args.sort:
         frames = reorder_frames(frames, n_faces, args.nfaces)
     else:
         frames = reorder_frames(frames, n_faces)
+
+tracker_frames = None
+if args.deserialize is not None:
+    pickle_f = open(args.deserialize, "rb")
+    tracker_frames = pickle.load(pickle_f)
 
 frame_number = 0
 while True:
@@ -196,6 +201,13 @@ while True:
             bounding_box = frame[face_id]
             cv2.rectangle(img, bounding_box[0], bounding_box[1],
                 colors[face_id], 3)
+
+        if tracker_frames is not None:
+            track_frame = tracker_frames[frame_number]
+            for face_id in track_frame:
+                bounding_box = track_frame[face_id]
+                cv2.rectangle(img, bounding_box[0], bounding_box[1],
+                    (0, 0, 255), 1)
 
     frame_number += 1
     cv2.imshow('frame', img)
