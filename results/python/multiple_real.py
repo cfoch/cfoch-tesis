@@ -18,12 +18,15 @@
 import argparse
 import numpy as np
 import cv2
+import matplotlib.pyplot as plt
 import os
 import pickle
 
 from random import randint
+from rectangle import Rectangle
 from scipy.optimize import linear_sum_assignment
 from scipy import ndimage
+from IPython import embed
 
 
 def get_centroid(bounding_box):
@@ -135,7 +138,84 @@ def reorder_frames(frames_in, n_faces, n_real_faces=2):
             first_frame_is_read = frame is not None
             frames.append(frame)
     return frames
-        
+
+def reorder_frames_faces_ids(frames):
+    first_frame = frames[0]
+    first_frame_tuples =\
+        [(first_frame[face_id][0], face_id) for face_id in first_frame]
+    first_frame_sorted = sorted(first_frame_tuples)
+
+    faces_ids_map = {}
+    for i, t in enumerate(first_frame_sorted):
+        face_id = t[1]
+        faces_ids_map[face_id] = i
+
+    new_frames = []
+    for frame in frames:
+        new_frame = {}
+        for face_id in faces_ids_map:
+            try:
+                new_frame[face_id] = frame[faces_ids_map[face_id]]
+            except KeyError:
+                continue
+        new_frames.append(new_frame)
+    return new_frames
+
+def measure(dataset_frames, tracker_frames, n_faces):
+    res = []
+    for face_id in range(n_faces):
+        res.append({"recall": [], "precision": [], "f1-score": []})
+
+    for frame_number in range(len(dataset_frames)):
+        dataset_frame = dataset_frames[frame_number]
+        tracker_frame = tracker_frames[frame_number]
+        for face_id in range(n_faces):
+            if not face_id in dataset_frame and not face_id in tracker_frame:
+                # Face not detected neither in dataset nor detected by tracker.
+                recall = 1.0
+                precision = 1.0
+                f1_score = 1.0
+            elif not face_id in dataset_frame and face_id in tracker_frame:
+                # Face not in dataset but detected by tracker.
+                recall = 0.0
+                precision = 0.0
+                f1_score = 0.0
+            elif face_id in dataset_frame and not face_id in tracker_frame:
+                # Face in dataset but not detected by tracker.
+                recall = 0.0
+                precision = 0.0
+                f1_score = 0.0
+            else:
+                dataset_bounding_box = dataset_frame[face_id]
+                tracker_bounding_box = tracker_frame[face_id]
+                dataset_rectangle = Rectangle(
+                    *(dataset_bounding_box[0] + dataset_bounding_box[1]))
+                tracker_rectangle = Rectangle(
+                    *(tracker_bounding_box[0] + tracker_bounding_box[1]))
+                intersection_rectangle = dataset_rectangle & tracker_rectangle
+                if intersection_rectangle is None:
+                    recall = 0.0
+                    precision = 0.0
+                    f1_score = 0.0
+                else:
+                    intersection_area = intersection_rectangle.area
+                    recall = intersection_area / dataset_rectangle.area
+                    precision = intersection_area / tracker_rectangle.area
+                    f1_score = 2.0 / ((1.0 / recall) + (1.0 / precision))
+            res[face_id]["recall"].append(recall)
+            res[face_id]["f1-score"].append(f1_score)
+            res[face_id]["precision"].append(precision)
+    return res
+
+def plot_measure(measure_result, face_id):
+    for measure_type in ("precision", "recall", "f1-score"):
+        data = measure_result[face_id][measure_type]
+        plt.plot(data)
+        print("Face %d - %s(avg): %s" % (face_id, measure_type, np.mean(data)))
+        plt.title("Rostro %d: %s" % (face_id + 1, measure_type))
+        plt.ylabel(measure_type)
+        plt.xlabel("Cuadro (frame)")
+        plt.show()
 
 VIDEO_ASSETS_PATH = "/home/cfoch/Documents/cursos/Proyecto de Tesis 1/tesis/" \
     "datasets/Multiple_faces/Head"
@@ -158,17 +238,23 @@ parser.add_argument("-s", "--sort",
 parser.add_argument("-u", "--deserialize",
     help="The file path to the file with the faces info deserialized/unpickled",
     required=False)
+parser.add_argument("-t", "--tail-remove",
+    help="Ignore t last lines from the dataset.",
+    required=False)
 
 args = parser.parse_args()
 
 cap = cv2.VideoCapture(args.video)
 dataset_file = open(args.dataset, "r")
 lines = [l.rstrip("\n") for l in dataset_file.readlines()]
+if args.tail_remove:
+    lines = lines[:-int(args.tail_remove)]
 
 map_frames, n_faces = map_frames(lines)
 frames = map_frames_to_list(map_frames)
 colors = [random_color() for _ in range(n_faces)]
 unsorted_frames = frames
+frames = reorder_frames_faces_ids(frames)
 
 if args.sort:
     if args.nfaces is not None:
@@ -177,9 +263,18 @@ if args.sort:
         frames = reorder_frames(frames, n_faces)
 
 tracker_frames = None
+measure_result = None
 if args.deserialize is not None:
     pickle_f = open(args.deserialize, "rb")
     tracker_frames = pickle.load(pickle_f)
+
+    tracker_frames = reorder_frames_faces_ids(tracker_frames)
+
+    measure_result = measure(frames, tracker_frames, n_faces)
+
+
+    for face_id in range(n_faces):
+        plot_measure(measure_result, face_id)
 
 frame_number = 0
 while True:
@@ -211,7 +306,7 @@ while True:
 
     frame_number += 1
     cv2.imshow('frame', img)
-    # cv2.waitKey(0)
+    #cv2.waitKey(0)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 cap.release()
