@@ -2,6 +2,8 @@
 
 \usepackage[spanish]{babel}
 \usepackage{afterpage}
+\usepackage{float}
+\usepackage[linesnumbered,algoruled,boxed,lined,spanish,onelanguage]{algorithm2e}
 \usepackage[paper=A4,pagesize]{typearea}
 \usepackage{longtable}
 \usepackage{xcolor}
@@ -18,7 +20,6 @@
 \usepackage[autostyle]{csquotes}
 \usepackage{framed}
 \usepackage{titlesec}
-\usepackage{floatrow}
 \usepackage[list=true]{subcaption}
 \usepackage{url}
 
@@ -45,6 +46,15 @@
 
 % Support older LaTeX versions.
 \DeclareUnicodeCharacter{2060}{}
+
+% Parameter
+\makeatletter
+\g@addto@macro{\@algocf@init}{\SetKwInOut{Parameter}{Parámetro}}
+\makeatother
+% Global
+\makeatletter
+\g@addto@macro{\@algocf@init}{\SetKwInOut{Global}{Global}}
+\makeatother
 
 \begin{document}
 \begin{titlepage}
@@ -414,7 +424,7 @@ principales contribuciones se brindan:
       \caption{Ejemplo de imagen integral. La imagen integral siempre tendrá
       su primera columna y primera fila llena de ceros. Luego las demás celdas
       se calcula como la suma de los acumulados de las celdas anteriores.}
-      \floatfoot{Imágenes tomadas y adaptadas de \cite{IntegralImageMathworks}}
+      \caption*{Imágenes tomadas y adaptadas de \cite{IntegralImageMathworks}}
     \end{figure}
 
     % Figura: Ejemplo de haar-like features
@@ -435,7 +445,7 @@ principales contribuciones se brindan:
       rectángulo negro y blanco, estos se restan. El proceso se repite para
       todos los subrectángulos posibles y algunos métodos incluyen la rotación
       de estos.}
-      \floatfoot{Imágenes tomadas de \cite{wang2014analysis}
+      \caption*{Imágenes tomadas de \cite{wang2014analysis}
       }
     \end{figure}
 
@@ -464,7 +474,7 @@ principales contribuciones se brindan:
       trozo de imagen que se desliza por la imagen a analizar, es pasada por
       este clasificador. Las ventanas que pasan satisfactoriamente el
       clasificador se consideran rostros.}
-      \floatfoot{Fuente: \cite{violajones}}
+      \caption*{Fuente: \cite{violajones}}
       \label{fig:cascades-diagram}
     \end{figure}
 \end{enumerate}
@@ -766,7 +776,7 @@ la \ref{fig:landmark-tracking-5-keypoints}.\\
     se inicializa un rastreador por cada punto facial con un \textit{ROI}
     (región de interés) cuyo tamaño es proporcional a la distancia interocular
     (distancia entre entre los ojos).}
-  \floatfoot{Fuente: \cite{wettum2017facial}}
+  \caption*{Fuente: \cite{wettum2017facial}}
   \label{fig:landmark-tracking-5-keypoints}
 \end{figure}
 
@@ -784,7 +794,7 @@ cinco rastreadores se encarga de rastrear sus respectivos puntos asignados
   \centering
     \includegraphics[width=0.5\columnwidth]{../images/landmark-tracking-2.png}\par
   \caption{Diagrama que muestra las alternaciones de detección y rastreo.}
-  \floatfoot{Fuente: \cite{wettum2017facial}}
+  \caption*{Fuente: \cite{wettum2017facial}}
   \label{fig:landmark-tracking-diagram}
 \end{figure}
 
@@ -833,7 +843,7 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     círculos negros son asignados a los círculos rojos. Los círculos con baja
     opacidad representan objetos que no fueron asignados, porque superaron el
     \textit{threshold}}
-  \floatfoot{Fuente: \cite{szHucs2015svm}}
+  \caption*{Fuente: \cite{szHucs2015svm}}
   \label{fig:hungarian-diagram-1}
 \end{figure}
 
@@ -1239,7 +1249,7 @@ tienen un source pad.
   \centering
     \includegraphics{../images/pwg-src-element.png}\par
   \caption{Representación de un \textit{source}}
-  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+  \caption*{Fuente: \cite[p.~5]{boulton2017gstreamer}}
 \end{figure}
 
 \subsubsection{Sinks}
@@ -1253,7 +1263,7 @@ respectivamente. Un ``sink element'' solo tiene un sink pad.
   \centering
     \includegraphics{../images/pwg-sink-element.png}\par
   \caption{Representación de un \textit{sink}}
-  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+  \caption*{Fuente: \cite[p.~5]{boulton2017gstreamer}}
 \end{figure}
 
 \subsubsection{Filtros}
@@ -1267,7 +1277,7 @@ recibe. Un filtro tiene un source pad y un sink pad.
   \centering
     \includegraphics{../images/pwg-filter-element.png}\par
   \caption{Representación de un filtro}
-  \floatfoot{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+  \caption*{Fuente: \cite[p.~5]{boulton2017gstreamer}}
 \end{figure}
 
 \subsubsection{Bin}
@@ -1280,7 +1290,7 @@ variable, y por lo general, depende de los elementos que están en sus extremos.
   \centering
     \includegraphics[width=\textwidth]{../images/ad-bin.png}\par
   \caption{Representación de un \textit{bin}}
-  \floatfoot{Fuente: \cite{taymans2016gstreamer}}
+  \caption*{Fuente: \cite{taymans2016gstreamer}}
 \end{figure}
 
 
@@ -1296,7 +1306,7 @@ video reproducido con el pipeline.
   \centering
     \includegraphics[width=\textwidth]{../images/ad-pipeline.png}\par
   \caption{Representación de un \textit{pipeline}}
-  \floatfoot{Fuente: \cite{taymans2016gstreamer}}
+  \caption*{Fuente: \cite{taymans2016gstreamer}}
 \end{figure}
 
 \subsection{Bus (GstBus)}
@@ -1363,7 +1373,7 @@ programación Vala, aunque con partes escritas en C \cite{cheeseReferenceManual}
   \caption{Ventana de efectos de Cheese}
 \end{subfigure}
 \caption[Hello]{Cheese}
-\floatfoot{Fuente: autoría propia}
+\caption*{Fuente: autoría propia}
 \end{figure}
 
 Cheese lee los filtros o efectos de GNOME Video Effects y los usa para
@@ -1381,7 +1391,7 @@ elementos.
   \caption{Simplificación del \textit{pipeline} de Cheese. Imagen inspirada a
   				 partir de la generación de un diagrama en Graphviz con GStreamer en
   				 modo DEBUG}
-  \floatfoot{Fuente: Autoría propia}
+  \caption*{Fuente: Autoría propia}
 \end{figure}
 
 \section{OpenCV}
@@ -1486,20 +1496,18 @@ librerías podrían ser útiles para resolver el problema.
 
 \begin{center}
 	\begin{table}[h]
-  \begin{tabular}{| l | l | l | l | l |}
-  \hline
-  Programa & último commit & forks & stars & watch \\ \hline
-  OpenCV & 09-09-2017 & 13494 & 18075 & 1693 \\ \hline
-  4dface & 02-12-2016 & 133 & 268 & 44 \\ \hline
-  dlib & 10-09-2017 & 936 & 2701 & 262 \\ \hline
-  FaceX & 15-11-2015 & 86 & 95 & 18 \\ \hline
-  \end{tabular}
-  \caption{Tabla construida en base a las métricas de los proyectos en Github
-           al 10-09-2017.}
+      \begin{tabular}{| l | l | l | l | l |}
+      \hline
+      Programa & último commit & forks & stars & watch \\ \hline
+      OpenCV & 09-09-2017 & 13494 & 18075 & 1693 \\ \hline
+      4dface & 02-12-2016 & 133 & 268 & 44 \\ \hline
+      dlib & 10-09-2017 & 936 & 2701 & 262 \\ \hline
+      FaceX & 15-11-2015 & 86 & 95 & 18 \\ \hline
+      \end{tabular}
+      \caption{Tabla construida en base a las métricas de los proyectos en Github
+               al 10-09-2017.}
+      \caption*{Fuente: Repositorios de los proyectos en \textit{git}}
 	\end{table}
-  \floatfoot{Fuente: Repositorios de los proyectos en \textit{git}
-  				   \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
-  				   \cite{4dfaceLicense}}
 \end{center}
 
 Se puede observar que las más populares son OpenCV y dlib. OpenCV según su
@@ -1519,21 +1527,21 @@ tiene ciertas limitaciones respecto a GPLv3.
 
 \begin{center}
 	\begin{table}[h]
-  \begin{tabular}{| l | l | l |}
-  \hline
-  Programa & Licencia & ¿Compatible con GPLv2? \\ \hline
-  OpenCV & BSD License & Sí \\ \hline
-  4dface & Apache License 2.0 & No \\ \hline
-  dlib & Boost Software License 1.0 & Sí \\ \hline
-  FaceX & MIT License & Sí \\ \hline
-  FaceX-train & GPLv3 & Sí \\ \hline
-  \end{tabular}
-  \caption{Tabla de comparación de programas según su compatibilidad con GPLv2.}
+      \begin{tabular}{| l | l | l |}
+      \hline
+      Programa & Licencia & ¿Compatible con GPLv2? \\ \hline
+      OpenCV & BSD License & Sí \\ \hline
+      4dface & Apache License 2.0 & No \\ \hline
+      dlib & Boost Software License 1.0 & Sí \\ \hline
+      FaceX & MIT License & Sí \\ \hline
+      FaceX-train & GPLv3 & Sí \\ \hline
+      \end{tabular}
+      \caption{Tabla de comparación de programas según su compatibilidad con GPLv2.}
+      \caption*{Fuente: Repositorios de los proyectos en \textit{git}
+                \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
+                \cite{4dfaceLicense} y para la compatibilidad con GPLv2 la web de
+                la FSF \cite{GPLv2Compatibility}}
 	\end{table}
-  \floatfoot{Fuente: Repositorios de los proyectos en \textit{git}
-  				   \cite{openCVLicense}\cite{dlibLicense2}\cite{faceXLicense}
-  				   \cite{4dfaceLicense} y para la compatibilidad con GPLv2 la web de
-  				   la FSF \cite{GPLv2Compatibility}}
 \end{center}
 
 
@@ -1550,6 +1558,115 @@ alternativa factible para solucionar el problema.
 
 \chapter{Filtro de detección, rastreamiento y detección de puntos faciales de
   múltiples rostros}
+Este capítulo consta de tres partes específicas. En la primera sección, se
+detalla paso a paso y explica el algoritmo implementado para el rastreamiento de
+múltiples rostros y detección de puntos faciales. En la siguiente sección, se
+explica cómo usar el filtro con algunos ejemplos incluidos. Y finalmente, en la
+última sección, se mostrarán algunas métricas como \textit{f1-score},
+\textit{accuracy} y \textit{recall}.
+
+\section{Algoritmo de detección y rastreamiento de múltiples rostros y
+de detección puntos faciales}
+
+\begin{algorithm}[H]
+  \SetKwData{ImRz}{ImRz}
+  \SetKwData{IdsRostrosPerdidos}{IdsRostrosPerdidos}
+  \SetKwData{IdsRostrosNoCreados}{IdsRostrosNoCreados}
+  \SetKwData{id}{id}
+  \SetKwData{rostro}{rostro}
+  \SetKwData{detsRz}{detsRz}
+  \SetKwData{centroidesRostrosDetectados}{centroidesRostrosDetectados}
+  \SetKwData{centroidesRostrosNoCreados}{centroidesRostrosNoCreados}
+  \SetKwData{MatrizDeCostos}{MatrizDeCostos}
+  \SetKwData{asignado}{asignado}
+  \SetKwData{distancia}{distancia}
+  \SetKwFunction{longitud}{longitud}
+  \SetKwFunction{centroide}{centroide}
+  \SetKwFunction{rastrear}{rastrear}
+  \SetKwFunction{crearYAgregarRostros}{crearYAgregarRostros}
+  \SetKwFunction{enFaseDeDeteccion}{enFaseDeDetección}
+  \SetKwFunction{detectarRostros}{detectarRostros}
+  \SetKwFunction{crearRostro}{crearRostro}
+  \SetKwFunction{inicializarMatrizDeCostos}{inicializarMatrizDeCostos}
+  \SetKwFunction{metodoHungaro}{métodoHúngaro}
+  \SetKwFunction{asignaciones}{asignaciones}
+  \SetKwFunction{distanciaEuclidiana}{distanciaEuclidiana}
+  \Global{Una tabla hash $Faces$ (llave: tipo entero, valor: tipo $Face$).}
+  \KwIn{Una matriz de píxeles $Im$ de dimensiones $w \times h$.}
+  \KwIn{El número $N$ de cuadro actual.}
+  \Parameter{Un factor de escala $sf$}
+  \Parameter{$delete\_threshold$}
+  \Parameter{$detection\_gap\_duration$}
+  \Parameter{$max\_distance\_factor$}
+  \Parameter{Un algoritmo de rastreo $tracker$ que puede ser Median Flow, MIL,
+             KCF, TLD o Boosting}
+
+  \ImRz$\leftarrow Im \times scale\_factor$ \tcp*{Escalar imagen}
+  \IdsRostrosPerdidos$\leftarrow []$; \tcp*{Lista de \textit{ids} de rostros
+                                            cuyo rastreador perdió el objetivo.}
+  \IdsRostrosNoCreados$\leftarrow []$;
+
+  %\tcp*{Agregar faces ids to remove}%
+  \For{(\id, \rostro) $en$ $Faces$} {
+    $exito \leftarrow$ \rostro.rastrear(\ImRz);
+
+    \If{$exito$} {
+      \rostro.ultimo\_frame\_detectado $\leftarrow N$
+    }
+    \Else{
+      \IdsRostrosPerdidos.agregar(\id);
+    }
+    \IdsRostrosNoCreados.agregar(\id);
+  }
+  \If{\enFaseDeDeteccion{} \textit{o} \longitud{\IdsRostrosPerdidos} $> 0$} {
+    \detsRz $\leftarrow$ \detectarRostros{\ImRz} \tcp*{Lista de rectángulos}
+
+    \If{\longitud{$Faces$} $= 0$} {
+      \crearYAgregarRostros{$Faces$, \ImRz, \detsRz};
+    }
+
+    \If{\longitud{\IdsRostrosNoCreados} $= 0$ \textit{y} \longitud{\detsRz} $= 0$} {
+      \centroidesRostrosDetectados$\leftarrow$
+          \lbrack\centroide{rectángulo} $para$ rectángulo $en$ \detsRz\rbrack
+      \tcp*{Obtener centroides de los rectángulos detectados.}
+      \centroidesRostrosNoCreados$\leftarrow$
+          \lbrack\centroide{rectángulo} $para$ rectángulo $en$ $Faces[\IdsRostrosNoCreados]$.rectángulos\rbrack
+
+      \MatrizDeCostos$\leftarrow$
+          \inicializarMatrizDeCostos{\centroidesRostrosDetectados, \centroidesRostrosNoCreados}
+
+      \asignaciones$\leftarrow$\metodoHungaro{\MatrizDeCostos}
+
+      \For{$i\gets0$ \KwTo \longitud{\centroidesRostrosDetectados}}{
+        \asignado$\leftarrow$\asignaciones[$i$]$\neq-1$;
+
+        \crearRostro$\leftarrow$\textit{verdadero};
+
+        \If{\asignado} {
+          \id$\leftarrow$\IdsRostrosNoCreados\lbrack\asignaciones\lbrack$i$\rbrack\rbrack;
+
+          \rostro$\leftarrow Faces[id]$;
+
+          crearRostro$\leftarrow$\textit{falso};
+
+          $c1\leftarrow$\centroide{\centroidesRostrosDetectados$[i]$};
+
+          $c2\leftarrow$\centroide{\rostro.rectángulo};
+
+          \distancia$\leftarrow$\distanciaEuclidiana{$c1$,$c2$};
+
+        }
+      }
+    }
+  }
+
+
+  % \KwOut{Some output} %
+  % \caption{Some algorithm}\label{alg.mainLoop} %
+
+
+\end{algorithm}
+
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
 Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
 de imágenes, los formatos que soporta y cómo funciona. En términos
@@ -1590,7 +1707,7 @@ es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
     \includegraphics[width=1.0\textwidth]{../images/faceoverlay-design.png}\par
   \caption{Simplificación de diagrama del elemento \textit{gstfaceoverlay}.}
     \label{fig:faceoverlay-design}
-  \floatfoot{Fuente: Autoría propia}
+  \caption*{Fuente: Autoría propia}
 \end{figure}
 
 \begin{figure}[!h]
@@ -1598,7 +1715,7 @@ es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
     \includegraphics{../images/cheesefaceoverlay-design.png}\par
   \caption{Simplificación de diagrama del elemento \textit{gstcheesefaceoverlay}.}
     \label{fig:cheesefaceoverlay-design}
-  \floatfoot{Fuente: Autoría propia}
+  \caption*{Fuente: Autoría propia}
 \end{figure}
 
 \section{Capabilities}
@@ -2091,7 +2208,7 @@ de imágenes debería aplicarse sobre el \textit{viewport} de Cheese.\\
     inferior de la imagen fue una idea propuesta por Allan Day, y no se ha
     desarrollado pues no formaba parte del objetivo.}
     \label{fig:cheese-mockup}
-  \floatfoot{Fuente: Autoría propia y basado en un \textit{mock-up} desarrollado
+  \caption*{Fuente: Autoría propia y basado en un \textit{mock-up} desarrollado
     por Allan Day y otros archivos del repositorio en \textit{git} de
     \textit{mock-ups} del \textit{GNOME Design Team}. Los emoticonos son parte
     de Antü Plasma Suite y diseñados por Fabián Alexis.}
@@ -2164,7 +2281,7 @@ estático \textit{new\_from\_keyfile}.\\
     \includegraphics{../images/cheese-mockup-face-preset-button.png}\par
   \caption{Representación de \textit{{CheeseFacePresetButton}}}
     \label{fig:cheese-sticker-button}
-  \floatfoot{Fuente: el emoticón es parte de Antü Plasma Suite y ha sido
+  \caption*{Fuente: el emoticón es parte de Antü Plasma Suite y ha sido
     diseñado por Fabián Alexis.}
 \end{figure}
 
@@ -2184,7 +2301,7 @@ el botón de ''visto bueno`` como se puede ver en la figura
     \includegraphics{../images/cheese-mockup-face-preset-grid.png}\par
   \caption{Representación de \textit{{CheeseFacePresetGrid}}}
     \label{fig:cheese-sticker-button}
-  \floatfoot{Fuente: Autoría propia y basado en archivos del repositorio en
+  \caption*{Fuente: Autoría propia y basado en archivos del repositorio en
     \textit{git} de \textit{mock-ups} del \textit{GNOME Design Team}. Los
     emoticonos son parte de Antü Plasma Suite y diseñados por Fabián Alexis.}
 \end{figure}
@@ -2211,7 +2328,7 @@ tipo puede contener varios \textit{widgets} que implementen
         \textit{CheeseCustomFaces} no se han implementado, pues está fuera del
         alcance.}
       \label{fig:diagrama-clases}
-      \floatfoot{Imagen de autoría propia}
+      \caption*{Imagen de autoría propia}
     \end{figure}
     \clearpage
     \KOMAoptions{paper=A4,pagesize}
@@ -2251,7 +2368,7 @@ De haberlo, se muestra un \textit{GtkInfoBar} que avisa que hubo un error.
       \includegraphics[width=1.2\textwidth]{../images/diagrama-secuencias.png}\par
       \caption{Diagrama de secuencias.}
       \label{fig:diagrama-secuencias}
-      \floatfoot{Imagen de autoría propia}
+      \caption*{Imagen de autoría propia}
     \end{figure}
     \clearpage
     \KOMAoptions{paper=A4,pagesize}
