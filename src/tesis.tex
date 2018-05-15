@@ -3,7 +3,9 @@
 \usepackage[spanish]{babel}
 \usepackage{afterpage}
 \usepackage{float}
-\usepackage[linesnumbered,algoruled,boxed,lined,spanish,onelanguage]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{algorithm}
+% \usepackage[linesnumbered,algoruled,boxed,lined,spanish,onelanguage]{algorithm2e}
 \usepackage[paper=A4,pagesize]{typearea}
 \usepackage{longtable}
 \usepackage{xcolor}
@@ -48,13 +50,24 @@
 \DeclareUnicodeCharacter{2060}{}
 
 % Parameter
-\makeatletter
-\g@addto@macro{\@algocf@init}{\SetKwInOut{Parameter}{Parámetro}}
-\makeatother
+% \makeatletter
+% \g@addto@macro{\@algocf@init}{\SetKwInOut{Parameter}{Parámetro}}
+% \makeatother
 % Global
+% \makeatletter
+% \g@addto@macro{\@algocf@init}{\SetKwInOut{Global}{Global}}
+% \makeatother
+
+
+
 \makeatletter
-\g@addto@macro{\@algocf@init}{\SetKwInOut{Global}{Global}}
+\renewcommand{\ALG@name}{Algoritmo}
+\renewcommand{\algorithmicrequire}{Entrada: }
+\renewcommand{\algorithmicfor}{\textbf{para}}
+\renewcommand{\algorithmicdo}{\textbf{hacer}}
+\renewcommand{\listalgorithmname}{Lista de \ALG@name s}
 \makeatother
+
 
 \begin{document}
 \begin{titlepage}
@@ -1568,103 +1581,97 @@ explica cómo usar el filtro con algunos ejemplos incluidos. Y finalmente, en la
 \section{Algoritmo de detección y rastreamiento de múltiples rostros y
 de detección puntos faciales}
 
-\begin{algorithm}[H]
-  \SetKwData{ImRz}{ImRz}
-  \SetKwData{IdsRostrosPerdidos}{IdsRostrosPerdidos}
-  \SetKwData{IdsRostrosNoCreados}{IdsRostrosNoCreados}
-  \SetKwData{id}{id}
-  \SetKwData{rostro}{rostro}
-  \SetKwData{detsRz}{detsRz}
-  \SetKwData{centroidesRostrosDetectados}{centroidesRostrosDetectados}
-  \SetKwData{centroidesRostrosNoCreados}{centroidesRostrosNoCreados}
-  \SetKwData{MatrizDeCostos}{MatrizDeCostos}
-  \SetKwData{asignado}{asignado}
-  \SetKwData{distancia}{distancia}
-  \SetKwFunction{longitud}{longitud}
-  \SetKwFunction{centroide}{centroide}
-  \SetKwFunction{rastrear}{rastrear}
-  \SetKwFunction{crearYAgregarRostros}{crearYAgregarRostros}
-  \SetKwFunction{enFaseDeDeteccion}{enFaseDeDetección}
-  \SetKwFunction{detectarRostros}{detectarRostros}
-  \SetKwFunction{crearRostro}{crearRostro}
-  \SetKwFunction{inicializarMatrizDeCostos}{inicializarMatrizDeCostos}
-  \SetKwFunction{metodoHungaro}{métodoHúngaro}
-  \SetKwFunction{asignaciones}{asignaciones}
-  \SetKwFunction{distanciaEuclidiana}{distanciaEuclidiana}
-  \Global{Una tabla hash $Faces$ (llave: tipo entero, valor: tipo $Face$).}
-  \KwIn{Una matriz de píxeles $Im$ de dimensiones $w \times h$.}
-  \KwIn{El número $N$ de cuadro actual.}
-  \Parameter{Un factor de escala $sf$}
-  \Parameter{$delete\_threshold$}
-  \Parameter{$detection\_gap\_duration$}
-  \Parameter{$max\_distance\_factor$}
-  \Parameter{Un algoritmo de rastreo $tracker$ que puede ser Median Flow, MIL,
-             KCF, TLD o Boosting}
-
-  \ImRz$\leftarrow Im \times scale\_factor$ \tcp*{Escalar imagen}
-  \IdsRostrosPerdidos$\leftarrow []$; \tcp*{Lista de \textit{ids} de rostros
-                                            cuyo rastreador perdió el objetivo.}
-  \IdsRostrosNoCreados$\leftarrow []$;
-
-  %\tcp*{Agregar faces ids to remove}%
-  \For{(\id, \rostro) $en$ $Faces$} {
-    $exito \leftarrow$ \rostro.rastrear(\ImRz);
-
-    \If{$exito$} {
-      \rostro.ultimo\_frame\_detectado $\leftarrow N$
-    }
-    \Else{
-      \IdsRostrosPerdidos.agregar(\id);
-    }
-    \IdsRostrosNoCreados.agregar(\id);
-  }
-  \If{\enFaseDeDeteccion{} \textit{o} \longitud{\IdsRostrosPerdidos} $> 0$} {
-    \detsRz $\leftarrow$ \detectarRostros{\ImRz} \tcp*{Lista de rectángulos}
-
-    \If{\longitud{$Faces$} $= 0$} {
-      \crearYAgregarRostros{$Faces$, \ImRz, \detsRz};
-    }
-
-    \If{\longitud{\IdsRostrosNoCreados} $= 0$ \textit{y} \longitud{\detsRz} $= 0$} {
-      \centroidesRostrosDetectados$\leftarrow$
-          \lbrack\centroide{rectángulo} $para$ rectángulo $en$ \detsRz\rbrack
-      \tcp*{Obtener centroides de los rectángulos detectados.}
-      \centroidesRostrosNoCreados$\leftarrow$
-          \lbrack\centroide{rectángulo} $para$ rectángulo $en$ $Faces[\IdsRostrosNoCreados]$.rectángulos\rbrack
-
-      \MatrizDeCostos$\leftarrow$
-          \inicializarMatrizDeCostos{\centroidesRostrosDetectados, \centroidesRostrosNoCreados}
-
-      \asignaciones$\leftarrow$\metodoHungaro{\MatrizDeCostos}
-
-      \For{$i\gets0$ \KwTo \longitud{\centroidesRostrosDetectados}}{
-        \asignado$\leftarrow$\asignaciones[$i$]$\neq-1$;
-
-        \crearRostro$\leftarrow$\textit{verdadero};
-
-        \If{\asignado} {
-          \id$\leftarrow$\IdsRostrosNoCreados\lbrack\asignaciones\lbrack$i$\rbrack\rbrack;
-
-          \rostro$\leftarrow Faces[id]$;
-
-          crearRostro$\leftarrow$\textit{falso};
-
-          $c1\leftarrow$\centroide{\centroidesRostrosDetectados$[i]$};
-
-          $c2\leftarrow$\centroide{\rostro.rectángulo};
-
-          \distancia$\leftarrow$\distanciaEuclidiana{$c1$,$c2$};
-
-        }
-      }
-    }
-  }
 
 
-  % \KwOut{Some output} %
-  % \caption{Some algorithm}\label{alg.mainLoop} %
+\begin{algorithm}
+  \caption{Algoritmo de rastreamiento y detección de puntos faciales}
+  \hspace*{\algorithmicindent} \textbf{Entrada: }
+      Una matriz de píxeles $Im$ de dimensiones $w \times h$.\\
+  \hspace*{\algorithmicindent} \textbf{Entrada: }
+      El número $N$ de cuadro actual.\\
+  \begin{algorithmic}[1]
+    \Procedure{ProcesarCuadro}{$Im,N$}
+      \State ImRz$\leftarrow Im \times scale\_factor$ \Comment{Escalar imagen.}
+      \State IdsRostrosPerdidos$\leftarrow []$ \Comment{Lista de \textit{ids} de
+                                                        rostros cuyo rastreador
+                                                        perdió el objetivo.}
+      \State IdsRostrosNoCreados$\gets []$
 
 
+      \For{(id, rostro) \textbf{en} $Faces$}
+        \State $exito \gets$ rostro.\Call{rastrear}{ImRz}
+        \If{$exito$}
+          \State rostro.ultimoFrameDetectado $\gets N$
+        \Else
+          \State IdsRostrosPerdidos.\Call{agregar}{id}
+        \EndIf
+          \State IdsRostrosNoCreados.\Call{agregar}{id}
+      \EndFor
+
+      \If{\Call{enFaseDeDeteccion}{} \textbf{o} \Call{longitud}{IdsRostrosPerdidos} $> 0$}
+        \State detsRz $\gets$ detectarRostros(ImRz) \Comment{Lista de rectángulos.}
+        \If{longitud{$Faces$} $= 0$}
+          \State crearYAgregarRostros($Faces$, ImRz, detsRz);
+        \EndIf
+
+        \If{\Call{longitud}{IdsRostrosNoCreados} $= 0$ \textbf{y} \Call{longitud}{detsRz} $= 0$}
+          \State centroidesRostrosDetectados $\gets$
+              \lbrack\Call{centroide}($r$) \textbf{para} $r$ \textbf{en} detsRz\rbrack
+          \State centroidesRostrosNoCreados $\gets$
+              \lbrack \Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} $Faces$[IdsRostrosNoCreados].rectángulos\rbrack
+          \State MatrizDeCostos$\leftarrow$\Call{inicializarMatrizDeCostos}{centroidesRostrosDetectados, centroidesRostrosNoCreados}
+          \State asignaciones$\gets$metodoHungaro(MatrizDeCostos)
+
+          \For{$i\gets0$ \textbf{hasta} \Call{longitud}{centroidesRostrosDetectados}}
+            asignado$\leftarrow$asignaciones[$i$]$\neq-1$
+            crearRostro$\leftarrow$textit{verdadero}
+
+            \If{asignado}
+              \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
+              \State rostro$\gets Faces[$id$]$
+              \State crearRostro$\gets$\textit{falso}
+              \State $c1\gets$\Call{centroide}{centroidesRostrosDetectados$[i]$}
+              \State $c2\gets$\Call{centroide}{rostro.rectángulo}
+              \State distancia$\gets$\Call{distanciaEuclidiana}{$c1$,$c2$}
+              \State maxDistancia$\gets$$distance\_factor \times $detsRz.ancho
+              \If{distancia $\geq$ maxDistancia}
+                \State rostro.rastreador.\Call{liberar}{}()
+              \EndIf
+            \EndIf
+      \algstore{myalg}
+  \end{algorithmic}
+\end{algorithm}
+
+\clearpage
+
+\begin{algorithm}
+  \ContinuedFloat
+  \caption{Algoritmo de rastreamiento y detección de puntos faciales (continación)}
+  \begin{algorithmic}
+      \algrestore{myalg}
+            \If{crearRostro}
+              \State crearYAgregarRostros($Faces$, ImRz, [detsRz[$i$]])
+            \Else
+              \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
+              \State rostro$\gets Faces[$id$]$
+              \If{rostro.estado $= NO\_DISPONIBLE$}
+                \State rostro.rectángulo$\gets$detsRz[$i$]
+                \State rostro.\Call{crearRastreador}{$tracker$}
+                \State rostro.\Call{inicializarRastreador}{ImRz}
+                \State rostro.ultimoFrameDetectado $\gets N$
+              \EndIf
+            \EndIf
+          \EndFor
+        \EndIf
+      \EndIf
+      \For{(id, rostro) \textbf{en} $Faces$}
+        \State mostrarRostro$\gets$ rostro.ultimoFrameDetectado $= N$
+        \If{rostro.estado $= RASTREADOR\_INICIALIZADO$ \textbf{o}}
+          \State rostro.landmark $\gets$ \Call{detectarPuntosFaciales}{ImRz}
+        \EndIf
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
 \end{algorithm}
 
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
