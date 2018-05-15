@@ -2,6 +2,7 @@
 
 \usepackage[spanish]{babel}
 \usepackage{afterpage}
+\usepackage{amssymb}
 \usepackage{float}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
@@ -62,11 +63,22 @@
 
 \makeatletter
 \renewcommand{\ALG@name}{Algoritmo}
-\renewcommand{\algorithmicrequire}{Entrada: }
+\renewcommand{\algorithmicrequire}{\textbf{Entrada: }}
+\renewcommand{\algorithmicensure}{\textbf{Salida: }}
 \renewcommand{\algorithmicfor}{\textbf{para}}
 \renewcommand{\algorithmicdo}{\textbf{hacer}}
 \renewcommand{\listalgorithmname}{Lista de \ALG@name s}
 \makeatother
+
+\algdef{SE}[SUBALG]{Indent}{EndIndent}{}{\algorithmicend\ }%
+\algtext*{Indent}
+\algtext*{EndIndent}
+
+\algdef{SE}[PARAMETERS]{Parameters}{EndParameters}
+   {\algorithmicvariables}
+   {\algorithmicend\ \algorithmicvariables}
+\algnewcommand{\algorithmicvariables}{\textbf{parámetros}}
+
 
 
 \begin{document}
@@ -1581,26 +1593,59 @@ explica cómo usar el filtro con algunos ejemplos incluidos. Y finalmente, en la
 \section{Algoritmo de detección y rastreamiento de múltiples rostros y
 de detección puntos faciales}
 
-
+\begin{algorithm}
+\floatname{algorithm}{Estructura}
+\caption{Estructura que contiene la información de la \textit{\textbf{identidad}}
+         de un rostro}
+\label{euclid}
+\begin{algorithmic}
+\State \textbf{estructura} RostroT $\{$
+\Indent
+  \State $rectángulo$, Rectángulo que delimita el rostro de la cara.
+  \State $landmark$, Arreglo de puntos faciales. Inicialmente vacía.
+  \State $rastreador$, El rastreador qué puede ser Median Flow, MIL,
+                        KCF, TLD o Boosting, según sea especificado como
+                       parámetro.
+  \State $estadoRastreador$, El estado del rastreador el cuál puede ser
+                            $NO\_INICIALIZADO$, $NO\_ASIGNADO$, $INICIALIZADO$,
+                            o $RASTREANDO$. Inicialmente $NO\_INICIALIZADO$.
+  \State $ultimoCuadroDetectado$, el número de cuadro en el cual el rostro fue
+                                 detectado o rastreado por última vez.
+\EndIndent
+\State  $\}$
+\end{algorithmic}
+\end{algorithm}
 
 \begin{algorithm}
   \caption{Algoritmo de rastreamiento y detección de puntos faciales}
-  \hspace*{\algorithmicindent} \textbf{Entrada: }
-      Una matriz de píxeles $Im$ de dimensiones $w \times h$.\\
-  \hspace*{\algorithmicindent} \textbf{Entrada: }
-      El número $N$ de cuadro actual.\\
+  \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
+      (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
+  \textbf{Global: }$\acute{U}LTIMO\_ID$, el siguiente identificador a asignar. Valor inicial: $0$\\
+  \textbf{Global: }$TIPO\_RASTREADOR$, el tipo de rastreador a usar que puede
+                                       ser Median Flow, MIL, KCF, TLD o
+                                       Boosting, según sea especificado como
+                                        parámetro.\\
+  \textbf{Global: }$N$, el número de cuadro actual. Valor inicial: $1$\\
+  \textbf{Parámetro: }$factor\_escala \in [0, 1]$\\
+  \textbf{Parámetro: }$factor\_distancia \in [0, 1]$\\
+  \textbf{Parámetro: }$brecha\_detecci\acute on \in \mathbb{N}$\\
+  \textbf{Parámetro: }$borrado\_threshold \in \mathbb{N}$\\
+  \algorithmicrequire{$I$, una imagen de dimensiones $ancho \times largo$}\\
   \begin{algorithmic}[1]
-    \Procedure{ProcesarCuadro}{$Im,N$}
-      \State ImRz$\leftarrow Im \times scale\_factor$ \Comment{Escalar imagen.}
+    \Procedure{ProcesarCuadro}{$I$}
+
+      \State $I_{s}\leftarrow I \times factor\_escala$ \Comment{Escalar imagen.}
       \State IdsRostrosPerdidos$\leftarrow []$ \Comment{Lista de \textit{ids} de
                                                         rostros cuyo rastreador
                                                         perdió el objetivo.}
-      \State IdsRostrosNoCreados$\gets []$
+      \State IdsRostrosNoCreados$\gets []$ \Comment{Lista de \textit{ids} de
+                                                        rostros no creados en el
+                                                        cuadro actual.}
 
-
-      \For{(id, rostro) \textbf{en} $Faces$}
-        \State $exito \gets$ rostro.\Call{rastrear}{ImRz}
-        \If{$exito$}
+      \State \Call{IntentarBorrarRostros}{}
+      \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
+        \State $\acute{e}xito \gets$ rostro.\Call{rastrear}{$I_{s}$}
+        \If{$\acute{e}xito$}
           \State rostro.ultimoFrameDetectado $\gets N$
         \Else
           \State IdsRostrosPerdidos.\Call{agregar}{id}
@@ -1608,36 +1653,21 @@ de detección puntos faciales}
           \State IdsRostrosNoCreados.\Call{agregar}{id}
       \EndFor
 
-      \If{\Call{enFaseDeDeteccion}{} \textbf{o} \Call{longitud}{IdsRostrosPerdidos} $> 0$}
-        \State detsRz $\gets$ detectarRostros(ImRz) \Comment{Lista de rectángulos.}
-        \If{longitud{$Faces$} $= 0$}
-          \State crearYAgregarRostros($Faces$, ImRz, detsRz);
+      \State enFaseDeDeteccion$\gets$ $N$ \textbf{mod} $brecha\_detecci\acute on$ $= 1$
+
+      \If{enFaseDeDeteccion \textbf{o} \Call{longitud}{IdsRostrosPerdidos} $> 0$}
+        \State detsRz $\gets$ detectarRostros($I_{s}$) \Comment{Lista de rectángulos.}
+        \If{\Call{longitud}{$ROSTROS\_TABLA$} $= 0$}
+          \State \Call{crearYAgregarRostros}{$ROSTROS\_TABLA$, $I_{s}$, detsRz};
         \EndIf
 
-        \If{\Call{longitud}{IdsRostrosNoCreados} $= 0$ \textbf{y} \Call{longitud}{detsRz} $= 0$}
+        \If{\Call{longitud}{IdsRostrosNoCreados} $> 0$ \textbf{y} \Call{longitud}{detsRz} $> 0$}
           \State centroidesRostrosDetectados $\gets$
-              \lbrack\Call{centroide}($r$) \textbf{para} $r$ \textbf{en} detsRz\rbrack
+              \lbrack\Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} detsRz\rbrack
           \State centroidesRostrosNoCreados $\gets$
-              \lbrack \Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} $Faces$[IdsRostrosNoCreados].rectángulos\rbrack
+              \lbrack \Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} $ROSTROS\_TABLA$[IdsRostrosNoCreados].rectángulos\rbrack
           \State MatrizDeCostos$\leftarrow$\Call{inicializarMatrizDeCostos}{centroidesRostrosDetectados, centroidesRostrosNoCreados}
-          \State asignaciones$\gets$metodoHungaro(MatrizDeCostos)
-
-          \For{$i\gets0$ \textbf{hasta} \Call{longitud}{centroidesRostrosDetectados}}
-            asignado$\leftarrow$asignaciones[$i$]$\neq-1$
-            crearRostro$\leftarrow$textit{verdadero}
-
-            \If{asignado}
-              \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
-              \State rostro$\gets Faces[$id$]$
-              \State crearRostro$\gets$\textit{falso}
-              \State $c1\gets$\Call{centroide}{centroidesRostrosDetectados$[i]$}
-              \State $c2\gets$\Call{centroide}{rostro.rectángulo}
-              \State distancia$\gets$\Call{distanciaEuclidiana}{$c1$,$c2$}
-              \State maxDistancia$\gets$$distance\_factor \times $detsRz.ancho
-              \If{distancia $\geq$ maxDistancia}
-                \State rostro.rastreador.\Call{liberar}{}()
-              \EndIf
-            \EndIf
+          \State asignaciones$\gets$\Call{métodoHúngaro}{MatrizDeCostos}
       \algstore{myalg}
   \end{algorithmic}
 \end{algorithm}
@@ -1649,26 +1679,88 @@ de detección puntos faciales}
   \caption{Algoritmo de rastreamiento y detección de puntos faciales (continación)}
   \begin{algorithmic}
       \algrestore{myalg}
+          \For{$i\gets0$ \textbf{hasta} \Call{longitud}{centroidesRostrosDetectados}}
+            \State asignado$\leftarrow$asignaciones[$i$]$\neq-1$
+            \State crearRostro$\leftarrow$\textit{verdadero}
+
+            \If{asignado}
+              \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
+              \State rostro$\gets ROSTROS\_TABLA[$id$]$
+              \State crearRostro$\gets$\textit{falso}
+              \State $c1\gets$\Call{centroide}{centroidesRostrosDetectados$[i]$}
+              \State $c2\gets$\Call{centroide}{rostro.rectángulo}
+              \State distancia$\gets$\Call{distanciaEuclidiana}{$c1$,$c2$}
+              \State maxDistancia$\gets$$factor\_distancia \times $detsRz.ancho
+              \If{distancia $\geq$ maxDistancia}
+                \State rostro.rastreador.\Call{liberar}{}()
+              \EndIf
+            \EndIf
             \If{crearRostro}
-              \State crearYAgregarRostros($Faces$, ImRz, [detsRz[$i$]])
+              \State \Call{crearYAgregarRostros}{$ROSTROS\_TABLA$, $I_{s}$, [detsRz[$i$]]}
             \Else
               \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
-              \State rostro$\gets Faces[$id$]$
-              \If{rostro.estado $= NO\_DISPONIBLE$}
+              \State rostro$\gets ROSTROS\_TABLA[$id$]$
+              \If{rostro.estadoRastreador $= NO\_ASIGNADO$}
                 \State rostro.rectángulo$\gets$detsRz[$i$]
                 \State rostro.\Call{crearRastreador}{$tracker$}
-                \State rostro.\Call{inicializarRastreador}{ImRz}
-                \State rostro.ultimoFrameDetectado $\gets N$
+                \State rostro.\Call{inicializarRastreador}{$I_{s}$}
+                \State rostro.ultimoCuadroDetectado $\gets N$
               \EndIf
             \EndIf
           \EndFor
         \EndIf
       \EndIf
-      \For{(id, rostro) \textbf{en} $Faces$}
-        \State mostrarRostro$\gets$ rostro.ultimoFrameDetectado $= N$
-        \If{rostro.estado $= RASTREADOR\_INICIALIZADO$ \textbf{o}}
-          \State rostro.landmark $\gets$ \Call{detectarPuntosFaciales}{ImRz}
+      \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
+        \State mostrarRostro$\gets$ rostro.ultimoCuadroDetectado $= N$
+        \If{rostro.estadoRastreador $= INICIALIZADO$}
+          \State rostro.landmark $\gets$ \Call{detectarPuntosFaciales}{$I_{s}$}
         \EndIf
+      \EndFor
+      \State $N\gets N + 1$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Borrado de información de rostros que no han sido detectados o
+      rastreados durante un tiempo considerable}
+  \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
+      (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
+  \textbf{Global: }$N$, el número de cuadro actual. Valor inicial: $1$\\
+  \textbf{Parámetro: }$borrado\_threshold \in \mathbb{N}$\\
+  \begin{algorithmic}[1]
+    \Procedure{IntentarBorrarRostros}{}
+      \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
+        \State $\Delta\gets N - $rostro.ultimoCuadroDetectado
+        \If{$\Delta > borrado\_threshold$}
+          \State \Call{borrar}{$ROSTROS[id]$}
+        \EndIf
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+  \caption{Procedimiento que crea nuevos rostros con rastreadores inicializados
+           y los inserta en tabla hash}
+  \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
+      (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
+  \textbf{Global: }$TIPO\_RASTREADOR$, el tipo de rastreador a usar que puede
+                                       ser Median Flow, MIL, KCF, TLD o
+                                       Boosting, según sea especificado como
+                                       parámetro.\\
+  \textbf{Global: }$\acute{U}LTIMO\_ID$, el siguiente identificador a asignar. Valor inicial: $0$\\
+  \textbf{Global: }$N$, el número de cuadro actual. Valor inicial: $1$\\
+  \begin{algorithmic}[1]
+    \Procedure{crearYAgregarRostros}{$ROSTROS\_TABLA,I,rect\acute{á}ngulos$}
+      \For{$rectángulo$ \textbf{en} $rect\acute{á}ngulos$}
+        \State $\acute{U}LTIMO\_ID\gets \acute{U}LTIMO\_ID + 1$
+        \State rostro$\gets$ \textbf{instanciar} $RostroT$
+        \State rostro.ultimoCuadroDetectado$\gets N$
+        \State rostro.rectángulo $\gets rectángulo$
+        \State $ROSTRO[\acute{U}LTIMO\_ID]\gets$rostro
+        \State $ROSTRO[\acute{U}LTIMO\_ID].$\Call{crearRastreador}{$TIPO\_RASTREADOR$}
+        \State $ROSTRO[\acute{U}LTIMO\_ID].$\Call{inicializarRastreador}{$I$}
       \EndFor
     \EndProcedure
   \end{algorithmic}
