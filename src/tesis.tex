@@ -1593,6 +1593,36 @@ explica cómo usar el filtro con algunos ejemplos incluidos. Y finalmente, en la
 \section{Algoritmo de detección y rastreamiento de múltiples rostros y
 de detección puntos faciales}
 
+\subsection{Introducción}
+El algoritmo desarrollado consiste en ciclos, en los cuales por cada ciclo en
+el primer cuadro se detectan los rostros y en los siguientes cuadros se realiza
+rastrea a los rostros. La detección de rostros suele ser un proceso costoso
+comparado con el rastreo, es por ello que mientras más largo sea el tiempo en el
+cual se rastrea los rostros habrá menos latencia. Sin embargo, a veces puede que
+nuevas personas entren a la escena capturada por la cámara web o que algunas
+personas salgan de esta. Además puede suceder que el rastreador pierda su objetivo o
+el resultado de este sea poco probable. Es por esta razón que es necesario cada
+cierto tiempo detectar rostros. La detección de rostros que solo se raliza una
+vez cada ciclo es aprovechada para verificar si rostros de personas entraron o
+salieron de la escena. Además esta fase de detección es una oportunidad para
+verificar si el rastreador está dando resultados probablemente correctos o no.
+Si el rastreador dice que hay un rostro donde en verdad según el detector no
+existe ninguno, esto se corrige en esta fase. En esta fase de detección, además,
+se reasignan (o reordenan) los rostros de tal manera que cada rostro detectado
+preserve su identidad. Además de ello, a veces puede suceder que el rastreador
+pierda su objetivo (el rostro rastreado). Este caso es un caso de urgencia y
+excepción al ciclo explicado inicialmente, y se entrará en una fase de
+detección.
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=1.0\textwidth]{../images/diagrama-rafagas-cheesefacetrack.png}\par
+  \caption{Diagrama de ciclo de ciclo de detección y rastreo realizado por
+           el algoritmo}
+    \label{fig:diagrama-rafagas-cheesefacetrack}
+  \caption*{Fuente: Autoría propia}
+\end{figure}
+
 \begin{algorithm}
 \floatname{algorithm}{Estructura}
 \caption{Estructura que contiene la información de la \textit{\textbf{identidad}}
