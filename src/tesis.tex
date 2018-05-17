@@ -1623,6 +1623,26 @@ detección.
   \caption*{Fuente: Autoría propia}
 \end{figure}
 
+\subsection{¿Cómo se almacena la información de los rostros?}
+Cada rostro es único. Las tablas hash permiten tener llaves únicas (que no se
+repiten) y además tienen tiempo de acceso $O(1)$, por tanto guardar información
+de cada rostro en una tabla hash ha resultado conveniente para este algoritmo.
+La llave de la tabla hash es un número identificador ($id$) y el valor
+relacionado a esta llave es una estructura que contiene información específica
+del rostro.\\
+La estructura definida contiene la información del rectángulo ($rectángulo$) y
+puntos faciales ($landmark$) que delimita el rostro en el último cuadro en el
+cual este fue detectado o rastreado. Cada estructura además tiene un rastreador
+($rastreador$) el cual es definido a gusto del usuario y puede ser Median Flow,
+MIL, KCF, TLD o Boosting de los cuales se recomienda Median Flow. Antes de crear
+un rastreador, ningún rastreador ha sido asignado al rostro (estado
+$NO\_ASIGNADO$), luego al asignarse un rastreador ($rastreador$) este pasa al
+estado ($NO\_INICIALIZADO$): ambos estados mencionados son solo de paso. Cuando
+se inicializa el rastreador se pasa al estado de inicializado ($INICIALIZADO$)
+y, deductivamente, cuando se empieza el proceso de rastreo este pasa a estado de
+rastreando ($RASTREANDO$). Finalmente, se guarda el último número de cuadro en
+el cual el rostro fue detectado.
+
 \begin{algorithm}
 \floatname{algorithm}{Estructura}
 \caption{Estructura que contiene la información de la \textit{\textbf{identidad}}
@@ -1637,7 +1657,7 @@ detección.
                         KCF, TLD o Boosting, según sea especificado como
                        parámetro.
   \State $estadoRastreador$, El estado del rastreador el cuál puede ser
-                            $NO\_INICIALIZADO$, $NO\_ASIGNADO$, $INICIALIZADO$,
+                            $NO\_ASIGNADO$, $NO\_INICIALIZADO$, $INICIALIZADO$,
                             o $RASTREANDO$. Inicialmente $NO\_INICIALIZADO$.
   \State $ultimoCuadroDetectado$, el número de cuadro en el cual el rostro fue
                                  detectado o rastreado por última vez.
