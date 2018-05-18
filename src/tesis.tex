@@ -25,6 +25,8 @@
 \usepackage{titlesec}
 \usepackage[list=true]{subcaption}
 \usepackage{url}
+\usepackage{hyperref}
+
 
 \setcounter{secnumdepth}{5}
 
@@ -1639,9 +1641,9 @@ un rastreador, ningún rastreador ha sido asignado al rostro (estado
 $NO\_ASIGNADO$), luego al asignarse un rastreador ($rastreador$) este pasa al
 estado ($NO\_INICIALIZADO$): ambos estados mencionados son solo de paso. Cuando
 se inicializa el rastreador se pasa al estado de inicializado ($INICIALIZADO$)
-y, deductivamente, cuando se empieza el proceso de rastreo este pasa a estado de
-rastreando ($RASTREANDO$). Finalmente, se guarda el último número de cuadro en
-el cual el rostro fue detectado.
+y cuando se empieza el proceso de rastreo este pasa a estado de rastreando
+($RASTREANDO$). Finalmente, se guarda el último número de cuadro en el cual el
+rostro fue detectado.
 
 \begin{algorithm}
 \floatname{algorithm}{Estructura}
@@ -1666,8 +1668,22 @@ el cual el rostro fue detectado.
 \end{algorithmic}
 \end{algorithm}
 
+\subsection{Explicación detallada del algoritmo}
+El algoritmo propuesto cuyo (pseudocódigo principal puede verse en el cuadro
+titulado algoritmo~\ref{alg:tracking}) ejecuta un procedimiento cíclicamente
+para cada cuadro de video capturado (en este caso por la cámara web). Este
+procedimiento inicia escalando la imagen por un factor de escala
+($factor\_escala$), la razón de ello es para agilizar la detección de rostros.
+Una variable global $ROSTROS\_TABLA$ la cual es una tabla hash tal como se
+describió en la sesión anterior está inicialmente vacía, pues aun no se ha
+procesado ningún rostro, por ello las
+líneas~\ref{lst:line:initBefDetect}-\ref{lst:line:endBefDetect} serán
+explicadas más adelante. Las siguientes subsecciones explican a detalle cada
+parte del algoritmo.\\
+
 \begin{algorithm}
   \caption{Algoritmo de rastreamiento y detección de puntos faciales}
+  \label{alg:tracking}
   \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
       (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
   \textbf{Global: }$\acute{U}LTIMO\_ID$, el siguiente identificador a asignar. Valor inicial: $0$\\
@@ -1685,7 +1701,7 @@ el cual el rostro fue detectado.
     \Procedure{ProcesarCuadro}{$I$}
 
       \State $I_{s}\leftarrow I \times factor\_escala$ \Comment{Escalar imagen.}
-      \State IdsRostrosPerdidos$\leftarrow []$ \Comment{Lista de \textit{ids} de
+      \State IdsRostrosPerdidos$\leftarrow []$ \label{lst:line:A}\Comment{Lista de \textit{ids} de
                                                         rostros cuyo rastreador
                                                         perdió el objetivo.}
       \State IdsRostrosNoCreados$\gets []$ \Comment{Lista de \textit{ids} de
@@ -1693,31 +1709,42 @@ el cual el rostro fue detectado.
                                                         cuadro actual.}
 
       \State \Call{IntentarBorrarRostros}{}
+      \label{lst:line:initBefDetect}
       \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
+      \label{lst:line:faseDetec}
         \State $\acute{e}xito \gets$ rostro.\Call{rastrear}{$I_{s}$}
+        \label{lst:line:rastrear}
         \If{$\acute{e}xito$}
-          \State rostro.ultimoFrameDetectado $\gets N$
+          \State rostro.ultimoCuadroDetectado $\gets N$
+          \label{lst:line:rastrearActualizarUltimoFrame}
         \Else
-          \State IdsRostrosPerdidos.\Call{agregar}{id}
+          \State IdsRostrosPerdidos.\Call{agregar}{id} \label{lst:line:objetivoPerdido}
+          \label{lst:line:registrarPerdidos}
         \EndIf
           \State IdsRostrosNoCreados.\Call{agregar}{id}
-      \EndFor
+      \EndFor \label{lst:line:B}
+      \label{lst:line:endBefDetect}
 
-      \State enFaseDeDeteccion$\gets$ $N$ \textbf{mod} $brecha\_detecci\acute on$ $= 1$
+      \State enFaseDeDeteccion$\gets$ $N$ \textbf{mod} $brecha\_detecci\acute on$ $= 1$ \label{lst:line:C}
 
-      \If{enFaseDeDeteccion \textbf{o} \Call{longitud}{IdsRostrosPerdidos} $> 0$}
-        \State detsRz $\gets$ detectarRostros($I_{s}$) \Comment{Lista de rectángulos.}
+      \If{enFaseDeDeteccion \textbf{o} \Call{longitud}{IdsRostrosPerdidos} $> 0$} \label{lst:line:inicioFaseDetect}
+        \State detsRz $\gets$ detectarRostros($I_{s}$) \Comment{Lista de rectángulos.} \label{lst:line:deteccion}
         \If{\Call{longitud}{$ROSTROS\_TABLA$} $= 0$}
           \State \Call{crearYAgregarRostros}{$ROSTROS\_TABLA$, $I_{s}$, detsRz};
+          \label{lst:line:crearYAgregarRostrosA}
         \EndIf
 
         \If{\Call{longitud}{IdsRostrosNoCreados} $> 0$ \textbf{y} \Call{longitud}{detsRz} $> 0$}
+          \label{lst:line:checkIfHungarian}
           \State centroidesRostrosDetectados $\gets$
               \lbrack\Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} detsRz\rbrack
+          \label{lst:line:costMatrixInit}
           \State centroidesRostrosNoCreados $\gets$
               \lbrack \Call{centroide}{$r$} \textbf{para} $r$ \textbf{en} $ROSTROS\_TABLA$[IdsRostrosNoCreados].rectángulos\rbrack
           \State MatrizDeCostos$\leftarrow$\Call{inicializarMatrizDeCostos}{centroidesRostrosDetectados, centroidesRostrosNoCreados}
+          \label{lst:line:costMatrixEnd}
           \State asignaciones$\gets$\Call{métodoHúngaro}{MatrizDeCostos}
+          \Comment{\textcolor{red}{Continúa...}}
       \algstore{myalg}
   \end{algorithmic}
 \end{algorithm}
@@ -1730,10 +1757,12 @@ el cual el rostro fue detectado.
   \begin{algorithmic}
       \algrestore{myalg}
           \For{$i\gets0$ \textbf{hasta} \Call{longitud}{centroidesRostrosDetectados}}
+          \label{lst:line:iterRostros}
             \State asignado$\leftarrow$asignaciones[$i$]$\neq-1$
             \State crearRostro$\leftarrow$\textit{verdadero}
 
             \If{asignado}
+            \label{lst:line:asignadoInit}
               \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
               \State rostro$\gets ROSTROS\_TABLA[$id$]$
               \State crearRostro$\gets$\textit{falso}
@@ -1745,10 +1774,12 @@ el cual el rostro fue detectado.
                 \State rostro.rastreador.\Call{liberar}{}()
               \EndIf
             \EndIf
+            \label{lst:line:asignadoFin}
             \If{crearRostro}
               \State \Call{crearYAgregarRostros}{$ROSTROS\_TABLA$, $I_{s}$, [detsRz[$i$]]}
             \Else
               \State id$\gets$IdsRostrosNoCreados\lbrack asignaciones\lbrack$i$\rbrack\rbrack
+              \label{lst:line:initResetFaces}
               \State rostro$\gets ROSTROS\_TABLA[$id$]$
               \If{rostro.estadoRastreador $= NO\_ASIGNADO$}
                 \State rostro.rectángulo$\gets$detsRz[$i$]
@@ -1756,14 +1787,20 @@ el cual el rostro fue detectado.
                 \State rostro.\Call{inicializarRastreador}{$I_{s}$}
                 \State rostro.ultimoCuadroDetectado $\gets N$
               \EndIf
+              \label{lst:line:endResetFaces}
             \EndIf
           \EndFor
         \EndIf
-      \EndIf
+      \EndIf \label{lst:line:finFaseDetect}
       \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
         \State mostrarRostro$\gets$ rostro.ultimoCuadroDetectado $= N$
-        \If{rostro.estadoRastreador $= INICIALIZADO$}
-          \State rostro.landmark $\gets$ \Call{detectarPuntosFaciales}{$I_{s}$}
+        \If{$mostrarRostro$}
+          \If{rostro.estadoRastreador $= INICIALIZADO$}
+            \State rostro.landmark $\gets$ \Call{detectarPuntosFaciales}{$I_{s}$}
+            \label{lst:line:estimarLandmark}
+          \EndIf
+          \State \Call{MostrarRostro}{rostro}
+          \label{lst:line:mostrarRostros}
         \EndIf
       \EndFor
       \State $N\gets N + 1$
@@ -1771,28 +1808,172 @@ el cual el rostro fue detectado.
   \end{algorithmic}
 \end{algorithm}
 
-\begin{algorithm}
-  \caption{Borrado de información de rostros que no han sido detectados o
-      rastreados durante un tiempo considerable}
-  \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
-      (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
-  \textbf{Global: }$N$, el número de cuadro actual. Valor inicial: $1$\\
-  \textbf{Parámetro: }$borrado\_threshold \in \mathbb{N}$\\
-  \begin{algorithmic}[1]
-    \Procedure{IntentarBorrarRostros}{}
-      \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
-        \State $\Delta\gets N - $rostro.ultimoCuadroDetectado
-        \If{$\Delta > borrado\_threshold$}
-          \State \Call{borrar}{$ROSTROS[id]$}
-        \EndIf
-      \EndFor
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
+\subsubsection{Fase de detección}
+Se empieza por analizar si el número de cuadro actual corresponde a una fase de
+detección normal (algoritmo~\ref{alg:tracking}, línea~\ref{lst:line:C}).
+La fase de detección se da en el primer cuadro
+y cada cierta cantidad de cuadros $brecha\_detecci\acute on \in \mathbb{N}$.
+También existe un caso en el cual se puede entrar a la fase de detección que
+sucede si alguno de los rastreadores asignado a un rostro perdió su objetivo
+(algoritmo~\ref{alg:tracking}, línea~\ref{lst:line:objetivoPerdido}).\\
+La fase de detección
+(algoritmo~\ref{alg:tracking}, líneas~\ref{lst:line:inicioFaseDetect}-\ref{lst:line:finFaseDetect})
+inicia con la detección de rostros
+(algoritmo~\ref{alg:tracking}, líneas~\ref{lst:line:deteccion}) usando un
+detector de objetos siguiendo el método de histograma de gradientes
+(\textit{HOG}). De no haber rostros previamente registrados en la tabla hash
+$ROSTROS\_TABLA$, se procede a crear una entrada en esta tabla para cada
+rostro detectado (algoritmo~\ref{alg:tracking},
+línea~\ref{lst:line:crearYAgregarRostrosA}, con más detalles en el apartado
+\ref{sssec:create}). Para el cuadro actual, de no haber habido rostros
+previamente a los detectados (o creados) durante la fase de detección y de haber
+nuevos rostros detectados en el cuadro actual (algoritmo~\ref{alg:tracking},
+líneas~\ref{lst:line:checkIfHungarian}), se procede a construir el problema de
+asignación.\\
+El problema de asignación planteado se pregunta: ``¿Qué rostro
+no creado antes de la fase de detección (en el cuadro actual) debe asignarse o
+está más cerca (y por tanto más probable) al rostro actualmente detectado'',
+debido a que en esta fase los rostros se desordenan. A continuación se detalla
+un ejemplo sencillo de este problema.\\
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=0.7\textwidth]{../images/hungarian-example-1.png}\par
+  \caption{Representación de la disposición de los rostros rastreados un cuadro
+           antes de la fase de detección. Los círculos amarillo y rojo
+           representan cada uno un rostro, mientras las letras $A$ y $B$
+           representan los identificadores de cada rostro}
+    \label{fig:hungarian-example-1}
+  \caption*{Fuente: Autoría propia}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=0.7\textwidth]{../images/hungarian-example-2.png}\par
+  \caption{Representación de lo que sucede durante la fase de detección. Las
+           líneas punteadas representan las posiciones anteriores de los
+           rostros. Se observa que el detector de rostros intercambió los
+           identificadores $A$ y $B$ en el orden $B$ y $A$. Evidentemente,
+           el orden debería ser $A$ y $B$}
+    \label{fig:hungarian-example-2}
+  \caption*{Fuente: Autoría propia}
+\end{figure}
+
+En la figura \ref{fig:hungarian-example-1},
+se observa la representación de los rostros que fueron rastreados un cuadro
+antes de la fase de detección (izquierda: A, derecha: B). Luego, en la figura
+\ref{fig:hungarian-example-2}, se representa la fase
+de detección, donde los rostros se han movido ligeramente pero según el
+detector, las etiquetas se han cambiado (izquierda: B, derecha: A). Lo esperado,
+sería seguir manteniendo el orden inicial de las etiquetas. Es poco probable que
+de un cuadro a otro un rostro se haya movido mucho, por lo tanto debe estar muy
+cercano a su posición previa. En la figura \ref{fig:hungarian-example-3}, se
+procede a medir las combinaciones de distancias con el propósito de encontrar
+cuáles son los rostros más cercanos a los rostros detectados actualmente. Se
+observa a simple vista, que para el rostro más cercano al rostro detectado de la
+izquierda (en amarillo) en el cuadro $N$ la distancia más cercana es $d1$ y que
+para el rostro detectado de la derecha (en rojo) es $d2$. Finalmente, en la
+figura \ref{fig:hungarian-example-4} se ve que las etiquetas $A$ y $B$ son
+reasignadas correctamente. El problema de asignación planteado anteriormente, es
+fácil de resolver en el ejemplo de la figura. Sin embargo, este se complica
+cuando hay más rostros y estos están muy cerca, es por ello que debe usarse un
+método más genérico.\\
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=0.7\textwidth]{../images/hungarian-example-3.png}\par
+  \caption{Cálculo de las distancias entre los rostros no detectados en el
+           cuadro anterior a la fase de detección y los rostros detectados
+           durante la fase de detección. Se observa que $d1$ y $d2$ son las
+           distancias menores.}
+    \label{fig:hungarian-example-3}
+  \caption*{Fuente: Autoría propia}
+\end{figure}
+
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=0.7\textwidth]{../images/hungarian-example-4.png}\par
+  \caption{Estado final de las etiquetas $A$ y $B$ tras resolver el problema de
+           asignación.}
+    \label{fig:hungarian-example-4}
+  \caption*{Fuente: Autoría propia}
+\end{figure}
+
+El problema de asiganación planteado se resuelve mediante el método húngaro. Se
+define una matriz de costos ($MatrizDeCostos$) cuyas filas corresponde a ``la
+cantidad de rostros no creados en el cuadro actual antes de la fase de
+detección'' y cuyas columnas corresponde a la cantidad de ``rostros detectados
+en el cuadro actual''. Cada elemento de la matriz ($MatrizDeCostos_{i,j}$)
+corresponde a la distancias euclidianas entre el centroide del
+``rostro no creados antes de entrar a la fase de detección'' en la posición
+$i$ respecto al centroide del ``rostro detectado en el cuadro actual'' en
+la posición $j$ (algoritmo~\ref{alg:tracking},
+líneas~\ref{lst:line:costMatrixInit}-\ref{lst:line:costMatrixEnd}).\\
+
+Debido a que la matriz de costos puede no ser cuadrada, habrá algunos rostros
+que no se serán asignados. Otro problema es que el resultado de asignar ``un
+rostro no detectado antes de la fase de detección'' a uno ``detectado en el
+cuadro actual'' puede estar muy lejos por diversas razones (por ejemplo, el
+detector detectó un rostro cuando anteriormente se registraba dos rostros). Para
+verificar si sucede algunos de estos problemas se itera sobre cada rostro
+detectado (algoritmo~\ref{alg:tracking}, líneas~\ref{lst:line:iterRostros}). Si
+el rostro detectado fue asignado, se verifica que esté suficientemente cerca (es
+decir que la distancia al rostro asignado no exceda un límite o
+\textit{threshold} equivalente a $factor\_distancia$ veces el ancho del
+rectángulo delimitador del rostro detectado). De no estar suficientemente cerca,
+el rastreador relacionado a este rostro se libera y su estructura pasa a estado
+no disponible ($NO\_ASIGNADO$). Ver algoritmo~\ref{alg:tracking},
+líneas~\ref{lst:line:asignadoInit}-\ref{lst:line:asignadoFin}. De no haber sido
+asignado el rostro detectado, se procede a crear una entrada en esta tabla para
+cada rostro detectado (algoritmo~\ref{alg:tracking},
+línea~\ref{lst:line:crearYAgregarRostrosA}, con más detalles en el apartado
+\ref{sssec:create}), ya que puede tratarse de un nuevo rostro que ingresó a la
+escena. En caso contrario (algoritmo~\ref{alg:tracking},
+línea~\ref{lst:line:initResetFaces}-\ref{lst:line:endResetFaces}), se reinicia
+un rastreador para la estructura correspondiente y se actualiza el último cuadro
+en el cual el rostro fue detectado en la estructura
+($RostroT.ultimoCuadroDetectado$).\\
+
+\subsubsection{Borrado o limpieza de rostros no detectados recientemente}
+En la línea~\ref{lst:line:initBefDetect}, se llama al procedimiento
+$IntentarBorrarRostros$. Aquí se borran los rostros que no fueron detectados o
+rastreados hace $borrado\_threshold$ cuadros de la tabla hash de rostros. Esta
+limpieza se debe a que a medida que pasa el tiempo es posible que un rostro se
+haya movido mucho o incluso que el rostro haya salido de la escena. El
+identificador para este rostro será simplemente desechado y nunca más podrá
+volver a usarse. Ver algoritmo~\ref{alg:delete} para más detalles.\\
+
+\subsubsection{Fase de rastreo}
+La mayor parte del tiempo se realiza rastreo de rostros. Si bien existe una
+amplia variedad de rastreadores a elegir como Median Flow, MIL, KCF, TLD,
+Boosting, entre otros, se recomienda Median Flow, puesto que es capaz de
+estimar la escala del objetivo (por ejemplo, si el rostro se aleja o se acerca).
+Durante cada cuadro en la fase de detección que son los cuadros restantes
+luego de la fase detección (durante $brecha\_detecci\acute on - 1$ cuadros), se
+intenta predecir (algoritmo~\ref{alg:tracking}, línea~\ref{lst:line:rastrear})
+la posición actual de cada rostro en la tabla hash de estructuras
+($ROSTRO\_TABLA$). De predecir la posición del rostro exitosamente, se modifica
+la estructura del rostro respectivo actualizando el último cuadro detectado al
+actual (algoritmo~\ref{alg:tracking},
+línea \ref{lst:line:rastrearActualizarUltimoFrame}). De lo contrario,
+si el rastreador perdió su objetivo, se agrega el identificador del rostro a una
+lista para ser usada en la fase de detección (algoritmo~\ref{alg:tracking},
+línea \ref{lst:line:registrarPerdidos}).\\
+
+
+\subsubsection{Creación y agregado rostros a la tabla hash} \label{sssec:create}
+Este procedimiento se encarga de crear para cada rectángulo delimitadir las
+estructuras de rostros y asignarles el siguiente identificador disponible
+(algoritmo~\ref{alg:create},
+línea \ref{lst:line:createRastrearActualizarUltimoFrame}). Para cada nueva
+estructura de rostro creada se le asigna el rectángulo delimitador y se crea e
+inicializa un rastreador para cada estructura (algoritmo~\ref{alg:create},
+línea \ref{lst:line:createBeginNewStruct}-\ref{lst:line:createEndNewStruct}).\\
 
 \begin{algorithm}
   \caption{Procedimiento que crea nuevos rostros con rastreadores inicializados
            y los inserta en tabla hash}
+  \label{alg:create}
   \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
       (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
   \textbf{Global: }$TIPO\_RASTREADOR$, el tipo de rastreador a usar que puede
@@ -1805,12 +1986,48 @@ el cual el rostro fue detectado.
     \Procedure{crearYAgregarRostros}{$ROSTROS\_TABLA,I,rect\acute{á}ngulos$}
       \For{$rectángulo$ \textbf{en} $rect\acute{á}ngulos$}
         \State $\acute{U}LTIMO\_ID\gets \acute{U}LTIMO\_ID + 1$
+        \label{lst:line:createRastrearActualizarUltimoFrame}
         \State rostro$\gets$ \textbf{instanciar} $RostroT$
+        \label{lst:line:createBeginNewStruct}
         \State rostro.ultimoCuadroDetectado$\gets N$
         \State rostro.rectángulo $\gets rectángulo$
         \State $ROSTRO[\acute{U}LTIMO\_ID]\gets$rostro
         \State $ROSTRO[\acute{U}LTIMO\_ID].$\Call{crearRastreador}{$TIPO\_RASTREADOR$}
         \State $ROSTRO[\acute{U}LTIMO\_ID].$\Call{inicializarRastreador}{$I$}
+        \label{lst:line:createEndNewStruct}
+      \EndFor
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Detección de puntos faciales y mostrado de rostros} \label{sssec:landmark}
+Una vez terminada la fase de detección, con la tabla hash $ROSTROS\_TABLA$
+(probablemente) llena, para cada rostro se estima los puntos faciales
+(\textit{landmarks} ignorando los rostros cuyo último cuadro de detección
+($ultimoCuadroDetectado$) fue anterior a $N$. Para ello, tomando el rectángulo
+delimitador de cada rostro se aplica un algoritmo de alineación de
+rostros con un conjunto de árboles de regresión (algoritmo~\ref{alg:create},
+línea \ref{lst:line:estimarLandmark}) que permite detectar los
+\textit{landmarks} de cada rostro en milisegundos. Finalmente, todos estos
+rostros son considerados rostros presentes en el cuadro actual y son objeto de
+procesamiento (algoritmo~\ref{alg:create}, línea \ref{lst:line:mostrarRostros};
+por ejemplo, para dibujar los rectángulos delimitadores y los puntos faciales).
+
+\begin{algorithm}
+  \caption{Borrado de información de rostros que no han sido detectados o
+      rastreados durante un tiempo considerable}
+  \label{alg:delete}
+  \textbf{Global: }$ROSTROS\_TABLA$, tabla hash \textbf{inicialmente vacía}
+      (llave: \textit{entero}, valor: rectángulo delimitador y \textit{landmark})\\
+  \textbf{Global: }$N$, el número de cuadro actual. Valor inicial: $1$\\
+  \textbf{Parámetro: }$borrado\_threshold \in \mathbb{N}$\\
+  \begin{algorithmic}[1]
+    \Procedure{IntentarBorrarRostros}{}
+      \For{(id, rostro) \textbf{en} $ROSTROS\_TABLA$}
+        \State $\Delta\gets N - $rostro.ultimoCuadroDetectado
+        \If{$\Delta > borrado\_threshold$}
+          \State \Call{borrar}{$ROSTROS[id]$}
+        \EndIf
       \EndFor
     \EndProcedure
   \end{algorithmic}
