@@ -1584,13 +1584,14 @@ en tiempo real y detección de landmark. La combinación de ambos representa una
 alternativa factible para solucionar el problema.
 
 \chapter{Filtro de detección, rastreamiento y detección de puntos faciales de
-  múltiples rostros}
+múltiples rostros: \textit{gstcheesefacetrack}}
 Este capítulo consta de tres partes específicas. En la primera sección, se
 detalla paso a paso y explica el algoritmo implementado para el rastreamiento de
-múltiples rostros y detección de puntos faciales. En la siguiente sección, se
-explica cómo usar el filtro con algunos ejemplos incluidos. Y finalmente, en la
-última sección, se mostrarán algunas métricas como \textit{f1-score},
-\textit{accuracy} y \textit{recall}.
+múltiples rostros y detección de puntos faciales cuya implementación como filtro
+para \textit{GStreamer} se llamó \textit{gstcheesefacetrack}. En la siguiente
+sección, se explica cómo usar el filtro con algunos ejemplos incluidos. Y
+finalmente, en la última sección, se mostrarán algunas métricas como
+\textit{f1-score}, \textit{accuracy} y \textit{recall}.
 
 \section{Algoritmo de detección y rastreamiento de múltiples rostros y
 de detección puntos faciales}
@@ -2032,6 +2033,122 @@ por ejemplo, para dibujar los rectángulos delimitadores y los puntos faciales).
     \EndProcedure
   \end{algorithmic}
 \end{algorithm}
+
+\subsection{Explicación del nombre \textit{gstcheesefacetrack}}
+Al filtro desarrollado se le ha asignado el nombre de
+\textit{gstcheesefacetrack} y \textbf{en adelante se hará referencia a este
+filtro por este nombre}. La asignación del nombre se explica a continuación:
+como la mayoría de elementos de \textit{GStreamer} tiene en su nombre el prefijo
+\textit{gst} y además se le pone el prefijo \textit{cheese} debido al programa
+al cual se aplicará. Luego, lleva el término \textit{face} debido a que está
+ubicado en el directorio \textit{gst-plugins-cheese/gst/face} lugar donde se
+ubica filtros que usan datos de lo rostros. Finalmente, \textit{track} se debe
+a que este algoritmo se encarga principalmente de rastrear rostros.
+
+\section{Diseño y \textit{capabilities}}
+El filtro \textit{gstcheesefacetrack} hereda del filtro
+\textit{gstopencvvideofilter}. Consecuentemente, los \textit{pad templates} son
+los mismos que los que usa el filtro \textit{gstopencvvideofilter}, y por ende,
+las \textit{capabilities} (formatos de video, \textit{fps}, dimensiones, entre
+otras propiedades que se definen para ser aceptadas) son las mismas que las de
+\textit{gstopencvvideofilter}.\\
+
+\section{Propiedades}
+Las propiedades del filtro son las siguientes:
+\begin{center}
+  \begin{longtable}{| p{.2\textwidth} | p{.2\textwidth} | p{.6\textwidth} |}
+  \hline
+
+  % Cabecera
+  \textbf{Propiedad} &
+  \textbf{Tipo} &
+  \textbf{Descriptión de la propiedad}
+  \\ \hline
+
+  % Fila
+  \textbf{display-bounding-box} &
+  \textit{bool} &
+  Establece si se debería dibujar el rectángulo delimitador (en color amarillo)
+  rodeando cada rostro detectado o rastreado.
+  \\ \hline
+
+  % Fila
+  \textbf{display-id} &
+  \textit{bool} &
+  Establece si se debería mostrar el identificador para cada rostro detectado o
+  rastreado.
+  \\ \hline
+
+  % Fila
+  \textbf{display-landmark} &
+  \textit{bool} &
+  Establece si se debería dibujar los puntos faciales para cada rostro detectado
+  o rastreado.
+  \\ \hline
+
+  % Fila
+  \textbf{display-detection-phase} &
+  \textit{bool} &
+  Establece si se debería dibujar el rectángulo delimitador (en color azul)
+  rodeando cada rostro detectado durante la fase de detección.
+  \\ \hline
+
+  % Fila
+  \textbf{landmark} &
+  \textit{string} &
+  La ruta donde se encuentra el modelo entrenado para estimar los puntos
+  faciales. Este modelo debe haber sido serializado con el objeto de
+  \textit{dlib} \textit{shape\_predictor\_trainer} para 68 puntos faciales. Un
+  ejemplo de modelo entrenado se puede encontrar en
+  \href{https://github.com/davisking/dlib-models}{https://github.com/davisking/dlib-models}.
+  \\ \hline
+
+  % Fila
+  \textbf{tracker} &
+  \textit{enum} &
+  El tipo de rastreador a usar. El cual puede ser:
+  \begin{enumerate}
+    \setcounter{enumi}{0}
+    \item \textit{boosting}: Boosting
+    \item \textit{goturn}: GOTURN
+    \item \textit{kcf}: Kernelized Correlation Filters
+    \item \textit{median-flow}: Median Flow
+    \item \textit{tld}: Tracking Learning Detection
+  \end{enumerate}
+  \\ \hline
+
+  % Fila
+  \textbf{delete-threshold} &
+  \textit{unsigned int} &
+  Establece el número de cuadros que debe pasar para borrar un rostro si este
+  no fue detectado durante ese periodo.
+  \\ \hline
+
+  % Fila
+  \textbf{scale-factor} &
+  \textit{float} &
+  Establece el factor de escala con el cual un cuadro será escalado antes del
+  proceso de rastreo o detección.
+  \\ \hline
+
+  % Fila
+  \textbf{max-distance-factor} &
+  \textit{float} &
+  Establece el máximo factor de distancia para calcular la máxima distancia que
+  será aplicada entre los centroides del resultado del rastreador y detector.
+  Este factor será aplicado contra el ancho del rectángulo delimitador. El valor
+  de esta propiedad debe ser muy bajo.
+  \\ \hline
+
+
+  % Fila
+  \textbf{detection-gap-duration} &
+  \textit{unsigned int} &
+  Establece el máximo número de cuadros entre cada fase de detección.
+  \\ \hline
+  \end{longtable}
+\end{center}
+
 
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
 Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
