@@ -2149,6 +2149,27 @@ Las propiedades del filtro son las siguientes:
   \end{longtable}
 \end{center}
 
+\section{Ejemplos de \textit{pipelines}}
+Existe una lista muy grande de \textit{pipelines} que se pueden formar con este
+filtro. Se muestra algunos ejemplos sencillos:
+
+Desde la cámara web:
+\begin{verbatim}
+$ gst-launch-1.0 v4l2src ! videoconvert ! \
+  cheesefacetrack scale-factor=0.5 \
+  landmark=shape_predictor_68_face_landmarks.dat detection-gap-duration=18 ! \
+  videoconvert ! xvimagesink
+\end{verbatim}
+
+Desde un archivo de video:
+\begin{verbatim}
+$ gst-launch-1.0 filesrc location=archivo.ogv ! \
+  decodebin ! videoconvert ! \
+  cheesefacetrack scale-factor=0.5 max-distance-factor=0.15 \
+  landmark=shape_predictor_68_face_landmarks.dat ! \
+  videoconvert ! xvimagesink
+\end{verbatim}
+
 
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
 Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
