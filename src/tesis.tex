@@ -2170,6 +2170,305 @@ $ gst-launch-1.0 filesrc location=archivo.ogv ! \
   videoconvert ! xvimagesink
 \end{verbatim}
 
+\subsection{Métricas}
+\subsubsection{\textit{Dataset}}
+Para evaluar métricas de desempeño del algoritmo se tomó usó un \textit{dataset}
+del reporitorio de publicaciones del \textit{Smart Computing LABoratory} de la
+Universidad Nacional de Chonnam llamado \textit{Multiple faces}
+\cite{chonnamDataset}. El dataset contiene varios
+videos en los cuales múltiples personas aparecen en la escena donde en algunos
+videos la cámara está quieta y en otros casos incluso en movimiento. Los
+detalles del dataset empleado se puede revisar con mayor detenimiento en el
+artículo \textit{Construction of a Video Dataset for Face Tracking Benchmarking
+Using a Ground Truth Generation Tool} \cite{do2014construction} desarrollado por
+expertos de tal universidad. El \textit{dataset} además con cada video tiene un
+archivo de texto plano donde se anota los rectángulos delimitadores de cada
+rostro por cuadro \cite{do2014construction}. Sin embargo, este dataset tenía un
+problema: tampoco se respetaba el orden o identidad de los rostros. Es por
+ello que se tenía que o bien modificar el archivo de texto manualmente o buscar
+un método automático para corregir el problema. Se optó por el método
+automático, y fue el método húngaro fue de gran ayuda para resolver este
+problema.
+\subsubsection{Parámetros empleados}
+De manera empírica se observó que valores adecuados para los parámetros del
+algoritmo~\ref{alg:tracking} eran los siguientes:
+  \begin{center}
+    \begin{longtable}{| p{.4\textwidth} | p{.2\textwidth} |}
+    \hline
+
+    % Cabecera
+    \textbf{Parámetro} &
+    \textbf{Valor}
+    \\ \hline
+
+    % Fila
+    \textbf{$factor\_distancia$} &
+    0.15
+    \\ \hline
+
+    % Fila
+    \textbf{$brecha\_detecci\acute on$} &
+    10
+    \\ \hline
+
+    % Fila
+    \textbf{$borrado\_threshold$} &
+    72
+    \\ \hline
+
+    \end{longtable}
+  \end{center}
+
+\subsubsection{Métricas}
+Se usan las métricas sugeridas en el paper de construcción del dataset descrito
+anteriormente. Sea $S_{R}$ el área del rectángulo delimitador resultado del
+algoritmo de rastreo y $S_{G}$ el área del recctángulo de los datos reales del
+\textit{dataset} y $M$ el área de la intersección de ambos
+\cite{do2014construction}. Dado ello, la
+precisión ($precision$), exhaustividad ($recall$) y valor-F (\textit{f-score} o
+$f$) están dados según las siguientes fórmulas:\\
+
+  \begin{framed}
+    \begin{quote}
+      \[
+          precision = \frac{M}{S_{R}}
+      \]
+
+      \[
+          recall = \frac{M}{S_{G}}
+      \]
+
+      \[
+          f = \frac{1}{\frac{0.5}{S_{R}} + \frac{0.5}{S_{G}}}
+      \]
+    \raggedleft\cite{do2014construction}
+    \end{quote}
+  \end{framed}
+
+\subsubsection{Resultados}
+A continuación se muestra el desempeño del algoritmo de rastreo de rostros para
+distintos videos del dataset:\\
+
+Para los videos en la ruta \textit{Multiple\_faces/Camera/}
+en el cual dos personas muestran sus rostros en la escena ante una cámara en
+movimiento, se obtuvieron los siguientes resultados:
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+  \hline
+  \textbf{Métrica} &
+  \textbf{Valor promedio}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.905996934162
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.790615895094875
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.827930771659125
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+Los resultados mostrados anteriormente son resultado de promediar el promedio de
+cada métrica por cuadro de los resultados mostrados a continuación:
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+  \hline
+
+  \multicolumn{2}{| c |}{Resultados para el video en la ruta
+                         \textit{Multiple\_faces/Camera/multiple\_camera1.mp4}}
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Primer rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.935330265503
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.766618699373
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.836228162369
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Segundo rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.956341677422
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.78393741114
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.854720557981
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+  \hline
+
+  \multicolumn{2}{| c |}{Resultados para el video en la ruta
+                         \textit{Multiple\_faces/Camera/multiple\_camera2.mp4}}
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Primer rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.940617557867
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.8063989967
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.859244287497
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Segundo rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.844132382431
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.876186023593
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.841806407169
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+  \hline
+
+  \multicolumn{2}{| c |}{Resultados para el video en la ruta
+                         \textit{Multiple\_faces/Camera/multiple\_camera3.mp4}}
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Primer rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.985272026991
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.66406228513
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.792761547765
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Segundo rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.964246487081
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.671698742669
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.785508782058
+  \\ \hline
+  \end{longtable}
+\end{center}
+
+\begin{center}
+  \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+  \hline
+
+  \multicolumn{2}{| c |}{Resultados para el video en la ruta
+                         \textit{Multiple\_faces/Camera/multiple\_camera4.mp4}}
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Primer rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.878257187382
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.831826127569
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.84208427769
+  \\ \hline
+
+  \multicolumn{2}{| c |}{Segundo rostro}
+  \\ \hline
+
+  \textbf{Métrica} &
+  \textbf{Valor promedio por cuadro}
+  \\ \hline
+
+  \textbf{\textit{precision}} &
+  0.743777888619
+  \\ \hline
+
+  \textbf{\textit{recall}} &
+  0.924198874585
+  \\ \hline
+
+  \textbf{\textit{f-score}} &
+  0.811092150744
+  \\ \hline
+  \end{longtable}
+\end{center}
 
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
 Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
