@@ -2470,7 +2470,7 @@ cada métrica por cuadro de los resultados mostrados a continuación:
   \end{longtable}
 \end{center}
 
-\section{Medición de latencia por \textit{buffer}}
+\section{Medición de latencia por \textit{buffer}} \label{sec:gstcheesefacetrack-latency}
 En esta sección se muestra los resultados de la medición de latencia de un
 \textit{pipeline} usando \textit{gstcheesefacetrack}. Para medir la latencia se
 empleó la herramienta \textit{GST\_TRACE}. Debido a que esta medición no es
@@ -3139,13 +3139,94 @@ $ gst-launch-1.0 filesrc location=archivo.ogv ! \
   videoconvert ! xvimagesink
 \end{verbatim}
 
-\section{Resultado esperado: medición latencia por \textit{buffer}}
-En esta sección se muestra los resultados de la medición de latencia en ciertos
-\textit{pipelines} que usan \textit{gstcheesefaceoverlay}. También se mide la
-latencia de \textit{pipelines} similares usando \textit{gstfaceoverlay} con el
-objetivo de hacer una comparación. La herramienta principal que se usa para
-medir la latencia es el subsistema de rastreo (\textit{tracing}) de
-\textit{GStreamer}.
+\section{Medición latencia por \textit{buffer}}
+En esta sección se muestra los resultados de la medición de latencia en un
+\textit{pipeline} que usa \textit{gstcheesefaceoverlay} y
+\textit{gstcheesefaceoverlay}. Los detalles del hardware y forma de compilación
+del software, así como las herramientas usadas fueron las mismas descritas en
+la sección \ref{sec:gstcheesefacetrack-latency}.\\
+
+Para el elemento \textit{gstcheesefaceoverlay} se usó una única imagen
+que se sobrepuso sobre cada punto facial soportado. Esta tenía un tamaño de
+298 Bytes, dimensiones de 100x100 píxeles y canal alpha uniforme de 0.5. La
+imagen fue generada usando \textit{ImageMagick} con el siguiente comando:
+
+  \begin{verbatim}
+    convert -size 100x100 xc:red \
+        -alpha set -channel A -evaluate set 50% red.png
+  \end{verbatim}
+
+\subsubsection{\textit{Pipeline} probado}
+El pipeline que se ejecutó fue el siguiente:
+\begin{verbatim}
+$ gst-launch-1.0 v4l2src ! videoconvert ! video/x-raw,framerate=30/1 ! \
+    cheesefacetrack max-distance-factor=0.15 scale-factor=0.5 \
+    landmark=shape.dat display-landmark=true detection-gap-duration=10 ! \
+    videoconvert ! cheesefaceoverlay location=red.json ! \
+    fakesink num-buffers=500
+\end{verbatim}
+
+\subsubsection{Resultados de la medición de latencia}
+Se ejecutó la \textit{pipeline} mencionada en la subsección anteriormente para
+500 \textit{buffers} (donde cada \textit{buffer} contenía 1 cuadro) por 30
+veces (como se observa, a 30 fps). Los cuadros de entrada eran en formato YUV
+y tenían una resolución de 1280x720.\\
+
+La primera medición se ejecutó probó para un rostro frente a la webcam (ver
+figura \ref{fig:latency-cheesefaceoverlay-1-faces}), mientras
+que en la segunda medición se realizó para dos rostros (ver figura
+\ref{fig:latency-cheesefaceoverlay-1-faces}). La cámara estaba estática y cada
+rostro realizaba poco movimiento con el fin de estresar el algoritmo. Los
+resultados fueron los siguientes:\\
+
+  \begin{center}
+    \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+    \hline
+
+    \multicolumn{2}{| c |}{Resultado de latencia para 1 rostro (en segundos)}
+    \\ \hline
+
+    Latencia media &
+    0.019675417
+    \\ \hline
+
+    Desviación estándar &
+    0.006173316
+    \\ \hline
+
+    \multicolumn{2}{| c |}{Resultado de latencia para 2 rostros (en segundos)}
+    \\ \hline
+
+    Latencia media &
+    modificar
+    \\ \hline
+
+    Desviación estándar &
+    modificar
+    \\ \hline
+
+    \end{longtable}
+  \end{center}
+
+  \begin{figure}[!h]
+    \centering
+      \includegraphics[width=1.0\textwidth]{../images/latency-cheesefaceoverlay-1-faces.png}\par
+    \caption{Gráfico de latencia promedio por \textit{buffer} para 500
+             \textit{buffers} repetido 30 veces. Cada \textit{buffer}
+             contiene 1 cuadro. Un rostro posó frente a la cámara web.}
+      \label{fig:latency-cheesefaceoverlay-1-faces}
+    \caption*{Fuente: Autoría propia}
+  \end{figure}
+
+  \begin{figure}[!h]
+    \centering
+      \includegraphics[width=1.0\textwidth]{../images/latency-cheesefaceoverlay-1-faces.png}\par
+    \caption{Gráfico de latencia promedio por \textit{buffer} para 500
+             \textit{buffers} repetido 30 veces. Cada \textit{buffer} contiene
+             1 cuadro. Dos rostros posaron frente a la cámara web.}
+      \label{fig:latency-cheesefaceoverlay-1-faces}
+    \caption*{Fuente: Autoría propia}
+  \end{figure}
 
 \chapter{Integración de ambos filtros en Cheese}
 En este capítulo se desarrolla el cuarto objetivo el cual comprende el diseño
