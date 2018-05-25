@@ -169,7 +169,8 @@ aplicar filtros que permiten regular los colores de la foto o video en tiempo
 real, sino que permite detectar objetos capturados por la cámara del dispositivo
 y seleccionar entre una diversa variedad de lentes que permite sobreponer
 animaciones interactivas sobre la toma \cite{snap2017prospectus}⁠. Este tipo de
-filtros se han popularizado especialmente entre “millennials”. Por ejemplo, para
+filtros se han popularizado especialmente entre la gente que conforma la
+generación del milenio. Por ejemplo, para
 Snapchat, los jóvenes de entre 18 y 24 años representan un 36\% de sus usuarios
 activos por día en Estados Unidos \cite{snap2017prospectus}⁠. De hecho, muchos
 jóvenes adultos sostienen que este tipo de filtros resuelve problemas de
@@ -245,7 +246,8 @@ que algunos archivos svg hacían lento (el “framerate” caía) a Cheese
 En setiembre 2012, GStreamer 1.0 fue lanzado, y desde esa fecha, gstfaceoverlay
 no fue portado a la nueva versión de GStreamer. Esto llevó a que el filtro fuera
 borrado de la librería el 21 de diciembre del 2016. Ante esto, en el 2016, se
-propuso un parche en el ``bug tracker'' de GNOME para portar el filtro a las
+propuso un parche en el sistema informático de seguimiento de errores de GNOME
+para portar el filtro a las
 series GStreamer 1.x, el cual sería aceptado en GStreamer en el año 2017
 \cite{Bug7640127}. Una vez portado, se probó su funcionamiento en Cheese
 \cite{CFOCHfunnyStickersCheese} y se observó que además de solo soportar la
@@ -255,27 +257,30 @@ este problema \cite{Bug7691771}. Sin embargo, esta solución si bien al parecer
 es correcta en un contexto aislado, arrastra un problema en su base. El problema
 fundamental en este filtro es que no ha debido implementarse sobre la base del
 filtro gstfacedetect, otro filtro para GStreamer especializado en la detección
-de rostros. De hecho, usar gstfacedetect como base es un error si se
-desea usar el plugin en Cheese para dar soporte a múltiples rostros con
-múltiples imágenes, pues este aplica la detección facial para cada cuadro (o
-\textit{“frame”} en inglés), pero sin respetar un orden alguno, es decir que una
-persona etiquetada en el primer cuadro con la imagen A podría ser etiquetada en
-el segundo marco con la imagen B, y en el tercero otra vez con A o tal vez con
-C. Lo esperado sería que si se sobrepuso la imagen A sobre el rostro de una
-persona, esta imagen A se mantenga sobrepuesta en los siguientes cuadros.\\
+de rostros, para soportar múltiples rostros debido a lo que se detallará a
+continuación. El filtro \textit{gstfacedetect} aplica detección facial para
+cada cuadro (o \textit{``frame''} en inglés), pero sin respetar un orden alguno,
+es decir que una persona etiquetada en el primer cuadro con la imagen A podría
+ser etiquetada en el segundo marco con la imagen B, y en el tercero otra vez
+con A o tal vez con C. Lo esperado sería que si se sobrepuso la imagen A sobre
+el rostro de una persona, esta imagen A se mantenga sobrepuesta en los
+siguientes cuadros. Es probablemente, por esta razón que \textit{gstfaceoverlay}
+solo soporta un rostro.\\
 
-Para conseguir que Cheese soporte filtros de sobreposición de imágenes sobre los
-rostros de personas en tiempo real no es suficiente escribir un nuevo filtro
-para GStreamer. Tampoco es suficiente, luego de escribir el filtro, agregar la
+Para conseguir que Cheese soporte filtros de sobreposición de imágenes sobre múltiples
+rostros de personas de un video en vivo (como de la cámara web) no es suficiente
+escribir un nuevo filtro para GStreamer. Tampoco es suficiente, luego de
+escribir el filtro, agregar la
 configuración del “pipeline” de GStreamer a GNOME Video Effects de tal modo que
 Cheese pueda leerlo. Cheese debería implementar una interfaz gráfica en la cual
 el usuario pueda seleccionar e importar imágenes que desea usar, de este modo
 se evita el uso de efectos estáticos predeterminados. Es preciso resaltar que
 realizar tales cambios a Cheese no es fácil para nuevos colaboradores del
-proyecto. Cheese no se ha actualizado recientemente, y una de las razones puede
+proyecto. Exceptuando actualizaciones de traducción y actualizaciones mínimas
+de diseño, Cheese no ha recibido actualizaciones importantes, y una de las razones puede
 ser que existe pocas personas que sepan programar en Vala, un lenguaje de
 programación orientado a objetos con un compilador que traduce el
-código a C para compilarlo compilado con gcc \cite{valaOverview}. Además Cheese
+código a C para compilarlo con gcc \cite{valaOverview}. Además Cheese
 usa Clutter \cite{CheeseDependencyClutter}, librería de GNOME basada en OpenGL,
 para mostrar la salida de la captura y los efectos aplicados en la pantalla.
 Ambos no disponen de mucha documentación disponible pública, y por lo general,
@@ -314,33 +319,33 @@ de estos) permita sobreponer imágenes sobre los rostros detectados en videos
 (particularmente, por la cámara web).
 
 \subsection{Objetivos específicos}
-\subsubsection{OE0: Objetivo Específico 0}
+\subsubsection{OE1: Objetivo Específico 1}
 Desarrollar un algoritmo e implementarlo como un filtro de GStreamer para
 la detección y rastreamiento de múltiples rostros con soporte para oclusión
-así como la detección de puntos faciales de la cara.
-\subsubsection{OE1: Objetivo Específico 1}
+así como la detección de puntos faciales del rostro.
+\subsubsection{OE2: Objetivo Específico 2}
 Escribir el código fuente de un filtro para GStreamer que basado en el filtro
 implementado en \textit{OE1} permita la sobreposición de imágenes sobre puntos
 predeterminados en los rostros detectados.
-\subsubsection{OE2: Objetivo Específico 3}
+\subsubsection{OE3: Objetivo Específico 3}
 Diseñar una interfaz gráfica para Cheese que permita al usuario de Cheese
 aplicar el filtro implementado en \textit{OE2}.
 
 \subsection{Resultados esperados}
-\subsubsection{REOE0: Resultados esperados para el Objetivo Específico 0}
+\subsubsection{REOE1: Resultados esperados para el Objetivo Específico 1}
 Un filtro que implemente un algoritmo de rastreo de múltiples rostros, siendo
 este algoritmo propio o una implementación de alguno existente. Este filtro
 definirá una estructura o interfaz donde se guardarán las coordenadas de los
 rostros y sus puntos puntos faciales. Esta interfaz servirá como medio de
 comunicación entre el filtro y otros filtros o entre el filtro y la aplicación
-final. Además este filtro debe ser personalizable para regular el desempeño del
-filtro y por ende mejorar el delay.
-\subsubsection{REOE1: Resultados esperados para el Objetivo Específico 1}
+final. Además este filtro debe ser personalizable a través de parámetros, lo
+cual contribuirá a regular la latencia.
+\subsubsection{REOE2: Resultados esperados para el Objetivo Específico 2}
 Un filtro que tomando como referencia las coordenadas de diversos puntos de cada
 rostro detectado ofrezca un conjunto parámetros de entrada para colocar imágenes
 en lugares predefinidos del rostro como filtrum (parte entre la boca y nariz),
 boca, ojos, nariz, orejas y cara.
-\subsubsection{REOE2: Resultados esperados para el Objetivo Específico 2}
+\subsubsection{REOE3: Resultados esperados para el Objetivo Específico 3}
 Una interfaz gráfica con un conjunto de imágenes clasificadas por categoría. De
 estas imágenes el usuario puede seleccionar una o más de estas imágenes las
 cuales serán sobrepuestas en los rostros detectados aplicando el filtro del
@@ -406,7 +411,7 @@ de objetivos específicos, resultados y medios de verificación.
 
   Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
   detectadas. &
-  Software
+  Software &
   \\ \hline
   \end{longtable}
 \end{center}
@@ -421,8 +426,8 @@ de objetivos específicos, resultados y medios de verificación.
 \subparagraph{Metodología 0: Detector de objetos de Viola-Jones}\mbox{} \\
 Este es el método que el filtro existente de \textit{GStreamer} llamado
 \textit{gstfacedetect} que se usa actualmente. Este método basado en aprendizaje
-de máquina para detectar objetos y procesar imágenes de manera muy rápida. Tres
-principales contribuciones se brindan:
+de máquina para detectar objetos y procesar imágenes de manera muy rápida. A
+continuación se resume tres principales contribuciones de este método:
 
 \begin{enumerate}
     \item \textbf{Imagen integral y vector de características tipo Haar}:
@@ -485,7 +490,7 @@ principales contribuciones se brindan:
     característica de 180000 posibles características \cite{violajones}.
 
     \item \textbf{Cascadas}:
-    Se usa un árbol de decisiones llamado "cascada" \cite{violajones}.
+    Se usa un árbol de decisiones llamado ``cascada'' \cite{violajones}.
     Se divide el clasificador en varios clasificadores \cite{violajones}.
     Un resultado positivo en un clasificador dispara otro clasificador, y así
     sucesivamente \cite{violajones}. Si un clasificador arroja un resultado
@@ -541,10 +546,10 @@ Finalmente, para un conjunto de imágenes positivas (imágenes que contienen el
 objeto a detectar, en este caso rostros) y para un conjuto de imágenes negativas
 (que no contienen el objeto a detectar) se calcula los vectores característica
 de ambos. Estos son pasados a un clasificador \textit{SVM}
-\textit{dalal2005histograms}.
+\cite{dalal2005histograms}.
 
 \paragraph{Metodologías y algoritmos para el seguimiento de rostros}\mbox{} \\
-Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de personas
+Según Zaheer Shaik y Vijayan Asari, los métodos de seguimiento de rostros
 pueden ser clasificados en cuatro categorías según la forma, las características,
 el modelo o color de piel de la cara \cite{shaik2007robust}. Estos se detallan
 a continuación:
@@ -875,6 +880,7 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
 \end{figure}
 
 \paragraph{Herramientas empleadas}\mbox{} \\
+\subsubsection{En relación al Objetivo Específico 1 (OE1)}
 \begin{enumerate}
     \item OpenCV, ya que implementa algunos algoritmos y técnicas
         útiles para el seguimiento y detección de objetos (rostros) y
@@ -895,9 +901,9 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
         coordenadas localizadas.
     \item \textit{C++}, ya que OpenCV y GStreamer lo soportan.
     \item \textit{mesonbuild} es un sistema de compilación de código fuente muy
-    rápido y fácil de usar a comparación que \textit{autotools}. De hecho, este
-    sistema es el que se empieza a usar en muchos programas de \textit{GNOME}
-    últimamente en reemplazo de \textit{autotools}.
+    rápido \cite{mesonbuildComparison} y fácil de usar a comparación que
+    \textit{autotools}. De hecho, este sistema es el que se empieza a usar en
+    muchos programas de \textit{GNOME} últimamente en reemplazo de \textit{autotools}.
     \item gst-launch-1.0, un programa para construir \textit{pipelines} de
     streaming de audio y video por línea de comandos, para probar manualmente
     la salida del streaming.
@@ -906,7 +912,7 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     detectar el \textit{landmark} o puntos faciales de un rostro.
 \end{enumerate}
 
-\subsubsection{En relación al Objetivo Específico 1 (OE1)}
+\subsubsection{En relación al Objetivo Específico 2 (OE2)}
 \begin{enumerate}
     \item \textit{gstcairooverlay}, un filtro para \textit{GStreamer} que usa
         la librería \textit{Cairo} la cual permite dibujar sobre las imágenes o
@@ -919,7 +925,7 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
         anterior.
 \end{enumerate}
 
-\subsubsection{En relación al Objetivo Específico 2 (OE2)}
+\subsubsection{En relación al Objetivo Específico 3 (OE3)}
 \begin{enumerate}
     \item \textit{Gtk+}, librería para diseñar interfaces gráficas para GNOME,
         la cual es usada por \textit{Cheese} y se usará para diseñar la
@@ -937,9 +943,10 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
 \section{Alcance, limitaciones y riesgos}
 
 \subsubsection{Alcance}
-    Este proyecto se concentrará en funcionar en las computadoras por lo menos
-    tres años antiguas con sistemas operativos GNU/Linux con entorno de
-    escritorio \textit{GNOME}. Es decir, la detección, seguimiento y
+    Este proyecto se concentrará en funcionar en las computadoras con CPUs (que
+    implementen el conjunto de instrucciones SSE4.1, SSE4.2, AVX o AVX2) y
+    con sistemas operativos GNU/Linux con entorno de escritorio \textit{GNOME}.
+    Es decir, la detección, seguimiento y
     sobreposición de imágenes en Cheese debería dar la sensación de fluidez a
     usuarios de estas computadoras. Además, este proyecto debe funcionar sobre
     \textit{Wayland} ya que es el protocolo más usado recientemente por las
@@ -947,17 +954,10 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     \cite{LinuxMagazineWaylandStrong}.
 
 \subsubsection{Limitaciones}
-Se identifican las siguientes limitaciones:
-
-\begin{enumerate}
-    \item El desempeño del software desarrollado puede tener comportamientos
-      distintos según la computadora en la cual se pruebe. Este puede ser
-      afectado por diversos factores desde el retardo de la cámara web hasta la
-      velocidad de procesamiento de la CPU.
-    \item La aceptación del proyecto oficialmente en \textit{Cheese} depende de
-      revisiones de terceros y del mantenedor de \textit{Cheese}, por lo que no
-      se puede asegurar que el resultado será incluido oficialmente.
-\end{enumerate}
+El desempeño del software desarrollado puede tener comportamientos
+distintos según la computadora en la cual se pruebe. Este puede ser
+afectado por diversos factores desde el retardo de la cámara web hasta la
+velocidad de procesamiento de la CPU.
 
 \subsubsection{Riesgos}
 Un proyecto de fin de carrera puede estar asociado a diversos riesgos. Los
@@ -3229,7 +3229,7 @@ resultados fueron los siguientes:\\
   \end{figure}
 
 \chapter{Integración de ambos filtros en Cheese}
-En este capítulo se desarrolla el cuarto objetivo el cual comprende el diseño
+En este capítulo se desarrolla el tercer objetivo el cual comprende el diseño
 de una interfaz gráfica para los filtros desarrollados en \textit{Cheese}. Para
 cumplir este objetivo, el primer paso fue desarrollar un mockup. Luego se diseñó
 diagramas de clases y secuencias con la finalidad de tener una interfaz gráfica
