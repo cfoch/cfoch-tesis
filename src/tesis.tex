@@ -2470,6 +2470,181 @@ cada métrica por cuadro de los resultados mostrados a continuación:
   \end{longtable}
 \end{center}
 
+\section{Medición de latencia por \textit{buffer}}
+En esta sección se muestra los resultados de la medición de latencia de un
+\textit{pipeline} usando \textit{gstcheesefacetrack}. Para medir la latencia se
+empleó la herramienta \textit{GST\_TRACE}. Debido a que esta medición no es
+exacta ya que puede estar afectada por el entorno, se desarrolló una herramienta
+que permite ejecutar \textit{gst-launch-1.0} por {N} veces consecutivas y
+promediar la latencia por \textit{buffer}.\\
+
+\subsubsection{Detalles de hardware y software empleado}
+Para realizar la medición se empleó un computador portátil \textit{Lenovo G50}
+con las siguientes características:\\
+
+  \begin{center}
+    \begin{longtable}{| p{.35\textwidth} | p{.55\textwidth} |}
+    \hline
+
+    \multicolumn{2}{| c |}{Memoria}
+    \\ \hline
+
+    Tamaño &
+    8GiB
+    \\ \hline
+
+    \multicolumn{2}{| c |}{CPU}
+    \\ \hline
+
+    Producto &
+    Intel(R) Core(TM) i5-5200U CPU @ 2.20GHz
+    \\ \hline
+
+    Vendedor &
+    Intel
+    \\ \hline
+
+    Tamaño &
+    2425MHz
+    \\ \hline
+
+    Capacidad &
+    2700MHz
+    \\ \hline
+
+    Ancho &
+    64 bits
+    \\ \hline
+
+    \multicolumn{2}{| c |}{Video}
+    \\ \hline
+
+    Producto &
+    HD Graphics 5500
+    \\ \hline
+
+    Vendedor &
+    Intel Corporation
+    \\ \hline
+
+    \multicolumn{2}{| c |}{Cámara}
+    \\ \hline
+
+    Producto &
+    Lenovo EasyCamera: Lenovo EasyC
+    \\ \hline
+
+    Driver &
+    uvcvideo
+    \\ \hline
+
+    Versión del driver &
+    4.14.11
+    \\ \hline
+
+    Formatos aceptados &
+    MJPG (Motion-JPEG), YUYV (YUYV 4:2:2)
+    \\ \hline
+
+    Resoluciones aceptadas &
+    En MJPG:
+      \begin{itemize}
+        \item 1280x720 (intervalo: 0.033s, 30fps)
+        \item 160x120 (intervalo: 0.033s, 30fps)
+        \item 320x240 (intervalo: 0.033s, 30fps)
+        \item 640x360 (intervalo: 0.033s, 30fps)
+        \item 640x480 (intervalo: 0.033s, 30fps)
+        \item 800x600 (intervalo: 0.033s, 30fps)
+      \end{itemize}
+    En YUV:
+      \begin{itemize}
+        \item 1280x720 (intervalo: 0.100s, 10fps)
+        \item 160x120 (intervalo: 0.033s, 30fps)
+        \item 320x240 (intervalo: 0.033s, 30fps)
+        \item 640x360 (intervalo: 0.033s, 30fps)
+        \item 640x480 (intervalo: 0.033s, 30fps)
+        \item 800x600 (intervalo: 0.100s, 10fps)
+      \end{itemize}
+    \\ \hline
+    \end{longtable}
+  \end{center}
+
+El filtro fue compilado con el sistema de compilación \textit{mesonbuild}
+usando el modo \textit{release} (con optimizaciones y sin depuración) y
+compilado con el conjunto de instrucciones de procesador \textit{SSE4.1}. Es
+preciso indicar que es importante compilar el filtro en modo al menos en modo
+\textit{release} para tener un desempeño aceptable.\\
+
+\subsubsection{\textit{Pipeline} probado}
+El pipeline que se ejecutó fue el siguiente:
+\begin{verbatim}
+$ gst-launch-1.0 v4l2src ! videoconvert ! video/x-raw,framerate=30/1 ! \
+    cheesefacetrack max-distance-factor=0.15 scale-factor=0.5 \
+    landmark=shape.dat display-landmark=true detection-gap-duration=10 ! \
+    fakesink num-buffers=500
+\end{verbatim}
+
+\subsubsection{Resultados de la medición de latencia}
+Se ejecutó la \textit{pipeline} mencionada en la subsección anteriormente para
+500 \textit{buffers} (donde cada \textit{buffer} contenía 1 cuadro) por 30
+veces (como se observa, a 30 fps). Los cuadros de entrada eran en formato YUV
+y tenían una resolución de 1280x720.\\
+La primera medición se ejecutó probó para un rostro frente a la webcam (ver
+figura \ref{fig:latency-cheesefacetrack-1-faces}), mientras
+que en la segunda medición se realizó para dos rostros (ver figura
+\ref{fig:latency-cheesefacetrack-2-faces}). La cámara estaba estática y cada
+rostro realizaba poco movimiento con el fin de estresar el algoritmo. Los
+resultados fueron los siguientes:\\
+
+  \begin{center}
+    \begin{longtable}{| p{.4\textwidth} | p{.4\textwidth} |}
+    \hline
+
+    \multicolumn{2}{| c |}{Resultado de latencia para 1 rostro (en segundos)}
+    \\ \hline
+
+    Latencia media &
+    0.013854726
+    \\ \hline
+
+    Desviación estándar &
+    0.006164001
+    \\ \hline
+
+    \multicolumn{2}{| c |}{Resultado de latencia para 2 rostros (en segundos)}
+    \\ \hline
+
+    Latencia media &
+    0.017991275
+    \\ \hline
+
+    Desviación estándar &
+    0.005947033
+    \\ \hline
+
+    \end{longtable}
+  \end{center}
+
+  \begin{figure}[!h]
+    \centering
+      \includegraphics[width=1.0\textwidth]{../images/latency-cheesefacetrack-1-faces.png}\par
+    \caption{Gráfico de latencia promedio por \textit{buffer} para 500
+             \textit{buffers} repetido 30 veces. Cada \textit{buffer}
+             contiene 1 cuadro. Un rostro posó frente a la cámara web.}
+      \label{fig:latency-cheesefacetrack-1-faces}
+    \caption*{Fuente: Autoría propia}
+  \end{figure}
+
+  \begin{figure}[!h]
+    \centering
+      \includegraphics[width=1.0\textwidth]{../images/latency-cheesefacetrack-2-faces.png}\par
+    \caption{Gráfico de latencia promedio por \textit{buffer} para 500
+             \textit{buffers} repetido 30 veces. Cada \textit{buffer} contiene
+             1 cuadro. Dos rostros posaron frente a la cámara web.}
+      \label{fig:latency-cheesefacetrack-2-faces}
+    \caption*{Fuente: Autoría propia}
+  \end{figure}
+
 \chapter{Filtro de sobreposición de imágenes: \textit{gstcheesefaceoverlay}}
 Este capítulo desarrolla y explica cómo se construyó el filtro de sobreposición
 de imágenes, los formatos que soporta y cómo funciona. En términos
