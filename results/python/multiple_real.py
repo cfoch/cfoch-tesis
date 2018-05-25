@@ -26,8 +26,9 @@ from random import randint
 from rectangle import Rectangle
 from scipy.optimize import linear_sum_assignment
 from scipy import ndimage
-from IPython import embed
 
+
+plt.style.use('ggplot')
 
 def get_centroid(bounding_box):
     return tuple((np.array(bounding_box[0]) + np.array(bounding_box[1])) / 2)
