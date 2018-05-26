@@ -3434,10 +3434,94 @@ De haberlo, se muestra un \textit{GtkInfoBar} que avisa que hubo un error.
     \recalctypearea
 }
 
-\chapter{Conclusiones y trabajos futuros}
-\section{Conclusiones}
-\subsection{Trabajos futuros}
+\chapter{Conclusiones, recomendaciones y trabajos futuros}
+En este capítulo se detallan las conclusiones del proyecto desarrollado, y se
+muestran algunas sugerencias e ideas de posibles trabajos a futuro.
 
+\section{Conclusiones}
+  El trabajo desarrollado representa una alternativa y mejora a la
+  implementación desarrollada durante el \textit{GNOME Outreach Program for
+  Women}. Las conclusiones son las siguientes:\\
+
+  \begin{itemize}
+    \item
+      El filtro desarrollado como parte del primer resultado corresponde
+      una alternativa al filtro \textit{gstfacedetect}. Se observó que la
+      combinación de distintas metodologías pueden crear un rastreador de
+      múltiples rostros con alta precisión. Pero también se observó que
+      la latencia promedio del \textit{pipeline} que usa con filtro
+      \textit{gstcheesefaceoverlay} era mayor cuando dos rostros se colocaban
+      frente a la webcam que cuando uno solo estaba frente a la webcam. Pese a
+      ello, la latencia promedio se mantenía por debajo del intervalo
+      (0.033s, 30fps) soportado por la cámara para la resolución probada.
+      Evidentemente, a medida que más rostros se coloquen frente a la cámara, la
+      latencia tendería a aumentar.
+    \item
+      El filtro desarrollado para el segundo resultado representa no solo a una
+      alternativa sino también una mejora al filtro \textit{gstfaceoverlay}. El
+      filtro desarrollado se apalanca del filtro mencionado en el punto
+      anterior. Este filtro soporta imágenes estáticas en varios formatos a
+      diferencia de \textit{gstfaceoverlay} que solo soporta el formato
+      \textit{SVG}. Además estás imágenes estáticas se pueden colocar
+      secuencialmente con el fin de crear animaciones, característica
+      que no era considerada por el \textit{gstfaceoverlay}. Finalmente,
+      se diseñó un formato en JSON con el fin de facilitar la creación de
+      animaciones.
+  \end{itemize}
+  \clearpage
+  \begin{itemize}
+    \item
+      La implementación en Cheese del soporte para sobreposición de imágenes
+      a diferencia de la realizada durante el \textit{GNOME Outreach Program
+      for Women} requirió modificar la interfaz gráfica de \textit{Cheese}. La
+      implementación anterior solo agregaba archivos \textit{.effect} con el fin
+      de crear nuevos efectos. El tener una interfaz gráfica dedicada permite
+      al usuario seleccionar una o más secuencias de imágenes que se colocarán
+      sobre los rostros.
+  \end{itemize}
+
+\section{Recomendaciones y trabajos a futuro}
+  \begin{itemize}
+    \item
+      Se recomienda compilar el filtro en modo \textit{release} sin opciones de
+      \textit{debug}. Empíricamente se ha visto que si no se compila de esta
+      manera el desempeño del algoritmo es muy pobre. Es posible incluso que el
+      desempeño mejore compilando los filtros con el conjunto de instrucciones
+      \textit{SSE4.2}, \textit{AVX} o \textit{AVX2}. Sin embargo, esto último no
+      ha sido probado.
+    \item
+      Una recomendación para mejorar en este caso el \textit{pipeline} completo,
+      es reemplazar el filtro \textit{videoconvert} (que realiza conversión de
+      color usando CPU) por uno que realice conversión de color mediante GPU
+      como por ejemplo el filtro \textit{glcolorconvert}. Cheese actualmente
+      realiza conversiones de color usando CPU, y posiblemente usar GPU
+      significaría una mejora.
+    \item
+      Una idea de trabajo a futuro es la mejora del filtro
+      \textit{gstcheesefaceoverlay}. Este carga imágenes al iniciar el
+      \textit{streaming}; sin embargo, se podría hacer uso de un caché de
+      imágenes. Incluso, en vez de usar el filtro \textit{cairooverlay} se
+      podría escribir un nuevo filtro o modificar el filtro desarrollado para
+      componer imágenes usando \textit{OpenGL}. Para desarrollar lo último, se
+      sugeriría ver el código fuente de \textit{gstgloverlay}, el cual se
+      encuentra en los plugins \textit{gst-plugins-base}.
+    \item
+      Otra idea de trabajo a futuro es agregar soporte para cargar modelos 3D.
+      Este trabajo, de hecho, ha sido intentado, pero está aun en progreso. Como
+      primer paso habría que modificarse el filtro \textit{gstcheesefacetrack}
+      para que a partir de las coordenadas de ciertos puntos faciales de un
+      modelo en 3D de un rostro y los puntos faciales encontrados por el filtro
+      que son en 2D se estime la pose del rostro. Se sugiere investigar sobre el
+      problema \textit{Perspective-n-Point} para más detalles. La estimación de
+      la pose se ha implementó en un filtro que no fue mencionado en este proyecto
+      llamado \textit{gstcheesefacedetect}. Sin embargo, parece que la pose no
+      se estima muy bien, al parecer porque faltó calibrar la cámara web.
+      Una vez ese problema esté resuelto el siguiente paso sería crear un filtro
+      nuevo que cargue modelos en algún formato de geometría como \textit{OBJ}.
+      Ello también se intentó usando un cargador de modelos en 3D de código
+      abierto llamado \textit{assimp}. Sin embargo, algunos modelos específicos
+      daban problemas, y no se dejó inconcluso el proyecto.
+  \end{itemize}
 \bibliographystyle{apacite}
 \bibliography{references}{}
 
