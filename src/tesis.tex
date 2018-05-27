@@ -420,8 +420,6 @@ de objetivos específicos, resultados y medios de verificación.
 
 \subsection{Herramientas, métodos y procedimientos}
 
-\subsubsection{En relación al Objetivo Específico 0 (OE0)}
-
 \paragraph{Metodologías para detección de rostros}
 \subparagraph{Metodología 0: Detector de objetos de Viola-Jones}\mbox{} \\
 Este es el método que el filtro existente de \textit{GStreamer} llamado
@@ -667,6 +665,83 @@ creaba un nuevo filtro de Kalman para este \cite{szHucs2015svm}.\\
     \textit{threshold}}
   \caption*{Fuente: \cite{szHucs2015svm}}
   \label{fig:hungarian-diagram-1}
+\end{figure}
+
+Una técnica de registro de imágenes iterativa con
+              aplicación a la visión estéreo
+
+\subparagraph{Metodología 3: Rastreador de características de Kanade-Lucas-Tomasi}
+\mbox{} \\
+Es un método basado en dos artículos académicos. El primero publicado por
+Bruce D. Lucas y Tadeo Kanade \cite{lucas1981iterative} y el segundo publicado
+por Carlo Tomasi y Takeo Kanade \cite{tomasi1991detection}. A continuación se
+describe cada uno de los dos artículos.\\
+En el primer artículo se explica que por
+lo general dos imágenes estarán prácticamente en el mismo registro. Por ejemplo,
+en un video, dos cuadros consecutivos serán muy parecidos. Dado este supuesto,
+se explica que dada las funciones $F(x)$ y $G(x)$ (las cuales $x$ representan
+el valor de un píxel en la posición $x$), se desea encontrar un vector de
+disparidad $h$ tal que se minimice la diferencia entre $F(x+h)$ y $G(x)$. Siendo
+las métricas típicas para hallar la disparidad las siguientes:\\
+
+$$Norma \quad L_{1} = \sum_{x\in R} |F(x+h) - G(X)|$$
+$$Norma \quad L_{2} = (\sum_{x\in R} [F(x+h) - G(X)]^2)^\frac{1}{2}$$
+$$Negaci\acute on\quad de \quad	la \quad correlaci\acute on \quad normalizada =
+    \frac{(\sum_{x\in R} [F(x+h)G(X)]}
+         {(\sum_{x\in R} F(x+h)^2)^\frac{1}{2}
+          (\sum_{x\in R} G(x)^2)^\frac{1}{2}}$$
+
+Se dice que es posible hallar tal vector de disparidad $h$ buscando todos los
+valores posibles de tal vector o también usando una heurística de ascenso en
+colinas, pero que esos métodos son muy costosos. El artículo propone un
+algoritmo para encontrar tal valor de $h$ de una manera eficiente, en la cual
+se inicializa la variable con un valor arbitrario, la cual se va actualizando
+iterativamente usando el método de Newton.\\
+El segundo artículo busca responder a dos preguntas: cómo seleccionar las
+características y cómo rastrearlas entre cada cuadro. En cuanto a la segunda
+pregunta, como propuesta de solución se dice que es difícil rastrear un píxel
+de un cuadro a otro, por lo que se propone rastrear ventanas (regiones de
+imagen) en vez de cada píxel. Se propone un modelo para la transformación de
+la imagen de un frame a otro agregando cierto ruido gausiano (para hacer
+énfasis en el centro de la ventana), buscando minimizar el error resultante de
+manera similar a como propone el primer artículo, de tal modo que el
+desplazamiento (y por tanto, la nueva posición del punto a rastrear) puede ser
+hallado. De otro lado, con respecto a la primera pregunta se dice que en
+trabajos pasados las características usadas solían ser ideas arbitrarias de lo
+que sería una ``buena'' ventana, por ejemplo escoger las esquinas. El artículo
+propone un método basado en valores propios (o eigenvectores) para seleccionar
+estas características.\\
+
+\subparagraph{Metodología 4: Flujo de medianas (\textit{Median flow})}
+\mbox{} \\
+A continuación se describe el rastreador llamado \textit{Median flow} que se
+menciona en el artículo académico titulado en inglés como
+\textit{Forward-Backward Error: Automatic Detection of Tracking Failures}
+\cite{kalal2010forward}.
+Este un rastreador basado en el rastreador de Lucas-Kanade. Recibe como
+entrada una imagen y un rectángulo delimitador (\textit{bounding box}). Sobre
+este rectángulo delimitador se ubican puntos en forma de grilla, los cuales se
+rastrearan usando el rastreador KL. De las predicciones de los puntos en el
+nuevo cuadro, el 50\% será descartado, mientras que los puntos restantes se usan
+para calcular el rectángulo delimitador. Este rastreador también soporta el
+cambio de escala (lo cuál es útil, por ejemplo, cuando el objetivo a rastrear,
+por ejemplo, un rostro, se aleja o se acerca a la cámara). El factor de escala
+se calcula usando la mediana de la relación entre la distancia inicial y la
+nueva distancia entre cada par de puntos.
+
+\begin{figure}[H]
+  \centering
+    \includegraphics[width=0.5\textwidth]{../images/medianflow.png}\par
+  \caption{Como primer paso se inicializa un rectángulo
+        delimitador con ciertos puntos a rastrear en forma de grilla, luego
+        se rastrea con Lucas-Kanade, se estima el error y se filtran los
+        valores atípicos y finalmente se actualiza el rectángulo delimitador
+        en base a los puntos restantes y la mediana entre las distancias entre
+        los puntos.}
+    \label{fig:median-flow}
+  \caption*{Figura tomada de
+    \textit{Forward-Backward Error: Automatic Detection of Tracking Failures}
+        \cite{kalal2010forward}.}
 \end{figure}
 
 \paragraph{Herramientas empleadas}\mbox{} \\
