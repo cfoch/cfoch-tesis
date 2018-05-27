@@ -31,6 +31,7 @@
     modifier={by-sa},
     version={3.0},
 ]{doclicense}
+\usepackage{glossaries}
 
 
 \setcounter{secnumdepth}{5}
@@ -86,7 +87,65 @@
    {\algorithmicend\ \algorithmicvariables}
 \algnewcommand{\algorithmicvariables}{\textbf{parámetros}}
 
-
+\makeglossaries
+ 
+\newglossaryentry{GObject}
+{
+    name=GObject,
+    description={Una librería de GNOME escrita en C que implementa un sistema
+                 orientado a objetos. Una amplia variedad de clases heredan de
+                 GObject.}
+}
+\newglossaryentry{gstopencvvideofilter}
+{
+    name=gstopencvvideofilter,
+    description={Un filtro de GStreamer escrito con el propósito de ser heredado
+                 por otros filtros como por ejemplo gstfacedetect. Este filtro
+                 recibe una imagen en un buffer y lo encapsula en un tipo de
+                 dato reconocido por OpenCV.}
+}
+\newglossaryentry{gstfacedetect}
+{
+    name=gstfacedetect,
+    description={Un filtro de GStreamer para la detección de rostros usando
+                 internamente el detector de objetos de Viola Jones de OpenCV.}
+}
+\newglossaryentry{gstvideotestsrc}
+{
+    name=gstvideotestsrc,
+    description={Un elemento de GStreamer tipo \textit{source} que produce
+                 datos de prueba. Las imágenes producidas corresponden a un
+                 patrón de señal de ajuste ampliamente usado para pruebas de
+                 video en televisión.}
+}
+\newglossaryentry{gstcairooverlay
+{
+    name=\gstcairooverlay,
+    description={Un filtro de GStreamer que permite dibujar sobre cada cuadro
+                 del stream usando la librería cairo.}
+}
+\newglossaryentry{GtkToggleButton}
+{
+    name=GtkToggleButton,
+    description={Un widget de Gtk+ que dibuja un botón de dos estados
+                 que se comporta como un interruptor.}
+}
+\newglossaryentry{signals}
+{
+    name=signals,
+    description={GObject tiene un mecanismo basado en señales. Cada vez que una
+                 señal es emitida una función de retrollamada se activa. Por
+                 ejemplo, GtkButton emite una señal ``clicked'' cada vez que el
+                 usuario hace clic sobre el botón. Las señales de GObject no
+                 tienen relación alguna con las señales de UNIX.}
+}
+\newglossaryentry{landmark}
+{
+    name=landmark,
+    description={Es un punto significativo de un objeto u organismo que es comun
+                 a su clase o especie.},
+    plural=landmarks
+}
 
 \begin{document}
 \begin{titlepage}
@@ -263,9 +322,9 @@ rostro de más de una persona. Ello condujo a proponer otro parche que solucione
 este problema \cite{Bug7691771}. Sin embargo, esta solución si bien al parecer
 es correcta en un contexto aislado, arrastra un problema en su base. El problema
 fundamental en este filtro es que no ha debido implementarse sobre la base del
-filtro gstfacedetect, otro filtro para GStreamer especializado en la detección
+filtro \gls{gstfacedetect}, otro filtro para GStreamer especializado en la detección
 de rostros, para soportar múltiples rostros debido a lo que se detallará a
-continuación. El filtro \textit{gstfacedetect} aplica detección facial para
+continuación. El filtro \textit{\gls{gstfacedetect}} aplica detección facial para
 cada cuadro (o \textit{``frame''} en inglés), pero sin respetar un orden alguno,
 es decir que una persona etiquetada en el primer cuadro con la imagen A podría
 ser etiquetada en el segundo marco con la imagen B, y en el tercero otra vez
@@ -431,7 +490,7 @@ de objetivos específicos, resultados y medios de verificación.
 \paragraph{Metodologías para detección de rostros}
 \subparagraph{Metodología 0: Detector de objetos de Viola-Jones}\mbox{} \\
 Este es el método que el filtro existente de \textit{GStreamer} llamado
-\textit{gstfacedetect} que se usa actualmente. Este método basado en aprendizaje
+\textit{\gls{gstfacedetect}} que se usa actualmente. Este método basado en aprendizaje
 de máquina para detectar objetos y procesar imágenes de manera muy rápida. A
 continuación se resume tres principales contribuciones de este método:
 
@@ -774,7 +833,7 @@ nueva distancia entre cada par de puntos.
     \end{enumerate}
     \item \textit{GStreamer}, ya que es el framework sobre el cual se
         implementará el filtro.
-    \item \textit{gstfacedetect}, filtro para \textit{GStreamer} que usa OpenCV
+    \item \textit{\gls{gstfacedetect}}, filtro para \textit{GStreamer} que usa OpenCV
         para la detección de rostros y envía señales al \textit{bus} con las
         coordenadas localizadas.
     \item \textit{C++}, ya que OpenCV y GStreamer lo soportan.
@@ -792,7 +851,7 @@ nueva distancia entre cada par de puntos.
 
 \subsubsection{En relación al Objetivo Específico 2 (OE2)}
 \begin{enumerate}
-    \item \textit{gstcairooverlay}, un filtro para \textit{GStreamer} que usa
+    \item \textit{\gls{gstcairooverlay}}, un filtro para \textit{GStreamer} que usa
         la librería \textit{Cairo} la cual permite dibujar sobre las imágenes o
         cuadros recibidos por este filtro.
     \item \textit{vapigen}, para generar \textit{bindings} que permitan la
@@ -946,7 +1005,7 @@ experimentos previos), así como la disposición de un asesor quien domina el te
 de visión artificial. En cuanto a \textit{GTK+} y otras librerías de
 GNOME, no solo se ha desarrollado anteriormente aplicaciones usando estas
 tecnologías (\textit{Pitivi}), sino que incluso se ha aportado en el desarrollo
-en proyectos como Libpeas y GObject, por lo que se tiene
+en proyectos como Libpeas y \gls{GObject}, por lo que se tiene
 conocimiento de algunas librerías a profundidad. En relación a los lenguajes a
 usar \textit{Vala} y \textit{C++}, el primero tiene un parecido a \textit{C\#},
 el cual ha sido enseñado en un curso de la universidad así como el segundo. Por
@@ -985,7 +1044,7 @@ tarea estimado en horas.
   144
   \\ \hline
 
-  Agregar soporte para detección de los \textit{landmarks} usando \textit{dlib} &
+  Agregar soporte para detección de los \textit{\glspl{landmark}} usando \textit{dlib} &
   32
   \\ \hline
 
@@ -1120,7 +1179,7 @@ está traducido en más de 40 idiomas \cite{GNOMETranslationTeams}.
 \section{GStreamer}
 Es un proyecto de GNOME. GStreamer es una librería de código abierto y
 multiplataforma escrita en C con bindings en varios otros lenguages de
-programación y basada en GObject. GStreamer implementa un modelo de
+programación y basada en \gls{GObject}. GStreamer implementa un modelo de
 “pipelines” que enlaza una serie de elementos, por ejemplo, demultiplexores,
 decodificadores, multiplexores, filtros y codificadores \cite{GStreamerFeatures}.
 Ello permite que cada elemento cumpla una tarea específica. GStreamer permite
@@ -1145,7 +1204,7 @@ del archivo en formato ogg, y las salidas serían por un lado, el audio, y por
 el otro lado el vídeo. Existe tres tipos de elementos muy usados:\\
 
 \subsubsection{Sources}
-Son productores de datos, puede ser por ejemplo \textit{gstvideotestsrc} que
+Son productores de datos, puede ser por ejemplo \textit{\gls{gstvideotestsrc}} que
 produce datos para videos de prueba; otro ejemplo, podría ser
 \textit{gstfilesrc} que carga datos de un archivo. Los source elements solo
 tienen un source pad.
@@ -1267,7 +1326,7 @@ Es un lenguaje de programación orientado a objetos desarrollado para adaptarse
 mejor a las librerías de GNOME. El compilador de Vala es valac, el cual compila
 código en Vala, generando archivos del lenguaje C, los cuales son compilados con
 \textit{gcc}. La orientación a objetos está dada debido a que internamente usa
-GObject, librería de GNOME que simula la programación orientada a objetos en C.
+\gls{GObject}, librería de GNOME que simula la programación orientada a objetos en C.
 El hecho de que compilar programas escritos en Vala genere código fuente en C,
 la necesidad de escribir bindings. Sintácticamente, es idéntico a C\#
 \cite{valaOverview}.
@@ -1397,8 +1456,8 @@ expuesto en el capítulo de la Problemática, se puede combinar con el uso del
 algoritmo del filtro de Kalman o con Camshift, los cuales están implementados.
 En una situación parecida se encuentra \textit{dlib} que tampoco está
 especializado en el rastreo de rostros, pero soporta la detección de
-\textit{landmarks}. Finalmente, \textit{FaceX} está especializado en la
-detección de landmarks \cite{FaceX}.
+\textit{\glspl{landmark}}. Finalmente, \textit{FaceX} está especializado en la
+detección de \glspl{landmark} \cite{FaceX}.
 
 \subsection{Librerías de detección y/o segumiento de rostros según su
             popularidad}
@@ -1900,13 +1959,13 @@ línea \ref{lst:line:createBeginNewStruct}-\ref{lst:line:createEndNewStruct}).\\
 \subsubsection{Detección de puntos faciales y mostrado de rostros} \label{sssec:landmark}
 Una vez terminada la fase de detección, con la tabla hash $ROSTROS\_TABLA$
 (probablemente) llena, para cada rostro se estima los puntos faciales
-(\textit{landmarks} ignorando los rostros cuyo último cuadro de detección
+(\textit{\glspl{landmark}} ignorando los rostros cuyo último cuadro de detección
 ($ultimoCuadroDetectado$) fue anterior a $N$. Para ello, tomando el rectángulo
 delimitador de cada rostro se aplica un algoritmo de alineación de
 rostros con un conjunto de árboles de regresión (algoritmo~\ref{alg:create},
 línea \ref{lst:line:estimarLandmark}), el mismo que se usaba en la metodología
 detallada en el apartado \ref{para:landmarkMovil}, que permite detectar
-los \textit{landmarks} de cada rostro en milisegundos. Finalmente, todos estos
+los \textit{\glspl{landmark}} de cada rostro en milisegundos. Finalmente, todos estos
 rostros son considerados rostros presentes en el cuadro actual y son objeto de
 procesamiento (algoritmo~\ref{alg:create}, línea \ref{lst:line:mostrarRostros};
 por ejemplo, para dibujar los rectángulos delimitadores y los puntos faciales).
@@ -1944,11 +2003,11 @@ a que este algoritmo se encarga principalmente de rastrear rostros.
 
 \section{Diseño y \textit{capabilities}}
 El filtro \textit{gstcheesefacetrack} hereda del filtro
-\textit{gstopencvvideofilter}. Consecuentemente, los \textit{pad templates} son
-los mismos que los que usa el filtro \textit{gstopencvvideofilter}, y por ende,
+\textit{\gls{gstopencvvideofilter}}. Consecuentemente, los \textit{pad templates} son
+los mismos que los que usa el filtro \textit{\gls{gstopencvvideofilter}}, y por ende,
 las \textit{capabilities} (formatos de video, \textit{fps}, dimensiones, entre
 otras propiedades que se definen para ser aceptadas) son las mismas que las de
-\textit{gstopencvvideofilter}.\\
+\textit{\gls{gstopencvvideofilter}}.\\
 
 \section{Propiedades}
 Las propiedades del filtro son las siguientes:
@@ -2594,14 +2653,14 @@ siendo este último desarrollado por Laura Lucas Alday}.\\
 
 \section{Diseño}
 El filtro de \textit{gstfaceoverlay} consistía en un \textit{GstBin} que
-contenía un filtro \textit{gstfacedetect}, un filtro \textit{videoconvert} y
+contenía un filtro \textit{\gls{gstfacedetect}}, un filtro \textit{videoconvert} y
 un filtro \textit{rsvgoverlay} (véase figura \ref{fig:faceoverlay-design}.
 A diferencia de este filtro, \textit{gstcheesefaceoverlay} consiste en un
-\textit{GstBin} que contiene un único elemento: \textit{gstcairooverlay} (véase
+\textit{GstBin} que contiene un único elemento: \textit{\gls{gstcairooverlay}} (véase
 la figura \ref{fig:cheesefaceoverlay-design}). La razón por la cual se usa un
 \textit{bin} en vez de simplemente heredar de la clase \textit{GstCairoOverlay}
 es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
-\textit{gstcairooverlay}, y por tanto no es posible la herencia.
+\textit{\gls{gstcairooverlay}}, y por tanto no es posible la herencia.
 
 \begin{figure}[!h]
   \centering
@@ -2621,7 +2680,7 @@ es que \textit{GStreamer} no expone las cabeceras (archivos \textit{.h}) de
 
 \section{Capabilities}
 Debido a que este elemento es en términos prácticos una herencia de (en realidad
-un \textit{bin} que contiene a \textit{gstcairooverlay}), este dispone de
+un \textit{bin} que contiene a \textit{\gls{gstcairooverlay}}), este dispone de
 un único \textit{sink pad} y único \textit{src pad} los cuales están disponibles
 siempre. Además tanto los formatos de imagen que acepta y que genera como salida
 son \textit{BGRx}, \textit{BGRA}, \textit{RGB16}. La descripción completa
@@ -3250,7 +3309,7 @@ similares a los \textit{.sprite} que describan filtros en 3D, entonces bastaría
 con crear otra clase que herede de esta y que cargue los archivos necesarios.\\
 
 \textit{CheeseStickerButton} es una clase que hereda del \textit{widget}
-\textit{Gtk.ToggleButton} al cual se le aplica un estilo CSS para que el botón
+\textit{\gls{GtkToggleButton}} al cual se le aplica un estilo CSS para que el botón
 se vea grande y de forma cuadrada. Esta clase solo representa un botón con una
 imagen. Al heredar \textit{CheeseFacePresetButton} de
 \textit{CheeseStickerButton} este botón puede guardar información del archivo
@@ -3272,7 +3331,7 @@ estático \textit{new\_from\_keyfile}.\\
 \textit{CheeseStickerPageIFace} y un \textit{CheeseFaceGridInterface}. La
 primera interfaz es útil para que a partir de unos botones seleccionados se
 cree un \textit{Cheese.Effect} (el cual representa un efecto o filtro) y además
-es útil también porque provee señales (\textit{Signals}) que se emiten cada vez
+es útil también porque provee señales (\gls{signals}) que se emiten cada vez
 que es posible crear un efecto (por ejemplo si se seleccionaron 1 o más botones)
 o si no es posible (si no hay botón seleccionado) para habilitar o deshabilitar
 el botón de ''visto bueno`` como se puede ver en la figura
@@ -3369,7 +3428,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
   \begin{itemize}
     \item
       El filtro desarrollado como parte del primer resultado corresponde
-      una alternativa al filtro \textit{gstfacedetect}. Se observó que la
+      una alternativa al filtro \textit{\gls{gstfacedetect}}. Se observó que la
       combinación de distintas metodologías pueden crear un rastreador de
       múltiples rostros con alta precisión. Pero también se observó que
       la latencia promedio del \textit{pipeline} que usa con filtro
@@ -3454,7 +3513,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
     \textit{Multiple\_faces/Camera/multiple\_camera1.mp4}, se obtuvieron las
     siguientes gráficas por rostro:
 
-    \begin{figure}
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-precision-1.png}\par
       \caption{Precisión por cuadro para el primer rostro.}
@@ -3463,7 +3522,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
     \end{figure}
 
 
-    \begin{figure}
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-recall-1.png}\par
       \caption{Exhaustividad por cuadro para el primer rostro.}
@@ -3471,7 +3530,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
       \caption*{Fuente: Autoría propia}
     \end{figure}
 
-    \begin{figure}
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-f-1.png}\par
       \caption{Valor-F por cuadro para el primer rostro.}
@@ -3480,7 +3539,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
     \end{figure}
 
     % Segundo rostro %
-    \begin{figure}
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-precision-2.png}\par
       \caption{Precisión por cuadro para el segundo rostro.}
@@ -3489,7 +3548,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
     \end{figure}
 
 
-    \begin{figure}[!h]
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-recall-2.png}\par
       \caption{Exhaustividad por cuadro para el segundo rostro.}
@@ -3497,7 +3556,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
       \caption*{Fuente: Autoría propia}
     \end{figure}
 
-    \begin{figure}[!h]
+    \begin{figure}[h]
       \centering
         \includegraphics{../images/multiple-camera1-f-2.png}\par
       \caption{Valor-F por cuadro para el segundo rostro.}
@@ -3505,10 +3564,7 @@ muestran algunas sugerencias e ideas de posibles trabajos a futuro.
       \caption*{Fuente: Autoría propia}
     \end{figure}
 
-
-
-
-
+\printglossary
 
 \bibliographystyle{apacite}
 \bibliography{references}{}
