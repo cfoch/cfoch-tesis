@@ -581,7 +581,7 @@ seguimiento de rostros , de los cuales el proyecto puede potencialmente tomar
 referencia en algunas partes o en su totalidad para implementar el filtro de
 rastreo de rostros.
 
-\subparagraph{Metodología 1: Rastreamiento del landmark en un dispositivo móvil}
+\subparagraph{Metodología 1: Rastreamiento del landmark en un dispositivo móvil} \label{para:landmarkMovil}
 \mbox{} \\
 Es un método para rastrear puntos faciales de la cara. Se toma como
 objetivo de rastreo cinco puntos faciales: la parte externa de los ojos
@@ -1325,8 +1325,8 @@ licencia Boost License y escrita en C++ \cite{dlib}\cite{dlibLicense}. Entre
 los distintos algoritmos que implementa se encuentra el propuesto por Navneet
 Dalal y Bill Triggs en “Histograms of Oriented Gradients for Human Detection”
 \cite{dlibHOG} y la detección del “landmark” del rostro con el algoritmo
-propuesto por Vahid Kazemi y Josephine Sullivan en “One Millisecond
-Face Alignment with an Ensemble of Regression Trees” \cite{dlib1ms}.
+propuesto por Vahid Kazemi y Josephine Sullivan en ``One Millisecond
+Face Alignment with an Ensemble of Regression Trees'' \cite{dlib1ms}.
 
 \chapter{Estado del Arte}
 \section{Revisión y discusión}
@@ -1897,8 +1897,9 @@ Una vez terminada la fase de detección, con la tabla hash $ROSTROS\_TABLA$
 ($ultimoCuadroDetectado$) fue anterior a $N$. Para ello, tomando el rectángulo
 delimitador de cada rostro se aplica un algoritmo de alineación de
 rostros con un conjunto de árboles de regresión (algoritmo~\ref{alg:create},
-línea \ref{lst:line:estimarLandmark}) que permite detectar los
-\textit{landmarks} de cada rostro en milisegundos. Finalmente, todos estos
+línea \ref{lst:line:estimarLandmark}), el mismo que se usaba en la metodología
+detallada en el apartado \ref{para:landmarkMovil}, que permite detectar
+los \textit{landmarks} de cada rostro en milisegundos. Finalmente, todos estos
 rostros son considerados rostros presentes en el cuadro actual y son objeto de
 procesamiento (algoritmo~\ref{alg:create}, línea \ref{lst:line:mostrarRostros};
 por ejemplo, para dibujar los rectángulos delimitadores y los puntos faciales).
@@ -2038,6 +2039,23 @@ Las propiedades del filtro son las siguientes:
   \end{longtable}
 \end{center}
 
+\begin{figure}[!h]
+  \centering
+    \includegraphics[width=0.7\textwidth]{../images/stepper1.png}\par
+  \caption{Se diseñó una herramienta que permitía verificar cuadro por cuadro
+           el proceso del algoritmo. En la imagen se observa una instantánea
+           de un video en plena fase de detección. Los rectángulos amarillos
+           representan el resultado del rastreador, mientras que los rectángulos
+           en color azul representan el resultado del detector. Se observa
+           que mientras el rastreador sigue a tres rostros, el detector solo
+           detecta dos rostros. En color naranja se muestran los puntos faciales
+           detectados por cada rostro.}
+    \label{fig:stepper-1}
+  \caption*{La imagen mostrada dentro de la ventana de escritorio corresponde a
+            un fotograma del un video de un dataset del
+            \textit{Smart Computing LABoratory} \cite{chonnamDataset}}
+\end{figure}
+
 \section{Ejemplos de \textit{pipelines}}
 Existe una lista muy grande de \textit{pipelines} que se pueden formar con este
 filtro. Se muestra algunos ejemplos sencillos:
@@ -2059,8 +2077,8 @@ $ gst-launch-1.0 filesrc location=archivo.ogv ! \
   videoconvert ! xvimagesink
 \end{verbatim}
 
-\subsection{Métricas}
-\subsubsection{\textit{Dataset}}
+\section{Métricas}
+\subsection{\textit{Dataset}}
 Para evaluar métricas de desempeño del algoritmo se tomó usó un \textit{dataset}
 del reporitorio de publicaciones del \textit{Smart Computing LABoratory} de la
 Universidad Nacional de Chonnam llamado \textit{Multiple faces}
@@ -2078,7 +2096,7 @@ ello que se tenía que o bien modificar el archivo de texto manualmente o buscar
 un método automático para corregir el problema. Se optó por el método
 automático, y fue el método húngaro fue de gran ayuda para resolver este
 problema.
-\subsubsection{Parámetros empleados}
+\subsection{Parámetros empleados}
 De manera empírica se observó que valores adecuados para los parámetros del
 algoritmo~\ref{alg:tracking} eran los siguientes:
   \begin{center}
@@ -2108,7 +2126,7 @@ algoritmo~\ref{alg:tracking} eran los siguientes:
     \end{longtable}
   \end{center}
 
-\subsubsection{Métricas}
+\subsection{Métricas}
 Se usan las métricas sugeridas en el paper de construcción del dataset descrito
 anteriormente. Sea $S_{R}$ el área del rectángulo delimitador resultado del
 algoritmo de rastreo y $S_{G}$ el área del recctángulo de los datos reales del
@@ -2134,7 +2152,7 @@ $f$) están dados según las siguientes fórmulas:\\
     \end{quote}
   \end{framed}
 
-\subsubsection{Resultados}
+\subsection{Resultados}
 A continuación se muestra el desempeño del algoritmo de rastreo de rostros para
 distintos videos del dataset:\\
 
