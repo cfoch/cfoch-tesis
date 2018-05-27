@@ -45,6 +45,8 @@ def find_binary_path(cmd):
 parser = argparse.ArgumentParser()
 parser.add_argument("-l", "--landmark",
     help="The path to the landmark shape model", required=False)
+parser.add_argument("-o", "--sprite",
+    help="The path to the sprite", required=False)
 parser.add_argument("-n", "--times",
     help="The number of times to execute gst-launch-1.0", required=True)
 parser.add_argument("-d", "--display",
@@ -56,19 +58,6 @@ parser.add_argument("-m", "--mean",
 parser.add_argument("-s", "--std",
     help="Sets whether to display or not the standard deviation.",
     action="store_true", required=False)
-"""
-parser.add_argument("-n", "--nfaces",
-    help="The number of faces in the scene", required=False)
-parser.add_argument("-s", "--sort",
-    help="Sort faces using the Hungarian Algorithm", action='store_true',
-    required=False)
-parser.add_argument("-u", "--deserialize",
-    help="The file path to the file with the faces info deserialized/unpickled",
-    required=False)
-parser.add_argument("-t", "--tail-remove",
-    help="Ignore t last lines from the dataset.",
-    required=False)
-"""
 args = parser.parse_args()
 
 GST_LAUNCH = find_binary_path("gst-launch-1.0")
@@ -78,17 +67,31 @@ PIPELINE_TMPL =\
     "cheesefacetrack max-distance-factor=0.15 scale-factor=0.5 %s"\
     "   display-landmark=true detection-gap-duration=10 ! "\
     "fakesink num-buffers=500"
+PIPELINE_SPRITE_TMPL =\
+    "v4l2src ! videoconvert ! video/x-raw,framerate=30/1 ! "\
+    "cheesefacetrack max-distance-factor=0.15 scale-factor=0.5 %s"\
+    "   display-landmark=true detection-gap-duration=10 ! videoconvert ! "\
+    "cheesefaceoverlay location='%s' ! fakesink num-buffers=500"
+
 PIPELINE_NO_LANDMARK = PIPELINE_TMPL % ""
 PIPELINE_LANDMARK = PIPELINE_TMPL % ("landmark='%s'" % args.landmark)
+PIPELINE_SPRITE = PIPELINE_SPRITE_TMPL % ("landmark='%s'" % args.landmark,
+                                          args.sprite)
 CMD_NO_LANDMARK = "%s %s %s" % (GST_TRACE_FLAGS, GST_LAUNCH,
                                 PIPELINE_NO_LANDMARK)
 CMD_LANDMARK = "%s %s %s" % (GST_TRACE_FLAGS, GST_LAUNCH, PIPELINE_LANDMARK)
-
+CMD_SPRITE = "%s %s %s" % (GST_TRACE_FLAGS, GST_LAUNCH, PIPELINE_SPRITE)
 
 if args.landmark is None:
     cmd = CMD_NO_LANDMARK
 else:
-    cmd = CMD_LANDMARK
+    if args.sprite is not None:
+        cmd = CMD_SPRITE
+    else:
+        cmd = CMD_LANDMARK
+
+print(cmd)
+
 
 env = os.environ.copy()
 # env.update(ENV)
@@ -120,11 +123,8 @@ for i in range(int(args.times)):
                                 shell=True, env=env, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         out, _ = proc.communicate()
-        print(tmp_file.name)
-        print(len(out.split()))
         latency_data = []
         for i, line in enumerate(out.split()):
-            print(i)
             latency_data.append(int(line))
         # latency_data = [int(line) for line in out.split()]
         latency_datalist.append(latency_data)
