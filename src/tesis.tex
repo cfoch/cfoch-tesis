@@ -361,7 +361,7 @@ de objetivos específicos, resultados y medios de verificación.
   \hline
 
   % Row
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE0}): Desarrollar un algoritmo que
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE1}): Desarrollar un algoritmo que
   implemente un filtro para \textit{GStreamer} para la detección y rastreamiento
   de múltiples rostros con soporte para oclusión y detección de puntos faciales.}
   \\ \hline
@@ -381,7 +381,7 @@ de objetivos específicos, resultados y medios de verificación.
   \\ \hline
 
   % Row
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE1}): Escribir el código
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE2}): Escribir el código
   fuente de un filtro para GStreamer que basado en el filtro implementado en
   \textit{OE0} permita la sobreposición de imágenes sobre puntos predeterminados
   en los rostros detectados.}
@@ -399,9 +399,9 @@ de objetivos específicos, resultados y medios de verificación.
   \\ \hline
 
   % Row
-  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE2}): Diseñar una interfaz
+  \multicolumn{3}{|p{\linewidth}|}{Objetivo (\textit{OE3}): Diseñar una interfaz
   gráfica para Cheese que permita al usuario de Cheese aplicar el filtro
-  implementado en \textit{OE1}.}
+  implementado en \textit{OE2}.}
   \\ \hline
 
   \textbf{Resultado} &
@@ -409,8 +409,9 @@ de objetivos específicos, resultados y medios de verificación.
   \textbf{Medio de verificación}
   \\ \hline
 
-  Filtro para \textit{GStreamer} para sobreponer imágenes sobre las coordenadas
-  detectadas. &
+  Una copia modificada (\textit{fork}) de Cheese que permita sobreponer imágenes
+  sobre los rostros usando los filtros implementados como parte de los
+  resultados de los objetivos específicos 1 y 2. &
   Software &
   \\ \hline
   \end{longtable}
@@ -539,7 +540,7 @@ en los valores de los vectores, este vector concatenado de 36 componentes es
 normalizado \cite{dalal2005histograms}. De la misma manera, deslizando el
 bloque de $16 \times 16$ por toda la imagen se va generando vectores
 característica los cuales combinados (concatenados) dan un vector característica
-final \textit{dalal2005histograms}.\\
+final \cite{dalal2005histograms}.\\
 Finalmente, para un conjunto de imágenes positivas (imágenes que contienen el
 objeto a detectar, en este caso rostros) y para un conjuto de imágenes negativas
 (que no contienen el objeto a detectar) se calcula los vectores característica
@@ -628,8 +629,10 @@ clasificación de objetos (peces) en movimiento \cite{szHucs2015svm}. El primer
 paso consiste en detectar los objetos, guardando sus regiones de interés con sus
 respectivos \textit{timestamp}, las cuales serían entrada para el proceso de
 clasificación \cite{szHucs2015svm}. Para la detección se usan diversos métodos,
-los cuales no son de interés ya que su objetivo estaba enfocado en peces
-\cite{szHucs2015svm}.\\
+los cuales no son de interés mencionar ya que su objetivo estaba enfocado en
+peces \cite{szHucs2015svm}. Sin embargo, el método de rastreo que usa para
+rastrear a los peces detectados resulta útil pues es aplicable a objetos en
+general.\\
 
 Luego de detectar los objetos, se usa el filtro de Kalman para rastrear los
 objetos en los tres pasos básicos del filtro de Kalman: inicialización,
@@ -673,9 +676,11 @@ Una técnica de registro de imágenes iterativa con
 \subparagraph{Metodología 3: Rastreador de características de Kanade-Lucas-Tomasi}
 \mbox{} \\
 Es un método basado en dos artículos académicos. El primero publicado por
-Bruce D. Lucas y Tadeo Kanade \cite{lucas1981iterative} y el segundo publicado
-por Carlo Tomasi y Takeo Kanade \cite{tomasi1991detection}. A continuación se
-describe cada uno de los dos artículos.\\
+Bruce D. Lucas y Tadeo Kanade titulado \textit{An Iterative Image Registration
+Technique with an Application to Stereo Vision} \cite{lucas1981iterative} y el
+segundo publicado por Carlo Tomasi y Takeo Kanade \cite{tomasi1991detection}
+con el título de \textit{Detection and Tracking of Point Features}. A
+continuación se describe brevemente cada uno de los dos artículos.\\
 En el primer artículo se explica que por
 lo general dos imágenes estarán prácticamente en el mismo registro. Por ejemplo,
 en un video, dos cuadros consecutivos serán muy parecidos. Dado este supuesto,
@@ -712,7 +717,7 @@ que sería una ``buena'' ventana, por ejemplo escoger las esquinas. El artículo
 propone un método basado en valores propios (o eigenvectores) para seleccionar
 estas características.\\
 
-\subparagraph{Metodología 4: Flujo de medianas (\textit{Median flow})}
+\subparagraph{Metodología 4: Flujo de medianas (\textit{Median flow})} \label{para:medianflow}
 \mbox{} \\
 A continuación se describe el rastreador llamado \textit{Median flow} que se
 menciona en el artículo académico titulado en inglés como
@@ -755,8 +760,9 @@ nueva distancia entre cada par de puntos.
             RGB en distintos espacios de color entre estos \textit{GRAY} y
             \textit{YC\textsubscript{b}C\textsubscript{r}}.
         \item Proporciona una librería de rastreadores de rostros, entre ellos
-            \textit{MIL}, \textit{Boosting}, \textit{Median flow}, \textit{TLD},
-            \textit{KCF} y además implementa el filtro de Kalman.
+            Median Flow y otros rastreadores tales como \textit{MIL},
+            \textit{Boosting}, \textit{TLD}, \textit{KCF} y además implementa
+            el filtro de Kalman.
         \item Erosión y dilatación de imágenes.
     \end{enumerate}
     \item \textit{GStreamer}, ya que es el framework sobre el cual se
@@ -916,8 +922,8 @@ rostros de diversos individuos a lo largo de un \textit{clip} de video en
 \textit{Pitivi} y automáticamente generar \textit{keyframes} los cuales
 indicarían la posición de múltiples parches sobre los rostros de las peronas y
 que podrían ser manipulados o borrados simplemente agregando símbolos que
-representen parches en el \textit{viewer} de \textit{Pitivi} los cuales pueden
-ser arrastrados o borrados.
+representen parches en el visor (\textit{viewer}) de \textit{Pitivi} los cuales
+pueden ser arrastrados o borrados.
 
 \subsection{Análisis de viabilidad}
 \subsubsection{Viabilidad técnica}
@@ -1129,8 +1135,8 @@ objetos de GStreamer para construir un pipeline, el cual es una cadena de
 objetos GstElement enlazados. Un GstElement puede tener una entrada y una o más
 salidas. En un demultiplexor gstoggdemux por ejemplo, la entrada serían buffers
 del archivo en formato ogg, y las salidas serían por un lado, el audio, y por
-el otro lado el vídeo.\\
-Existe tres tipos de elementos muy usados:\\
+el otro lado el vídeo. Existe tres tipos de elementos muy usados:\\
+
 \subsubsection{Sources}
 Son productores de datos, puede ser por ejemplo \textit{gstvideotestsrc} que
 produce datos para videos de prueba; otro ejemplo, podría ser
@@ -1170,6 +1176,7 @@ recibe. Un filtro tiene un source pad y un sink pad.
     \includegraphics{../images/pwg-filter-element.png}\par
   \caption{Representación de un filtro}
   \caption*{Fuente: \cite[p.~5]{boulton2017gstreamer}}
+  \label{fig:gstreamer-filtro}
 \end{figure}
 
 \subsubsection{Bin}
@@ -1201,10 +1208,26 @@ video reproducido con el pipeline.
   \caption*{Fuente: \cite{taymans2016gstreamer}}
 \end{figure}
 
+\subsection{\textit{Pads} y \textit{Capabilities}}
+Cada elemento de \textit{GStreamer} podría ser visto como una caja negra. La
+manera de cómo se expone esta caja negra al mundo está definida por los
+\textit{pads}. Existen dos tipos de \textit{pads}: \textit{sink pads} y
+\textit{source pads} \cite{taymans2016gstreamer}. Esquemáticamente, un
+\textit{sink pad} se representa en el lado izquierdo de un elemento y un
+\textit{source pad} se representado al lado derecho de este
+(ver figura \ref{fig:gstreamer-filtro}) \cite{taymans2016gstreamer}. Las
+\textit{capabilities} de un \textit{pad} representan
+qué tipo de datos puede fluir a través de este \textit{pad}
+\cite{taymans2016gstreamer}. Por ejemplo, las \textit{capabilities} describen el
+tipo de media (\textit{video/x-raw} o \textit{audio/x-raw}, entre otros), el
+formato (\textit{RGB}, \textit{RGBA}, \textit{YUV}, entre otros), canales, rango
+de resoluciones del cuadro de video, cantidad de fotogramas por segundo y otras
+propiedades.
+
 \subsection{Bus (GstBus)}
 GStreamer es una librería multihilo. Cada GStreamer el bus es el encargado de
 recibir mensajes del pipeline y enviarlos a la aplicación. La aplicación puede
-capturar estos mensajes usando un \textit{callback} (similar a un
+capturar estos mensajes usando una retrollamado (\textit{callback}, similar a un
 \textit{signal handler}). Por ejemplo, \textit{facedetect} usa \textit{OpenCV}
 para detectar los rostros, y el tamaño y coordenadas de los rostros detectados
 son enviadas al bus. De esta manera, una aplicación u otro elemento como
@@ -1456,7 +1479,7 @@ múltiples rostros y detección de puntos faciales cuya implementación como fil
 para \textit{GStreamer} se llamó \textit{gstcheesefacetrack}. En la siguiente
 sección, se explica cómo usar el filtro con algunos ejemplos incluidos. Y
 finalmente, en la última sección, se mostrarán algunas métricas como
-\textit{f1-score}, \textit{accuracy} y \textit{recall}.
+precisión, exhaustividad (\textit{recall}) y valor-F (\textit{f1-score}).
 
 \section{Algoritmo de detección y rastreamiento de múltiples rostros y
 de detección puntos faciales}
@@ -1696,11 +1719,11 @@ previamente a los detectados (o creados) durante la fase de detección y de habe
 nuevos rostros detectados en el cuadro actual (algoritmo~\ref{alg:tracking},
 líneas~\ref{lst:line:checkIfHungarian}), se procede a construir el problema de
 asignación.\\
-El problema de asignación planteado se pregunta: ``¿Qué rostro
-no creado antes de la fase de detección (en el cuadro actual) debe asignarse o
-está más cerca (y por tanto más probable) al rostro actualmente detectado'',
-debido a que en esta fase los rostros se desordenan. A continuación se detalla
-un ejemplo sencillo de este problema.\\
+Debido a que en esta fase el detector no mantiene el orden de los rostros. El
+problema de asignación planteado se pregunta: ``¿Qué rostro no creado antes de
+la fase de detección (en el cuadro actual) debe asignarse o está más cerca (y
+por tanto más probable) al rostro actualmente detectado''? A continuación se
+detalla un ejemplo sencillo de este problema.\\
 
 \begin{figure}[!h]
   \centering
@@ -1810,10 +1833,11 @@ identificador para este rostro será simplemente desechado y nunca más podrá
 volver a usarse. Ver algoritmo~\ref{alg:delete} para más detalles.\\
 
 \subsubsection{Fase de rastreo}
-La mayor parte del tiempo se realiza rastreo de rostros. Si bien existe una
-amplia variedad de rastreadores a elegir como Median Flow, MIL, KCF, TLD,
+La mayor parte del tiempo se realiza rastreo de rostros. Si bien se puede usar
+una amplia variedad de rastreadores a elegir como Median Flow, MIL, KCF, TLD,
 Boosting, entre otros, se recomienda Median Flow, puesto que es capaz de
-estimar la escala del objetivo (por ejemplo, si el rostro se aleja o se acerca).
+estimar la escala del objetivo (por ejemplo, si el rostro se aleja o se acerca)
+tal como se explicó en el apartado \ref{para:medianflow}.
 Durante cada cuadro en la fase de detección que son los cuadros restantes
 luego de la fase detección (durante $brecha\_detecci\acute on - 1$ cuadros), se
 intenta predecir (algoritmo~\ref{alg:tracking}, línea~\ref{lst:line:rastrear})
@@ -1977,7 +2001,7 @@ Las propiedades del filtro son las siguientes:
     \item \textit{boosting}: Boosting
     \item \textit{goturn}: GOTURN
     \item \textit{kcf}: Kernelized Correlation Filters
-    \item \textit{median-flow}: Median Flow
+    \item \textit{median-flow}: Median Flow (\textbf{por defecto})
     \item \textit{tld}: Tracking Learning Detection
   \end{enumerate}
   \\ \hline
@@ -2489,6 +2513,15 @@ resultados fueron los siguientes:\\
 
     \end{longtable}
   \end{center}
+
+Debido a que el \textit{pipeline} se ejecutó a 30 fotogramas por cada segundo,
+el intervalo máximo debería ser de 0.033 segundos para un cuadro o fotograma
+por \textit{buffer}. En ambos casos, en promedio se supera con amplio margen
+tal intervalo. En las figuras, se observan algunos picos. Estos se dan cada
+10 cuadros y son originados por las fases de detección. Ello refleja que tan
+costoso puede ser detectar en contraposición a rastrear. De haber usado solo
+detección de rostros, la latencia hubiera estado muy cercana al intervalo de los
+0.033 segundos.
 
   \begin{figure}[!h]
     \centering
